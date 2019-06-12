@@ -1,0 +1,58 @@
+import Column from "./Column";
+import ColumnWrapper from "./ColumnWrapper";
+import Table from "./Table";
+import TableWrapper from "./TableWrapper";
+
+type TableMap = {
+  [k: string]: Table
+}
+
+/**
+ * The implementation of Database<T>.
+ *
+ * This is kind of a hack because we can't quite statically type what we're
+ * trying to do in TypeScript. We have to define properties based on what the
+ * API consumer gives us but TS doesn't give us a great way to model that; so
+ * instead, we have this class, which does exactly that, and all usages of this
+ * class have the `TableWrapperMap<T>` class intersected on (which tells TS that
+ * those properties do, in fact, exist).
+ */
+class DatabaseImpl<T extends TableMap> {
+  $tables: TableWrapperMap<T>;
+
+  constructor(
+    tableMap: T,
+  ) {
+    this.$tables = Object.fromEntries(Object.entries(tableMap).map(
+      ([tableName, table]) => {
+        // noinspection SuspiciousTypeOfGuard
+        if (!(table instanceof Table)) {
+          throw new Error(`All properties in a TableMap must be Table instances.`);
+        }
+        if (typeof (this as any)[tableName] !== "undefined") {
+          throw new Error(`Table name "${tableName}" conflicts with existing name in DatabaseImpl.`)
+        }
+        return [
+          tableName,
+          TableWrapper(tableName, table),
+        ];
+      },
+    )) as any;
+
+    // Implement TableWrapperMap<T>
+    Object.entries(this.$tables).forEach(([tableName, tableWrapper]) => {
+      Object.defineProperty(this, tableName, {
+        get() { return tableWrapper; }
+      })
+    })
+  }
+}
+
+export type TableWrapperMap<T extends TableMap> = {
+  [K in keyof T & string]: TableWrapper<K, T[K]>
+}
+type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
+function Database<T extends TableMap>(tables: T): Database<T> {
+  return new DatabaseImpl(tables) as any;
+}
+export default Database;
