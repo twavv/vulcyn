@@ -24,7 +24,7 @@ test("Database correctly maps column types", () => {
     name = new StringColumn();
   }
 
-  const db = Database({users: new User()});
+  const db = Database(null as any, {users: new User()});
 
   assert<IsExact<
     typeof db["users"],
@@ -51,7 +51,7 @@ test("Database has TableWrappers defined.", () => {
     name = new StringColumn();
   }
 
-  const db = Database({
+  const db = Database(null as any, {
     users: new UserTable(),
   });
 

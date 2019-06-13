@@ -1,7 +1,9 @@
 import Column from "./Column";
 import ColumnWrapper from "./ColumnWrapper";
+import SelectQuery, {SelectorSpec} from "./queries/SelectQuery";
 import Table from "./Table";
 import TableWrapper from "./TableWrapper";
+import {Client} from "pg";
 
 type TableMap = {
   [k: string]: Table
@@ -21,6 +23,7 @@ class DatabaseImpl<T extends TableMap> {
   $tables: TableWrapperMap<T>;
 
   constructor(
+    public $pg: Client,
     tableMap: T,
   ) {
     this.$tables = Object.fromEntries(Object.entries(tableMap).map(
@@ -46,13 +49,23 @@ class DatabaseImpl<T extends TableMap> {
       })
     })
   }
+
+  select<S extends SelectorSpec>(spec: S): SelectQuery<Database<T>, S, false> {
+    // `this as any` required because of hack described above.
+    return new SelectQuery(this as any, spec, false);
+  }
+
+  selectOne<S extends SelectorSpec>(spec: S): SelectQuery<Database<T>, S, true> {
+    // `this as any` required because of hack described above.
+    return new SelectQuery(this as any, spec, true);
+  }
 }
 
 export type TableWrapperMap<T extends TableMap> = {
   [K in keyof T & string]: TableWrapper<K, T[K]>
 }
 type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
-function Database<T extends TableMap>(tables: T): Database<T> {
-  return new DatabaseImpl(tables) as any;
+function Database<T extends TableMap>(pg: Client, tables: T): Database<T> {
+  return new DatabaseImpl(pg, tables) as any;
 }
 export default Database;

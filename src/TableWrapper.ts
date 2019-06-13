@@ -6,7 +6,7 @@ import {assignGetters} from "./util";
 class TableWrapperClass<TableName extends string, T extends Table> {
   $columns: TableWrapperColumns<T>;
 
-  constructor(private $tableName: TableName, private $table: T) {
+  constructor(public $tableName: TableName, public $table: T) {
     // I don't see a way to do this that appeases TypeScript.
     this.$columns = Object.fromEntries(Object.entries($table).map(
       ([columnName, column]) => {

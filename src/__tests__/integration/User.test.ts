@@ -1,31 +1,59 @@
+import {assert, IsExact} from "conditional-type-checks";
 import {IntColumn, StringColumn} from "../../columntypes";
+import Database from "../../Database";
 import Table from "../../Table";
-import TableWrapper from "../../TableWrapper";
 import {getPG, setupPG, teardownPG} from "./utils";
 
 beforeEach(setupPG);
 afterEach(teardownPG);
 
-test("it works", async () => {
+test("User integration test with real Postgres server", async () => {
 
-  class User extends Table {
+  const pg = getPG();
+
+  class UserTable extends Table {
     id = new IntColumn();
     name = new StringColumn().nullable();
   }
-  const UserWrapper = TableWrapper("users", new User());
 
-  const pg = getPG();
-  await pg.query(UserWrapper.$creationSQL());
+  const db = Database(pg, {
+    users: new UserTable(),
+  });
 
+  // TODO: make dbts insert this table
+  await pg.query(db.users.$creationSQL());
+
+  // TODO: use dbts insertion
   await pg.query(`INSERT INTO users (id, name) VALUES (123, 'trav');`);
-  const result = await pg.query(`SELECT * FROM users;`);
 
-  const {rows} = result;
-  expect(rows).toHaveLength(1);
+  const myUser = await db
+    .selectOne({id: db.users.id, name: db.users.name})
+    .from(db.users);
+  expect(myUser).toBeTruthy();
 
-  const myUser = rows[0];
+  // TS doesn't know that toBeTruthy will throw if myUser is null.
+  if (!myUser) { throw new Error(); }
+
+  // const myUser = rows[0];
   expect(myUser).toEqual({
     id: 123,
     name: "trav",
+  });
+
+  // TODO: use dbts insertion
+  await pg.query(`INSERT INTO users (id, name) VALUES (124, 'joe');`);
+  const users = await db
+    .select({id: db.users.id, name: db.users.name})
+    .from(db.users);
+  expect(users).toHaveLength(2);
+
+  assert<IsExact<typeof users[0], {id: number, name: string | null}>>(true);
+  expect(users[0]).toEqual({
+    id: 123,
+    name: "trav",
+  });
+  expect(users[1]).toEqual({
+    id: 124,
+    name: "joe",
   });
 });
