@@ -41,6 +41,21 @@ export type SelectQueryReturn<
   : Array<SelectRowResult<S>>;
 
 /**
+ * Kind of like Pick<...> for a SelectorSpec given a table and column names.
+ *
+ * @example
+ *    // These two are equivalent (assuming they're concerning the same table).
+ *    type MySpec = {id: ColumnWrapper<"id", number>, name: ...};
+ *    type MyPickedSpec = PickSelectorSpecFromColumnNames<table, "id", "name">;
+ */
+export type PickSelectorSpecFromColumnNames<
+    T extends TableWrapper<any, any>,
+    K extends keyof T["$columns"],
+> = {
+  [k in K]: T["$columns"][k];
+}
+
+/**
  * A builder for a select query.
  */
 class SelectQuery<

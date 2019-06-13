@@ -3,8 +3,14 @@
  *
  * This is used when declaring tables.
  */
+import {itisa} from "./util";
+
 abstract class Column<T> {
   abstract readonly $pgType: string;
+
+  get $_iama() {
+    return "Column";
+  }
 
   // This is never set but is required to keep postgres from collapsing our
   // types (otherwise ColumnClass<int> would be equivalent to
@@ -33,3 +39,7 @@ abstract class Column<T> {
 export default Column;
 
 export type ColumnTSType<C extends Column<any>> = Exclude<C["$_type"], undefined>;
+
+export function isColumn(x: unknown): x is Column<unknown> {
+  return itisa(x) === "Column";
+}

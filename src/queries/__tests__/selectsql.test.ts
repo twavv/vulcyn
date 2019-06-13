@@ -3,7 +3,7 @@ import Table from "../../Table";
 import TableWrapper from "../../TableWrapper";
 import Database from "../../Database";
 
-test("Table creation SQL is correct", () => {
+test("SelectQuery with spec object", () => {
   class User extends Table {
     id = new IntColumn();
     name = new StringColumn().nullable();
@@ -24,4 +24,26 @@ test("Table creation SQL is correct", () => {
   expect(sql).toContain(" id ");
   expect(sql).toContain(" name ");
   expect(sql).toContain(" LIMIT 1");
+});
+
+test("SelectQuery with column names", () => {
+  class User extends Table {
+    id = new IntColumn();
+    name = new StringColumn().nullable();
+  }
+
+  // Use null b/c we don't actually us Postgres here
+  const db = Database(null as any, {users: new User});
+  const query = db
+    .select(db.users, "id", "name")
+    .from(db.users);
+  const sql = query.$SQL();
+
+  console.log(query);
+  console.log(sql);
+
+  expect(sql).toContain("SELECT ");
+  expect(sql).toContain(" FROM users");
+  expect(sql).toEqual(expect.stringMatching(/ id[ ,]/));
+  expect(sql).toEqual(expect.stringMatching(/ name[ ,]/));
 });

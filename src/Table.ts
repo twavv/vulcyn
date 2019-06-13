@@ -1,4 +1,10 @@
+import Column from "./Column";
+import {itisa} from "./util";
+
 class Table {
+  get $_iama() {
+    return "Table";
+  }
 
   /**
    * Return the custom table name, if any.
@@ -14,3 +20,7 @@ class Table {
   }
 }
 export default Table;
+
+export function isTable(x: unknown): x is Table {
+  return itisa(x) === "Table";
+}

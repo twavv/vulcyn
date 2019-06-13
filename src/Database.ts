@@ -1,7 +1,11 @@
-import SelectQuery, {SelectorSpec} from "./queries/SelectQuery";
+import SelectQuery, {
+  PickSelectorSpecFromColumnNames,
+  SelectorSpec
+} from "./queries/SelectQuery";
 import Table from "./Table";
-import TableWrapper from "./TableWrapper";
+import TableWrapper, {isTableWrapper} from "./TableWrapper";
 import {Client} from "pg";
+import {pick} from "./util";
 
 type TableMap = {
   [k: string]: Table
@@ -48,9 +52,32 @@ class DatabaseImpl<T extends TableMap> {
     })
   }
 
-  select<S extends SelectorSpec>(spec: S): SelectQuery<Database<T>, S, false> {
-    // `this as any` required because of hack described above.
-    return new SelectQuery(this as any, spec, false);
+  // select(db.users, "id", "name", ...)
+  select<
+      TB extends TableWrapper<any, any>,
+      K extends keyof TB["$columns"],
+  >(
+    table: TB,
+    ...keys: K[]
+  ): SelectQuery<Database<T>, PickSelectorSpecFromColumnNames<TB, K>, false>;
+
+  // select({userId: db.users.id, name: db.users.name, ...})
+  select<
+      S extends SelectorSpec
+  >(
+    spec: S,
+  ): SelectQuery<Database<T>, S, false>;
+
+  // select(...) implementation
+  select(tableOrSpec: any, ...keys: any[]) {
+    if (isTableWrapper(tableOrSpec)) {
+      if (keys.length === 0) {
+        throw new Error(`Cannot select zero columns.`);
+      }
+      const spec = pick(tableOrSpec.$columns, ...keys);
+      return new SelectQuery(this as any, spec, false);
+    }
+    return new SelectQuery(this as any, tableOrSpec, false);
   }
 
   selectOne<S extends SelectorSpec>(spec: S): SelectQuery<Database<T>, S, true> {

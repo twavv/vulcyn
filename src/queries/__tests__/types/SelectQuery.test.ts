@@ -1,8 +1,24 @@
 import {assert, Has, IsExact} from "conditional-type-checks";
 import {IntColumn, StringColumn} from "../../../columntypes";
+import ColumnWrapper from "../../../ColumnWrapper";
 import Database from "../../../Database";
 import Table from "../../../Table";
-import SelectQuery, {SelectQueryReturn, SelectRowResult} from "../../SelectQuery";
+import TableWrapper from "../../../TableWrapper";
+import SelectQuery, {PickSelectorSpecFromColumnNames, SelectQueryReturn, SelectRowResult} from "../../SelectQuery";
+
+test("PickSelectorSpecFromColumnNames", () => {
+  class User extends Table {
+    id = new IntColumn();
+    name = new StringColumn();
+  }
+
+  type UserWrapper = TableWrapper<"users", User>;
+  type MyRow = PickSelectorSpecFromColumnNames<UserWrapper, "id" | "name">;
+  assert<IsExact<
+    MyRow,
+    {id: ColumnWrapper<any, number>, name: ColumnWrapper<any, string>}
+  >>(true);
+});
 
 test("SelectRowResult has correct type", () => {
   class User extends Table {
@@ -68,5 +84,24 @@ test("SelectQuery has correct SelectRowResult type", () => {
   assert<IsExact<
     MyQueryMany["$promise"],
     Promise<Array<{id: number}>>
+  >>(true);
+});
+
+test("SelectQuery for column names has correct SelectRowResult type", async () => {
+  class User extends Table {
+    id = new IntColumn();
+    name = new StringColumn();
+  }
+  const db = Database(null as any, {users: new User});
+  const myQuery = db.select(db.users, "id", "name");
+  assert<IsExact<
+      typeof myQuery,
+      SelectQuery<typeof db, any, any>
+  >>(true);
+  type QueryType = typeof myQuery;
+
+  assert<IsExact<
+    QueryType["$promise"],
+    Promise<Array<{id: number, name: string}>>
   >>(true);
 });

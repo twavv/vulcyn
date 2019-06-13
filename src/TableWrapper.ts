@@ -1,22 +1,34 @@
-import Column, {ColumnTSType} from "./Column";
+import Column, {ColumnTSType, isColumn} from "./Column";
 import ColumnWrapper from "./ColumnWrapper";
-import Table from "./Table";
-import {assignGetters} from "./util";
+import Table, {isTable} from "./Table";
+import {assignGetters, itisa} from "./util";
 
 class TableWrapperClass<TableName extends string, T extends Table> {
   $columns: TableWrapperColumns<T>;
 
-  constructor(public $tableName: TableName, public $table: T) {
-    // I don't see a way to do this that appeases TypeScript.
-    this.$columns = Object.fromEntries(Object.entries($table).map(
-      ([columnName, column]) => {
-        return [
-          columnName,
-          ColumnWrapper($table, columnName, column as any),
-        ];
-      },
-    )) as any;
+  get $_iama() {
+    return "TableWrapper";
+  }
 
+  constructor(public $tableName: TableName, public $table: T) {
+    if (!(isTable($table))) {
+      const reprstr = itisa($table) || typeof $table;
+      throw new Error(`In TableWrapper, $table must be a Table (got ${reprstr}).`)
+    }
+    // I don't see a way to do this that appeases TypeScript.
+    this.$columns = Object.fromEntries(
+      Object.entries($table).map(
+        ([columnName, column]) => {
+          if (!isColumn(column)) {
+            return [];
+          }
+          return [
+            columnName,
+            ColumnWrapper($table, columnName, column as any),
+          ];
+        },
+      ).filter((x) => x.length > 0)
+    ) as any;
     assignGetters(this, this.$columns);
   }
 
@@ -50,3 +62,7 @@ function TableWrapper<N extends string, T extends Table>(
 }
 
 export default TableWrapper;
+
+export function isTableWrapper(x: unknown): x is TableWrapper<string, Table> {
+  return itisa(x) === "TableWrapper";
+}
