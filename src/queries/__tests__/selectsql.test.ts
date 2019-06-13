@@ -39,9 +39,6 @@ test("SelectQuery with column names", () => {
     .from(db.users);
   const sql = query.$SQL();
 
-  console.log(query);
-  console.log(sql);
-
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users");
   expect(sql).toEqual(expect.stringMatching(/ id[ ,]/));

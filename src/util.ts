@@ -12,7 +12,6 @@ export function assignGetters(target: any, source: object) {
  * @param keys - The keys of the object that are included in the new object.
  */
 export function pick<T, K extends keyof T>(obj: T, ...keys: K[]): Pick<T, K> {
-  console.log(`pick`, obj, keys);
   return Object.fromEntries(Object.entries(obj)
     .filter(([k, _]) => keys.includes(k as any))
   ) as any;
