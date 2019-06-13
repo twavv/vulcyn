@@ -21,12 +21,19 @@ export async function setupPG() {
   if (pgdb) {
     throw new Error(`Postgres client already initialized - did you forget to call teardownPG in beforeEach?`);
   }
+  const {
+    DBTS_TEST_PG_HOST = "localhost",
+    DBTS_TEST_PG_PORT = "5432",
+    DBTS_TEST_PG_DATABASE = "test",
+    DBTS_TEST_PG_USER = "test",
+    DBTS_TEST_PG_PASSWORD = "",
+  } = process.env;
   const client = new Client({
-    host: "localhost",
-    port: 5432,
-    database: "test",
-    user: "test",
-    password: "",
+    host: DBTS_TEST_PG_HOST,
+    port: Number(DBTS_TEST_PG_PORT),
+    database: DBTS_TEST_PG_DATABASE,
+    user: DBTS_TEST_PG_USER,
+    password: DBTS_TEST_PG_PASSWORD,
   });
   await client.connect();
   pgdb = client;

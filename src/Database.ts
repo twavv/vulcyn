@@ -1,5 +1,3 @@
-import Column from "./Column";
-import ColumnWrapper from "./ColumnWrapper";
 import SelectQuery, {SelectorSpec} from "./queries/SelectQuery";
 import Table from "./Table";
 import TableWrapper from "./TableWrapper";
