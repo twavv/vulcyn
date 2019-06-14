@@ -1,6 +1,7 @@
 import ColumnWrapper, {ColumnWrapperTSType} from "../ColumnWrapper";
 import Database from "../Database";
 import TableWrapper from "../TableWrapper";
+import WhereSubquery, { WhereSubqueryInputSpecifier } from "./WhereSubquery";
 
 /**
  * The type of the input to a select query.
@@ -68,6 +69,7 @@ class SelectQuery<
 > implements Promise<SelectQueryReturn<S, FO>> {
   private $_promise?: Promise<SelectQueryReturn<S, FO>>;
   private $fromTableName?: string;
+  private $whereClause?: WhereSubquery<D>;
 
   constructor(public $db: D, public $selectorSpec: S, public $fetchOne: FO) {}
 
@@ -89,10 +91,16 @@ class SelectQuery<
     return this;
   }
 
+  public where(whereSpecifier: WhereSubqueryInputSpecifier) {
+    this.$whereClause = new WhereSubquery<D>(whereSpecifier);
+    return this;
+  }
+
   public $SQL() {
     let query = `SELECT`;
     query += this.$getSelectorSpecSQL();
     query += this.$getFromSQL();
+    query += this.$getWhereSQL();
     query += this.$getLimitSQL();
     query += `;`;
     return query;
@@ -108,10 +116,15 @@ class SelectQuery<
   }
 
   private $getFromSQL() {
-    if (!this.$fromTableName) {
-      throw new Error(`FROM table must be specified in SelectQuery.`);
+    const tableName: string = this.$fromTableName || this.$guessTableName();
+    return ` FROM ${tableName}`;
+  }
+
+  private $getWhereSQL() {
+    if (!this.$whereClause) {
+      return "";
     }
-    return ` FROM ${this.$fromTableName}`;
+    return ` ${this.$whereClause.$SQL()}`;
   }
 
   private $getLimitSQL() {
@@ -119,6 +132,28 @@ class SelectQuery<
       return ` LIMIT 1`;
     }
     return ``;
+  }
+
+  private $guessTableName() {
+    let guess: string | null = null;
+    for (const selector of Object.values(this.$selectorSpec)) {
+      if (guess === null) {
+        guess = selector.$tableName;
+        continue;
+      }
+      if (selector.$tableName !== guess) {
+        throw new Error(
+          `Unable to guess table name in query with columns from multiple `
+            + `tables; please set .from(table) on the query.`
+        );
+      }
+    }
+    if (guess === null) {
+      throw new Error(
+        `Cannot guess table name from query with no columns selected.`
+      );
+    }
+    return guess;
   }
 
   public async $execute(): Promise<SelectQueryReturn<S, FO>> {

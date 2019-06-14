@@ -57,7 +57,7 @@ class WhereSubqueryBuilder {
 }
 
 type WhereSubqueryBuilderFunction = (q: WhereSubqueryBuilder) => ConditionNode;
-type WhereSubqueryInputSpecifier = SQLFragment | WhereSubqueryBuilderFunction;
+export type WhereSubqueryInputSpecifier = SQLFragment | WhereSubqueryBuilderFunction;
 
 type ConditionNode = ConditionInternalNode | SQLFragment;
 class ConditionInternalNode {

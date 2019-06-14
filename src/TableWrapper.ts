@@ -10,6 +10,10 @@ class TableWrapperClass<TableName extends string, T extends Table> {
     return "TableWrapper";
   }
 
+  private get $() {
+    return this as any as TableWrapper<TableName, T>;
+  }
+
   constructor(public $tableName: TableName, public $table: T) {
     if (!(isTable($table))) {
       const reprstr = itisa($table) || typeof $table;
@@ -24,7 +28,7 @@ class TableWrapperClass<TableName extends string, T extends Table> {
           }
           return [
             columnName,
-            ColumnWrapper($table, columnName, column as any),
+            ColumnWrapper(this.$, columnName, column as any),
           ];
         },
       ).filter((x) => x.length > 0)
