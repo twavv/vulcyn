@@ -29,6 +29,6 @@ test("Nullable columns have correct TSType", () => {
   assert<IsExact<typeof nonNullString, Column<string | null>>>(false);
 
   const nullString = new StringColumn().nullable();
-  assert<IsExact<typeof nullString, Column<string | null>>>(true);
+  assert<IsExact<typeof nullString, Column<string | null, string | null | undefined>>>(true);
   assert<IsExact<ColumnTSType<typeof nullString>, string | null>>(true);
 });

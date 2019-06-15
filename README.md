@@ -49,22 +49,58 @@ const users = db.select(db.users, "id", "name", "address");
 
 If you try do do bad things™, you'll get type errors.
 ```ts
-// error TS2345: Argument of type '"foo"' is not assignable to parameter of type '"id" | "name" | "address"
+// TS2345: Argument of type '"foo"' is not assignable to parameter of type '"id" | "name" | "address"
 db.select(db.users, "foo");
 
 db.select(db.users, "address").then((users) => {
   users.forEach(({address}) => {
-    // error TS2531: Object is possibly 'null'.
+    // TS2531: Object is possibly 'null'.
     console.log(address.toUpperCase());
   })
 );
 ```
 
 ## Inserting Data
-**TODO**
+Single-row insertion is super simply (and statically typed!).
+Columns with defaults (including nullable columns) need not be specified.
+```ts
+await db
+  .insertInto(db.users)
+  .values({
+    id: 123,
+    name: "Sylvia The Cat",
+  });
+```
+
+If you try do do bad things™, you'll get type errors.
+```ts
+// TS2322: Type 'string' is not assignable to type 'number'.
+await db
+  .insertInto(db.users)
+  .values({
+    id: "123",
+    name: "Sylvia The Cat",
+  });
+```
+
 
 ## Updating Data
 **TODO**
+
+# Safety
+All parameters passed into queries are forwarded to Postgres via parameter values (`$1`, `$2`, ...).
+You can inspect the SQL generated as well.
+```ts
+console.log(db
+    .insertInto(db.users)
+    .values({
+      id: 123,
+      name: "Sylvia The Cat",
+    })
+    .$toSQL()
+  );
+// INSERT INTO users (id, name) VALUES ($1, $2);
+```
 
 # Warts
 * There is some inconsistency about what things should be constructed with `new` and which things are constructed just

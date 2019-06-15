@@ -23,8 +23,11 @@ test("User integration test with real Postgres server", async () => {
   // TODO: make dbts insert this table
   await pg.query(db.users.$creationSQL());
 
-  // TODO: use dbts insertion
-  await pg.query(`INSERT INTO users (id, name) VALUES (123, 'trav');`);
+  await db.insertInto(db.users)
+    .values({
+      id: 123,
+      name: "trav",
+    });
 
   const myUser = await db
     .selectOne({id: db.users.id, name: db.users.name})
@@ -40,8 +43,11 @@ test("User integration test with real Postgres server", async () => {
     name: "trav",
   });
 
-  // TODO: use dbts insertion
-  await pg.query(`INSERT INTO users (id, name) VALUES (124, 'joe');`);
+  await db.insertInto(db.users)
+    .values({
+      id: 124,
+      name: "joe",
+    });
   const users = await db
     .select({id: db.users.id, name: db.users.name})
     .from(db.users);

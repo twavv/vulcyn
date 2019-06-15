@@ -6,6 +6,8 @@ import Table from "./Table";
 import TableWrapper, {isTableWrapper} from "./TableWrapper";
 import {Client} from "pg";
 import {pick} from "./util";
+import Insert from "@/expr/Insert";
+import InsertQueryBuilder from "@/queries/InsertQueryBuilder";
 
 type TableMap = {
   [k: string]: Table
@@ -23,6 +25,10 @@ type TableMap = {
  */
 class DatabaseImpl<T extends TableMap> {
   $tables: TableWrapperMap<T>;
+
+  // Convenience hack that allows us to avoid extra casting to any in the body
+  // of this class.
+  private $ = this as any as Database<T>;
 
   constructor(
     public $pg: Client,
@@ -74,15 +80,19 @@ class DatabaseImpl<T extends TableMap> {
       if (keys.length === 0) {
         throw new Error(`Cannot select zero columns.`);
       }
-      const spec = pick(tableOrSpec.$columns, ...keys);
-      return new SelectQueryBuilder(this as any, spec, false);
+      const spec = pick<any, any>(tableOrSpec.$columns, ...keys);
+      return new SelectQueryBuilder(this.$, spec, false);
     }
-    return new SelectQueryBuilder(this as any, tableOrSpec, false);
+    return new SelectQueryBuilder(this.$, tableOrSpec, false);
   }
 
   selectOne<S extends SelectorSpec>(spec: S): SelectQueryBuilder<Database<T>, S, true> {
     // `this as any` required because of hack described above.
     return new SelectQueryBuilder(this as any, spec, true);
+  }
+
+  insertInto<TW extends TableWrapper<string, Table>>(table: TW) {
+    return new InsertQueryBuilder(this.$, table);
   }
 }
 

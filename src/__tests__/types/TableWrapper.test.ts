@@ -3,7 +3,7 @@ import {IntColumn, StringColumn} from "../../columntypes";
 import ColumnWrapper, {ColumnWrapperTSType} from "../../ColumnWrapper";
 import {TableWrapperMap} from "../../Database";
 import Table from "../../Table";
-import TableWrapper from "../../TableWrapper";
+import TableWrapper, { TableWrapperColumns } from "../../TableWrapper";
 
 test("TableWrapper correctly maps column types", () => {
   class User extends Table {
@@ -33,4 +33,16 @@ test("TableWrapper correctly maps column types", () => {
   assert<IsExact<ColumnWrapperTSType<typeof userWrapper.name>, string>>(true);
   assert<IsExact<ColumnWrapperTSType<typeof userWrapper.name>, number>>(false);
   assert<IsExact<ColumnWrapperTSType<typeof userWrapper.name>, {}>>(false);
+});
+
+test("TableWrapperColumns doesn't include non-columns", () => {
+  class UserTable extends Table {
+    id = new IntColumn();
+    name = new StringColumn();
+  }
+  type TWC = TableWrapperColumns<UserTable>;
+  assert<IsExact<
+    TableWrapperColumns<UserTable>,
+    {id: ColumnWrapper<"id", number>, name: ColumnWrapper<"name", string>}
+  >>(true);
 });

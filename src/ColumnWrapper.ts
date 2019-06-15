@@ -10,16 +10,17 @@ import {itisa} from "./util";
 import TableWrapper from "./TableWrapper";
 import SQLFragment from "./expr/SQLFragment";
 
-class ColumnWrapperClass<N extends string, T> {
+class ColumnWrapperClass<N extends string, T, IT> {
   get $_iama() {
     return "ColumnWrapper";
   }
-  $_type?: T;
+  $_type!: T;
+  $_insertionType!: IT;
 
   constructor(
     public $table: TableWrapper<string, Table>,
     public $columnName: string,
-    public $column: Column<T>,
+    public $column: Column<T, IT>,
   ) {
     if (!isColumn($column)) {
       const reprstr = itisa($column) || typeof $column;
@@ -44,17 +45,22 @@ class ColumnWrapperClass<N extends string, T> {
   }
 }
 
-type ColumnWrapper<N extends string, T> = ColumnWrapperClass<N, T>;
-function ColumnWrapper<N extends string, T>(
+type ColumnWrapper<N extends string, T, IT=T> = ColumnWrapperClass<N, T, IT>;
+function ColumnWrapper<N extends string, T, IT=T>(
     $table: TableWrapper<string, Table>,
     $columnName: string,
-    $column: Column<T>,
+    $column: Column<T, IT>,
 ) {
-  return new ColumnWrapperClass<N, T>($table, $columnName, $column);
+  return new ColumnWrapperClass<N, T, IT>($table, $columnName, $column);
 }
 export default ColumnWrapper;
 
-export type ColumnWrapperTSType<W extends ColumnWrapperClass<any, any>> = Exclude<W["$_type"], undefined>
+export type ColumnWrapperTSType<
+    W extends ColumnWrapperClass<any, any, any>
+> = W["$_type"];
+export type ColumnWrapperTSInsertionType<
+    W extends ColumnWrapperClass<any, any, any>
+> = W["$_insertionType"];
 
 export function isColumnWrapper(x: any): x is ColumnWrapper<string, unknown> {
   return x.$_iama == "ColumnWrapper";
