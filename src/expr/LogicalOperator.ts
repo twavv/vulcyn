@@ -1,9 +1,9 @@
-import Expr from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 export type LogicalOperatorType = "and" | "or";
 
-class LogicalOperator extends Expr<"binaryoperator"> {
+export class LogicalOperator extends Expr<"binaryoperator"> {
   constructor(public operator: LogicalOperatorType, public args: Expr<any>[]) {
     super("binaryoperator");
   }
@@ -14,4 +14,3 @@ class LogicalOperator extends Expr<"binaryoperator"> {
     return args.join(` ${operator} `);
   }
 }
-export default LogicalOperator;

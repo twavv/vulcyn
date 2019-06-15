@@ -5,7 +5,7 @@
  */
 import { itisa } from "@/utils";
 
-abstract class Column<T, InsertionType = T> {
+export abstract class Column<T, InsertionType = T> {
   abstract readonly $pgType: string;
 
   get $_iama() {
@@ -36,8 +36,6 @@ abstract class Column<T, InsertionType = T> {
     return query;
   }
 }
-
-export default Column;
 
 export type ColumnTSType<C extends Column<any>> = C["$_type"];
 export type ColumnTSInsertionType<C extends Column<any>> = C["$_insertionType"];

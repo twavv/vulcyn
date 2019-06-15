@@ -1,6 +1,5 @@
-import Database from "@/Database";
-import Expr from "@/expr/Expr";
-import ReductionContext from "@/expr/ReductionContext";
+import { Database } from "@";
+import { Expr, ReductionContext } from "@/expr";
 
 abstract class QueryBuilder<DB extends Database<any>> {
   abstract $toExpr(): Expr<any>;
@@ -12,8 +11,13 @@ abstract class QueryBuilder<DB extends Database<any>> {
     return this.$toExpr().toSQL(rc);
   }
 }
-export default QueryBuilder;
 
+/**
+ * A query builder for a query that can be executed.
+ *
+ * Query builders that extend this class should yield queries that are
+ * executable from a SQL CLI (e.g. SELECT or INSERT but not WHERE).
+ */
 export abstract class ExecutableQueryBuilder<DB extends Database<any>, R>
   extends QueryBuilder<DB>
   implements Promise<R> {

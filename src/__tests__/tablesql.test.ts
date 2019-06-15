@@ -1,6 +1,4 @@
-import { IntColumn, StringColumn } from "../columntypes";
-import Table from "../Table";
-import TableWrapper from "../TableWrapper";
+import { IntColumn, StringColumn, Table, TableWrapper } from "@";
 
 test("Table creation SQL is correct", () => {
   class User extends Table {

@@ -1,7 +1,7 @@
-import Column from "./Column";
+import { Column } from "@";
 import { itisa, PickConstraint } from "@/utils";
 
-class Table {
+export class Table {
   get $_iama() {
     return "Table";
   }
@@ -19,7 +19,6 @@ class Table {
     return givenName;
   }
 }
-export default Table;
 
 export function isTable(x: unknown): x is Table {
   return itisa(x) === "Table";

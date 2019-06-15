@@ -3,7 +3,7 @@
  *
  * This is mutable.
  */
-class ReductionContext {
+export class ReductionContext {
   private $currentParameter: number = 0;
   private $parameters: any[] = [];
 
@@ -19,4 +19,3 @@ class ReductionContext {
     return this.$parameters;
   }
 }
-export default ReductionContext;

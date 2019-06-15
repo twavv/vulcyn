@@ -1,7 +1,5 @@
 import { Has, assert } from "conditional-type-checks";
-import { IntColumn, StringColumn } from "@/columntypes";
-import Table, { TableColumns } from "@/Table";
-import Column from "@/Column";
+import { Column, IntColumn, StringColumn, Table, TableColumns } from "@";
 
 test("TableColumns has correct shape", () => {
   class UserTable extends Table {

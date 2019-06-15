@@ -1,9 +1,13 @@
 import { IsExact, assert } from "conditional-type-checks";
-
-import Table from "@/Table";
-import TableWrapper, { TableWrapperColumns } from "@/TableWrapper";
-import ColumnWrapper, { ColumnWrapperTSType } from "@/ColumnWrapper";
-import { IntColumn, StringColumn } from "@/columntypes";
+import {
+  ColumnWrapper,
+  ColumnWrapperTSType,
+  IntColumn,
+  StringColumn,
+  Table,
+  TableWrapper,
+  TableWrapperColumns,
+} from "@";
 
 test("TableWrapper correctly maps column types", () => {
   class User extends Table {

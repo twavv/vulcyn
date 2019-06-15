@@ -1,8 +1,6 @@
-import Table from "@/Table";
-import { IntColumn, StringColumn } from "@/columntypes";
-import Database from "@/Database";
-import ReductionContext from "@/expr/ReductionContext";
-import InsertQueryBuilder from "../InsertQueryBuilder";
+import { Database, IntColumn, StringColumn, Table } from "@";
+import { ReductionContext } from "@/expr";
+import { InsertQueryBuilder } from "@/querybuilders";
 
 test("InsertQueryBuilder without undefined values", () => {
   class BooksTable extends Table {

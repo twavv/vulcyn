@@ -1,14 +1,18 @@
 import { Has, IsExact, assert } from "conditional-type-checks";
-import { IntColumn, StringColumn } from "../../../columntypes";
-import ColumnWrapper from "../../../ColumnWrapper";
-import Database from "../../../Database";
-import Table from "../../../Table";
-import TableWrapper from "../../../TableWrapper";
-import SelectQueryBuilder, {
+import {
+  ColumnWrapper,
+  Database,
+  IntColumn,
+  StringColumn,
+  Table,
+  TableWrapper,
+} from "@";
+import {
   PickSelectorSpecFromColumnNames,
+  SelectQueryBuilder,
   SelectQueryReturn,
   SelectRowResult,
-} from "../../SelectQueryBuilder";
+} from "@/querybuilders";
 
 test("PickSelectorSpecFromColumnNames", () => {
   class User extends Table {

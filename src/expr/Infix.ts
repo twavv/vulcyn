@@ -1,7 +1,7 @@
-import Expr from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
-class Infix extends Expr<"infix"> {
+export class Infix extends Expr<"infix"> {
   constructor(
     public infix: string,
     public lhs: Expr<any>,
@@ -17,4 +17,3 @@ class Infix extends Expr<"infix"> {
     return sql;
   }
 }
-export default Infix;

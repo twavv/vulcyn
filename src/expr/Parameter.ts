@@ -1,7 +1,7 @@
-import Expr from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
-class Parameter extends Expr<"parameter"> {
+export class Parameter extends Expr<"parameter"> {
   constructor(protected value: any) {
     super("parameter");
   }
@@ -10,4 +10,3 @@ class Parameter extends Expr<"parameter"> {
     return `$${context.addParameter(this.value)}`;
   }
 }
-export default Parameter;

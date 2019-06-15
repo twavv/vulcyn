@@ -1,9 +1,9 @@
-import Expr, { PickExpr } from "./Expr";
-import ReductionContext from "./ReductionContext";
-import Clause from "./Clause";
-import Limit from "./Limit";
+import { Expr, PickExpr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
+import { Clause } from "./Clause";
+import { Limit } from "./Limit";
 
-class Select extends Expr<"select"> {
+export class Select extends Expr<"select"> {
   columns!: Array<Expr<any>>;
   from!: Clause<"from">;
   where?: Clause<"where">;
@@ -47,7 +47,6 @@ class Select extends Expr<"select"> {
     return "";
   }
 }
-export default Select;
 
 /*
 [ WITH [ RECURSIVE ] with_query [, ...] ]

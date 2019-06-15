@@ -1,14 +1,14 @@
-import ColumnWrapper, { ColumnWrapperTSType } from "../ColumnWrapper";
-import Database from "../Database";
-import TableWrapper from "../TableWrapper";
-import WhereSubquery, { WhereSubqueryInputSpecifier } from "./WhereSubquery";
-import Select from "../expr/Select";
-import Clause from "../expr/Clause";
-import Table from "../Table";
-import SQLFragment from "../expr/SQLFragment";
-import Expr from "../expr/Expr";
+import {
+  ColumnWrapper,
+  ColumnWrapperTSType,
+  Database,
+  Table,
+  TableWrapper,
+} from "@";
+import { Clause, Expr, Limit, Select, SQLFragment } from "@/expr";
+
 import { ExecutableQueryBuilder } from "./QueryBuilder";
-import Limit from "../expr/Limit";
+import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
 
 /**
  * The type of the input to a select query.
@@ -64,7 +64,7 @@ export type PickSelectorSpecFromColumnNames<
 /**
  * A builder for a select query.
  */
-class SelectQueryBuilder<
+export class SelectQueryBuilder<
   // Database type
   D extends Database<any>,
   // Selector type
@@ -154,4 +154,3 @@ class SelectQueryBuilder<
     return new Clause("from", new SQLFragment(guess));
   }
 }
-export default SelectQueryBuilder;

@@ -1,13 +1,14 @@
-import { ExecutableQueryBuilder } from "./QueryBuilder";
-import Expr from "../expr/Expr";
-import Insert from "../expr/Insert";
-import TableWrapper from "../TableWrapper";
-import Table from "../Table";
-import SQLFragment from "../expr/SQLFragment";
-import ColumnWrapper, { ColumnWrapperTSInsertionType } from "../ColumnWrapper";
-import Parameter from "../expr/Parameter";
+import {
+  ColumnWrapper,
+  ColumnWrapperTSInsertionType,
+  Database,
+  Table,
+  TableWrapper,
+} from "@";
+import { Expr, Insert, Parameter, SQLFragment } from "@/expr";
 import { UndefinedOptional } from "@/utils";
-import Database from "@/Database";
+
+import { ExecutableQueryBuilder } from "./QueryBuilder";
 
 export type InsertInterface<
   T extends TableWrapper<string, Table>,
@@ -20,7 +21,7 @@ export type InsertInterface<
   }
 >;
 
-class InsertQueryBuilder<
+export class InsertQueryBuilder<
   DB extends Database<any>,
   TW extends TableWrapper<string, Table>
 > extends ExecutableQueryBuilder<DB, unknown> {
@@ -80,4 +81,3 @@ class InsertQueryBuilder<
     return await this.$tryExecute();
   }
 }
-export default InsertQueryBuilder;

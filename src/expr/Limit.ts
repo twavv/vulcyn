@@ -1,7 +1,7 @@
-import Expr from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
-class Limit extends Expr<"limit"> {
+export class Limit extends Expr<"limit"> {
   constructor(public limit: number | "ALL") {
     super("limit");
   }
@@ -10,4 +10,3 @@ class Limit extends Expr<"limit"> {
     return `LIMIT ${this.limit}`;
   }
 }
-export default Limit;

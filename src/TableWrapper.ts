@@ -1,13 +1,16 @@
-import Column, {
+import {
+  Column,
   ColumnTSInsertionType,
   ColumnTSType,
+  ColumnWrapper,
   isColumn,
-} from "./Column";
-import ColumnWrapper from "./ColumnWrapper";
-import Table, { TableColumns, isTable } from "./Table";
+  isTable,
+  Table,
+  TableColumns,
+} from "@";
 import { assignGetters, itisa } from "@/utils";
 
-class TableWrapperClass<
+export class TableWrapperClass<
   TableName extends string = string,
   T extends Table = Table
 > {
@@ -77,18 +80,16 @@ export type TableWrapperColumns<
     : never;
 };
 
-type TableWrapper<
+export type TableWrapper<
   TableName extends string,
   T extends Table
 > = TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
-function TableWrapper<N extends string, T extends Table>(
+export function TableWrapper<N extends string, T extends Table>(
   tableName: N,
   table: T,
 ): TableWrapper<N, T> {
   return new TableWrapperClass<N, T>(tableName, table) as any;
 }
-
-export default TableWrapper;
 
 export function isTableWrapper(x: unknown): x is TableWrapper<string, Table> {
   return itisa(x) === "TableWrapper";

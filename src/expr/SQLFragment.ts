@@ -1,5 +1,5 @@
-import Expr, { isExpr } from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr, isExpr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * A fragment of SQL.
@@ -7,7 +7,7 @@ import ReductionContext from "./ReductionContext";
  * This class is used to represent arbitrary user-supplied SQL as well as
  * SQL symbols.
  */
-class SQLFragment extends Expr<"sqlfragment"> {
+export class SQLFragment extends Expr<"sqlfragment"> {
   constructor(public sql: string) {
     super("sqlfragment");
   }
@@ -16,7 +16,6 @@ class SQLFragment extends Expr<"sqlfragment"> {
     return this.sql;
   }
 }
-export default SQLFragment;
 
 export function isSQLFragment(s: unknown): s is SQLFragment {
   return isExpr(s) && s.head == "sqlfragment";

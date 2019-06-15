@@ -1,8 +1,10 @@
-import LogicalOperator from "../LogicalOperator";
-import Infix from "../Infix";
-import SQLFragment from "../SQLFragment";
-import Parameter from "../Parameter";
-import ReductionContext from "../ReductionContext";
+import {
+  Infix,
+  LogicalOperator,
+  Parameter,
+  ReductionContext,
+  SQLFragment,
+} from "@/expr";
 
 test("LogicalOperator AND", () => {
   expect(

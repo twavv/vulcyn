@@ -1,6 +1,4 @@
-import Infix from "../Infix";
-import Parameter from "../Parameter";
-import ReductionContext from "../ReductionContext";
+import { Infix, Parameter, ReductionContext } from "@/expr";
 
 test("Infix", () => {
   const add = new Infix("+", new Parameter(1), new Parameter(2));

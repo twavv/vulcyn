@@ -1,5 +1,5 @@
-import Expr from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * The name (in lowercase) of any valid SQL clause.
@@ -21,7 +21,7 @@ type ClauseHead = "where" | "from";
  * @todo
  *    I think it's definitely better to have these be their own Expr classes.
  */
-class Clause<H extends ClauseHead> extends Expr<H> {
+export class Clause<H extends ClauseHead> extends Expr<H> {
   constructor(head: H, public body: Expr<any>) {
     super(head);
   }
@@ -30,4 +30,3 @@ class Clause<H extends ClauseHead> extends Expr<H> {
     return `${this.head.toUpperCase()} ${this.body.toSQL(context)}`;
   }
 }
-export default Clause;

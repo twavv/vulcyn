@@ -1,6 +1,4 @@
-import Database from "@/Database";
-import Table from "@/Table";
-import { IntColumn, StringColumn } from "@/columntypes";
+import { Database, IntColumn, StringColumn, Table } from "@";
 
 test("SelectQueryBuilder with spec object", () => {
   class User extends Table {

@@ -4,13 +4,12 @@
  * This is used in the implementation of the codebase. It is necessary because
  * the `Column` doesn't have access to things like the table name.
  */
-import Column, { isColumn } from "./Column";
-import SQLFragment from "./expr/SQLFragment";
-import Table from "./Table";
-import TableWrapper from "./TableWrapper";
-import { itisa } from "@/utils";
 
-class ColumnWrapperClass<N extends string, T, IT> {
+import { itisa } from "@/utils";
+import { Column, isColumn, Table, TableWrapper } from "@";
+import { Infix, Parameter, SQLFragment } from "@/expr";
+
+class ColumnWrapperImpl<N extends string, T, IT> {
   get $_iama() {
     return "ColumnWrapper";
   }
@@ -43,25 +42,28 @@ class ColumnWrapperClass<N extends string, T, IT> {
   eq(t: T) {
     // TODO TODO TODO TODO TODO
     // NO SQL INJECTION IN THIS HOUSE
-    return new SQLFragment(`${this.$columnName} = '${t}'`);
+    return new Infix("=", new SQLFragment(this.$columnName), new Parameter(t));
   }
 }
 
-type ColumnWrapper<N extends string, T, IT = T> = ColumnWrapperClass<N, T, IT>;
-function ColumnWrapper<N extends string, T, IT = T>(
+export type ColumnWrapper<N extends string, T, IT = T> = ColumnWrapperImpl<
+  N,
+  T,
+  IT
+>;
+export function ColumnWrapper<N extends string, T, IT = T>(
   $table: TableWrapper<string, Table>,
   $columnName: string,
   $column: Column<T, IT>,
 ) {
-  return new ColumnWrapperClass<N, T, IT>($table, $columnName, $column);
+  return new ColumnWrapperImpl<N, T, IT>($table, $columnName, $column);
 }
-export default ColumnWrapper;
 
 export type ColumnWrapperTSType<
-  W extends ColumnWrapperClass<any, any, any>
+  W extends ColumnWrapperImpl<any, any, any>
 > = W["$_type"];
 export type ColumnWrapperTSInsertionType<
-  W extends ColumnWrapperClass<any, any, any>
+  W extends ColumnWrapperImpl<any, any, any>
 > = W["$_insertionType"];
 
 export function isColumnWrapper(x: any): x is ColumnWrapper<string, unknown> {

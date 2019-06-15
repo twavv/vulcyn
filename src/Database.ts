@@ -1,14 +1,13 @@
 import { Client } from "pg";
 
-import { pick } from "@/utils";
-import Table from "./Table";
-import TableWrapper, { isTableWrapper } from "./TableWrapper";
-
-import SelectQueryBuilder, {
+import { isTableWrapper, Table, TableWrapper } from "@";
+import {
+  InsertQueryBuilder,
   PickSelectorSpecFromColumnNames,
   SelectorSpec,
-} from "@/queries/SelectQueryBuilder";
-import InsertQueryBuilder from "@/queries/InsertQueryBuilder";
+  SelectQueryBuilder,
+} from "@/querybuilders";
+import { pick } from "@/utils";
 
 interface TableMap {
   [k: string]: Table;
@@ -101,8 +100,10 @@ class DatabaseImpl<T extends TableMap> {
 export type TableWrapperMap<T extends TableMap> = {
   [K in keyof T & string]: TableWrapper<K, T[K]>;
 };
-type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
-function Database<T extends TableMap>(pg: Client, tables: T): Database<T> {
+export type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
+export function Database<T extends TableMap>(
+  pg: Client,
+  tables: T,
+): Database<T> {
   return new DatabaseImpl(pg, tables) as any;
 }
-export default Database;

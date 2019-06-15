@@ -1,5 +1,5 @@
-import ReductionContext from "./ReductionContext";
 import { itisa, PickConstraintIgnoringNull } from "@/utils";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * An AST-like structure which represents a SQL "expression".
@@ -18,7 +18,7 @@ import { itisa, PickConstraintIgnoringNull } from "@/utils";
  *    This system draws from my experience with Julia (which I believe in turn
  *    draws from Lisp). Definitely check it out!
  */
-abstract class Expr<H extends string> {
+export abstract class Expr<H extends string> {
   get $_iama() {
     return "Expr";
   }
@@ -27,7 +27,6 @@ abstract class Expr<H extends string> {
 
   abstract toSQL(context: ReductionContext): string;
 }
-export default Expr;
 
 export function isExpr(x: unknown): x is Expr<string> {
   return itisa(x) === "Expr";

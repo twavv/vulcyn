@@ -1,8 +1,6 @@
 import { IsExact, assert } from "conditional-type-checks";
-import { IntColumn, StringColumn } from "../../columntypes";
-import Database from "../../Database";
-import Table from "../../Table";
 import { getPG, setupPG, teardownPG } from "./utils";
+import { Database, IntColumn, StringColumn, Table } from "@";
 
 beforeEach(setupPG);
 afterEach(teardownPG);

@@ -10,6 +10,7 @@
     "strict": true,
     "baseUrl": "./",
     "paths": {
+      "@": ["./src/index.ts"],
       "@/*": [
         "./src/*"
       ]

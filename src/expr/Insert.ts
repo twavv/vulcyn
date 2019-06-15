@@ -21,8 +21,8 @@
    [ WHERE condition ]
  */
 
-import Expr, { PickExpr } from "./Expr";
-import ReductionContext from "./ReductionContext";
+import { Expr, PickExpr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * An INSERT query Expr.
@@ -30,7 +30,7 @@ import ReductionContext from "./ReductionContext";
  * @todo
  *    * Support for RETURNING
  */
-class Insert extends Expr<"select"> {
+export class Insert extends Expr<"select"> {
   tableName!: Expr<string>;
   columns!: Array<Expr<string>>;
   values!: Array<Expr<string>>;
@@ -66,4 +66,3 @@ class Insert extends Expr<"select"> {
     );
   }
 }
-export default Insert;

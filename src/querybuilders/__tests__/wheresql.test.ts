@@ -1,6 +1,5 @@
-import SQLFragment from "../../expr/SQLFragment";
-import WhereSubquery from "../WhereSubquery";
-import ReductionContext from "../../expr/ReductionContext";
+import { WhereSubquery } from "@/querybuilders/WhereSubquery";
+import { ReductionContext, SQLFragment } from "@/expr";
 
 test("WhereSubquery with bare SQLFragment", () => {
   const myQuery = new WhereSubquery(new SQLFragment(`foo = 'bar'`));

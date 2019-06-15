@@ -1,8 +1,5 @@
-import Database from "../Database";
-import SQLFragment, { isSQLFragment } from "../expr/SQLFragment";
-import Clause from "../expr/Clause";
-import LogicalOperator from "../expr/LogicalOperator";
-import Expr from "../expr/Expr";
+import { Database } from "@";
+import { Clause, Expr, isExpr, isSQLFragment, LogicalOperator } from "@/expr";
 
 /**
  * A subquery for a WHERE clause.
@@ -10,11 +7,11 @@ import Expr from "../expr/Expr";
  * We represent the actual specifier as a DAG (see the ConditionNode) type. This
  * allows us to more easily model complex AND/OR
  */
-class WhereSubquery<DB extends Database<any>> {
+export class WhereSubquery<DB extends Database<any>> {
   readonly $body: Expr<any>;
 
   constructor(input: WhereSubqueryInputSpecifier) {
-    if (isSQLFragment(input)) {
+    if (isExpr(input)) {
       this.$body = input;
     } else {
       this.$body = input(new WhereSubqueryBuilder());
@@ -25,7 +22,6 @@ class WhereSubquery<DB extends Database<any>> {
     return new Clause("where", this.$body);
   }
 }
-export default WhereSubquery;
 
 class WhereSubqueryBuilder {
   private $andor(
@@ -38,7 +34,7 @@ class WhereSubqueryBuilder {
     }
 
     const children = specifiers.map((s) => {
-      if (isSQLFragment(s)) {
+      if (isExpr(s)) {
         return s;
       }
       return s(new WhereSubqueryBuilder());
@@ -56,5 +52,5 @@ class WhereSubqueryBuilder {
 
 type WhereSubqueryBuilderFunction = (q: WhereSubqueryBuilder) => Expr<any>;
 export type WhereSubqueryInputSpecifier =
-  | SQLFragment
+  | Expr<string>
   | WhereSubqueryBuilderFunction;
