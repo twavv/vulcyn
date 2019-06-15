@@ -2,6 +2,7 @@ import ColumnWrapper, {ColumnWrapperTSType} from "../ColumnWrapper";
 import Database from "../Database";
 import TableWrapper from "../TableWrapper";
 import WhereSubquery, { WhereSubqueryInputSpecifier } from "./WhereSubquery";
+import ReductionContext from "../expr/ReductionContext";
 
 /**
  * The type of the input to a select query.
@@ -124,7 +125,7 @@ class SelectQuery<
     if (!this.$whereClause) {
       return "";
     }
-    return ` ${this.$whereClause.$SQL()}`;
+    return ` ${this.$whereClause.$toExpr().toSQL(new ReductionContext())}`;
   }
 
   private $getLimitSQL() {

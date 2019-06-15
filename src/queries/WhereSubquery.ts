@@ -1,6 +1,9 @@
 import Database from "../Database";
-import SQLFragment, {isSQLFragment} from "../SQLFragment";
+import SQLFragment, {isSQLFragment} from "../expr/SQLFragment";
 import {itisa} from "../util";
+import Clause from "../expr/Clause";
+import LogicalOperator from "../expr/LogicalOperator";
+import Expr from "../expr/Expr";
 
 /**
  * A subquery for a WHERE clause.
@@ -9,20 +12,20 @@ import {itisa} from "../util";
  * allows us to more easily model complex AND/OR
  */
 class WhereSubquery<DB extends Database<any>> {
-  readonly $graph: ConditionNode;
+  readonly $body: Expr<any>;
 
   constructor(
     input: WhereSubqueryInputSpecifier,
   ) {
     if (isSQLFragment(input)) {
-      this.$graph = input;
+      this.$body = input;
     } else {
-      this.$graph = input(new WhereSubqueryBuilder());
+      this.$body = input(new WhereSubqueryBuilder());
     }
   }
 
-  $SQL() {
-    return `WHERE ${conditionGraphSQL(this.$graph)}`;
+  $toExpr() {
+    return new Clause("where", this.$body);
   }
 }
 export default WhereSubquery;
@@ -30,9 +33,9 @@ export default WhereSubquery;
 class WhereSubqueryBuilder {
 
   private $andor(
-      type: ConditionInternalNode["type"],
+      type: LogicalOperator["operator"],
       specifiers: WhereSubqueryInputSpecifier[],
-  ): ConditionNode {
+  ) {
     const first = specifiers[0];
     if (specifiers.length === 1 && isSQLFragment(first)) {
       return first;
@@ -45,44 +48,44 @@ class WhereSubqueryBuilder {
         }
         return s(new WhereSubqueryBuilder());
       });
-    return new ConditionInternalNode(type, children);
+    return new LogicalOperator(type, children);
   }
 
-  and(...s: WhereSubqueryInputSpecifier[]): ConditionNode {
-    return this.$andor("AND", s);
+  and(...s: WhereSubqueryInputSpecifier[]) {
+    return this.$andor("and", s);
   }
-  or(...s: WhereSubqueryInputSpecifier[]): ConditionNode {
-    return this.$andor("OR", s);
+  or(...s: WhereSubqueryInputSpecifier[]) {
+    return this.$andor("or", s);
   }
 }
 
-type WhereSubqueryBuilderFunction = (q: WhereSubqueryBuilder) => ConditionNode;
+type WhereSubqueryBuilderFunction = (q: WhereSubqueryBuilder) => Expr<any>;
 export type WhereSubqueryInputSpecifier = SQLFragment | WhereSubqueryBuilderFunction;
 
-type ConditionNode = ConditionInternalNode | SQLFragment;
-class ConditionInternalNode {
-  get $_iama() {
-    return "ConditionInternalNode";
-  }
-  constructor(
-    public type: "AND" | "OR",
-    public children: ConditionNode[],
-  ) {}
-}
-
-function isConditionInternalNode(x: unknown): x is ConditionInternalNode {
-  return itisa(x) === "ConditionInternalNode";
-}
-
-function conditionGraphSQL(graph: ConditionNode): string {
-  if (isSQLFragment(graph)) {
-    return `(${graph.sql})`;
-  }
-  if (isConditionInternalNode(graph)) {
-    const expression = graph.children
-      .map((c) => conditionGraphSQL(c))
-      .join(` ${graph.type} `);
-    return `(${expression})`;
-  }
-  throw new Error(`Cannot convert non-ConditionNode to SQL (got type ${itisa(graph)}).`);
-}
+// type ConditionNode = ConditionInternalNode | SQLFragment;
+// class ConditionInternalNode {
+//   get $_iama() {
+//     return "ConditionInternalNode";
+//   }
+//   constructor(
+//     public type: "AND" | "OR",
+//     public children: ConditionNode[],
+//   ) {}
+// }
+//
+// function isConditionInternalNode(x: unknown): x is ConditionInternalNode {
+//   return itisa(x) === "ConditionInternalNode";
+// }
+//
+// function conditionGraphSQL(graph: ConditionNode): string {
+//   if (isSQLFragment(graph)) {
+//     return `(${graph.sql})`;
+//   }
+//   if (isConditionInternalNode(graph)) {
+//     const expression = graph.children
+//       .map((c) => conditionGraphSQL(c))
+//       .join(` ${graph.type} `);
+//     return `(${expression})`;
+//   }
+//   throw new Error(`Cannot convert non-ConditionNode to SQL (got type ${itisa(graph)}).`);
+// }

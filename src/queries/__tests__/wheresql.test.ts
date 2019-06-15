@@ -1,9 +1,10 @@
-import SQLFragment from "../../SQLFragment";
+import SQLFragment from "../../expr/SQLFragment";
 import WhereSubquery from "../WhereSubquery";
+import ReductionContext from "../../expr/ReductionContext";
 
 test("WhereSubquery with bare SQLFragment", () => {
   const myQuery = new WhereSubquery(new SQLFragment(`foo = 'bar'`));
-  const sql = myQuery.$SQL();
+  const sql = myQuery.$toExpr().toSQL(new ReductionContext());
   expect(sql).toContain("WHERE ");
   expect(sql).toContain("foo = 'bar'");
 });
@@ -16,7 +17,7 @@ test("WhereSubquery with builder function", () => {
       ),
     new SQLFragment('isadmin = true'),
   ));
-  const sql = myQuery.$SQL();
+  const sql = myQuery.$toExpr().toSQL(new ReductionContext());
 
   console.log(sql);
   expect(sql).toContain("WHERE ");
