@@ -1,6 +1,6 @@
 import ReductionContext from "./ReductionContext";
-import { itisa } from "../util";
-import Select from "./Select";
+import { itisa } from "@/util";
+import { PickConstraintIgnoringNull, PickConstraintKeys } from "@/utils";
 
 /**
  * An AST-like structure which represents a SQL "expression".
@@ -37,25 +37,9 @@ export function isExpr(x: unknown): x is Expr<string> {
 }
 
 /**
- * Get the keys of O that match (extend) constraint C.
- *
- * This is kind of a hack. It works by creating an interface where keys whose
- * value satisfies the constraint map to the key itself, and keys that don't map
- * to undefined, and then getting the union of all values in the new interface.
- * This results in a union of all the key names that satisfy the constraint, as
- * well as never (which can't be an object key anyway).
- *
- * Inspired by https://link.medium.com/bOKpZFxJnX
- */
-type PickKeys<O, C> = {
-  [K in keyof O]:
-  NonNullable<O[K]> extends C ? K : never
-}[keyof O];
-
-/**
  * Pick all of the Expr types out of a type.
  *
  * This is used to create easy constructors for (e.g.) the Select Expr.
  */
-export type PickExpr<T> = Pick<T, PickKeys<T, Expr<any> | Array<Expr<any>>>>;
+export type PickExpr<T> = PickConstraintIgnoringNull<T, Expr<any> | Array<Expr<any>>>;
 

@@ -74,7 +74,7 @@ class DatabaseImpl<T extends TableMap> {
       if (keys.length === 0) {
         throw new Error(`Cannot select zero columns.`);
       }
-      const spec = pick(tableOrSpec.$columns, ...keys);
+      const spec = pick<any, any>(tableOrSpec.$columns, ...keys);
       return new SelectQueryBuilder(this as any, spec, false);
     }
     return new SelectQueryBuilder(this as any, tableOrSpec, false);

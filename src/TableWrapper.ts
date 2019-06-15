@@ -1,7 +1,8 @@
 import Column, {ColumnTSType, isColumn} from "./Column";
 import ColumnWrapper from "./ColumnWrapper";
-import Table, {isTable} from "./Table";
+import Table, { isTable, TableColumns } from "./Table";
 import {assignGetters, itisa} from "./util";
+import { PickConstraint } from "@/utils";
 
 class TableWrapperClass<
     TableName extends string = string,
@@ -39,8 +40,8 @@ class TableWrapperClass<
     assignGetters(this, this.$columns);
   }
 
-  $getColumns(): Array<ColumnWrapper<string, Column<unknown>>> {
-    return Object.entries(this.$columns).map(([_, column]) => column);
+  $getColumns(): Array<ColumnWrapper<string, unknown>> {
+    return Object.entries(this.$columns).map(([_, column]) => column as ColumnWrapper<string, unknown>);
   }
 
   $creationSQL() {
@@ -55,8 +56,18 @@ class TableWrapperClass<
   }
 }
 
-export type TableWrapperColumns<T> = {
-  [k in (keyof T & string)]: T[k] extends Column<any> ? ColumnWrapper<k, ColumnTSType<T[k]>> : never
+/**
+ * The interface of $columns in TableWrapper.
+ * TableWrapper itself implements this interface.
+ *
+ * NOTE: There's an unnecessary conditional type (ternary) here because TS can't
+ *    quite figure out that C[K] extends Column<any> even though it always does
+ *    by the definition of TableColumns<T>.
+ */
+export type TableWrapperColumns<T extends Table, C extends TableColumns<T> = TableColumns<T>> = {
+  [K in keyof C & string]: C[K] extends Column<any>
+    ? ColumnWrapper<K, ColumnTSType<C[K]>>
+    : never;
 }
 
 type TableWrapper<TableName extends string, T extends Table> =

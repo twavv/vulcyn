@@ -16,7 +16,7 @@ test("PickSelectorSpecFromColumnNames", () => {
   type MyRow = PickSelectorSpecFromColumnNames<UserWrapper, "id" | "name">;
   assert<IsExact<
     MyRow,
-    {id: ColumnWrapper<any, number>, name: ColumnWrapper<any, string>}
+    {id: ColumnWrapper<"id", number>, name: ColumnWrapper<"name", string>}
   >>(true);
 });
 
