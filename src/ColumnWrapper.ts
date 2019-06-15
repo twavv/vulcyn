@@ -7,6 +7,8 @@
 import Column, {isColumn} from "./Column";
 import Table from "./Table";
 import {itisa} from "./util";
+import TableWrapper from "./TableWrapper";
+import SQLFragment from "./SQLFragment";
 
 class ColumnWrapperClass<N extends string, T> {
   get $_iama() {
@@ -15,7 +17,7 @@ class ColumnWrapperClass<N extends string, T> {
   $_type?: T;
 
   constructor(
-    public $table: Table,
+    public $table: TableWrapper<any, any>,
     public $columnName: string,
     public $column: Column<T>,
   ) {
@@ -25,15 +27,26 @@ class ColumnWrapperClass<N extends string, T> {
     }
   }
 
+  get $tableName() {
+    return this.$table.$tableName;
+  }
+
   $creationSQL() {
     const {$columnName, $column} = this;
     return `${$columnName} ${$column.$creationSQL()}`;
+  }
+
+  // Methods for WHERE query generation
+  eq(t: T) {
+    // TODO TODO TODO TODO TODO
+    // NO SQL INJECTION IN THIS HOUSE
+    return new SQLFragment(`${this.$columnName} = '${t}'`);
   }
 }
 
 type ColumnWrapper<N extends string, T> = ColumnWrapperClass<N, T>;
 function ColumnWrapper<N extends string, T>(
-    $table: Table,
+    $table: TableWrapper<any, any>,
     $columnName: string,
     $column: Column<T>,
 ) {

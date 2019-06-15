@@ -44,3 +44,19 @@ test("SelectQuery with column names", () => {
   expect(sql).toEqual(expect.stringMatching(/ id[ ,]/));
   expect(sql).toEqual(expect.stringMatching(/ name[ ,]/));
 });
+
+test("SelectQuery without manual .from()", () => {
+  class User extends Table {
+    id = new IntColumn();
+    name = new StringColumn().nullable();
+  }
+
+  const db = Database(null as any, {users: new User});
+  const query = db.select(db.users, "id", "name");
+  const sql = query.$SQL();
+
+  expect(sql).toContain("SELECT ");
+  expect(sql).toContain(" FROM users");
+  expect(sql).toEqual(expect.stringMatching(/ id[ ,]/));
+  expect(sql).toEqual(expect.stringMatching(/ name[ ,]/));
+});
