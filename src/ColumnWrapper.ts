@@ -8,7 +8,7 @@ import Column, {isColumn} from "./Column";
 import Table from "./Table";
 import {itisa} from "./util";
 import TableWrapper from "./TableWrapper";
-import SQLFragment from "./SQLFragment";
+import SQLFragment from "./expr/SQLFragment";
 
 class ColumnWrapperClass<N extends string, T> {
   get $_iama() {

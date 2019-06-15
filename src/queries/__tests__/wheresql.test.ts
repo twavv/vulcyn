@@ -1,4 +1,4 @@
-import SQLFragment from "../../SQLFragment";
+import SQLFragment from "../../expr/SQLFragment";
 import WhereSubquery from "../WhereSubquery";
 
 test("WhereSubquery with bare SQLFragment", () => {

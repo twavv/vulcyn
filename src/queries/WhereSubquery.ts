@@ -1,5 +1,5 @@
 import Database from "../Database";
-import SQLFragment, {isSQLFragment} from "../SQLFragment";
+import SQLFragment, {isSQLFragment} from "../expr/SQLFragment";
 import {itisa} from "../util";
 
 /**
