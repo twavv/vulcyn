@@ -16,6 +16,7 @@ test("InsertQueryBuilder without undefined values", () => {
   });
 
   const q = new InsertQueryBuilder(
+    null as any,
     db.books
   ).values({
     id: 123,
@@ -44,6 +45,7 @@ test("InsertQueryBuilder with undefined values", () => {
   });
 
   const q = new InsertQueryBuilder(
+    null as any,
     db.books
   ).values({
     id: 123,

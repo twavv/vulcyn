@@ -1,4 +1,4 @@
-import QueryBuilder from "./QueryBuilder";
+import QueryBuilder, { ExecutableQueryBuilder } from "./QueryBuilder";
 import Expr from "../expr/Expr";
 import Insert from "../expr/Insert";
 import TableWrapper from "../TableWrapper";
@@ -7,6 +7,7 @@ import SQLFragment from "../expr/SQLFragment";
 import ColumnWrapper, { ColumnWrapperTSInsertionType } from "../ColumnWrapper";
 import Parameter from "../expr/Parameter";
 import { UndefinedOptional } from "@/utils";
+import Database from "@/Database";
 
 export type InsertInterface<
     T extends TableWrapper<string, Table>,
@@ -17,20 +18,21 @@ export type InsertInterface<
     : never;
 }>
 
-// TODO: typing
 class InsertQueryBuilder<
+    DB extends Database<any>,
     TW extends TableWrapper<string, Table>
-> extends QueryBuilder {
+> extends ExecutableQueryBuilder<DB, unknown> {
 
   public $tableName: SQLFragment;
   public $columns?: SQLFragment[];
   public $values?: Expr<string>[];
 
   constructor(
+    db: DB,
     $table: TW,
     // $insertionSpec: Array<ColumnWrapper<string, unknown>>,
   ) {
-    super();
+    super(db);
     this.$tableName = new SQLFragment($table.$tableName);
   }
 
@@ -71,6 +73,10 @@ class InsertQueryBuilder<
       throw new Error(`Values must be specified for INSERT query.`);
     }
     return this.$values;
+  }
+
+  async $execute(): Promise<unknown> {
+    return await this.$tryExecute();
   }
 }
 export default InsertQueryBuilder;

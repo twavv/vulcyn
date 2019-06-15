@@ -7,7 +7,7 @@ import Clause from "../expr/Clause";
 import Table from "../Table";
 import SQLFragment from "../expr/SQLFragment";
 import Expr from "../expr/Expr";
-import QueryBuilder from "./QueryBuilder";
+import { ExecutableQueryBuilder } from "./QueryBuilder";
 import Limit from "../expr/Limit";
 
 /**
@@ -73,20 +73,18 @@ class SelectQueryBuilder<
     S extends SelectorSpec,
     // True if fetch one
     FO extends boolean = false,
-> extends QueryBuilder implements Promise<SelectQueryReturn<S, FO>> {
-  private $_promise?: Promise<SelectQueryReturn<S, FO>>;
-
+> extends ExecutableQueryBuilder<D, SelectQueryReturn<S, FO>> {
   private $columns: Array<Expr<any>>;
   private $from?: Clause<"from">;
   private $where?: Clause<"where">;
   private $limit?: Limit;
 
   constructor(
-    public $db: D,
+    db: D,
     public $selectorSpec: S,
     public $fetchOne: FO,
   ) {
-    super();
+    super(db);
     this.$columns = Object.entries($selectorSpec).map(([name, column]) => {
       const {$columnName} = column;
       if ($columnName != name) {
@@ -132,15 +130,6 @@ class SelectQueryBuilder<
     // TODO: LIMIT
   }
 
-  private $getSelectorSpecSQL() {
-    return " " + (
-      Object
-        .entries(this.$selectorSpec)
-        .map(([name, column]) => `${column.$columnName} AS ${name}`)
-        .join(", ")
-    );
-  }
-
   private $guessFromClause() {
     let guess: string | null = null;
     for (const selector of Object.values(this.$selectorSpec)) {
@@ -169,37 +158,6 @@ class SelectQueryBuilder<
       return result.rows[0] || null;
     }
     return result.rows as any;
-  }
-
-  private async $tryExecute() {
-    const sql = this.$toSQL();
-    try {
-      return await this.$db.$pg.query(sql);
-    } catch (e) {
-      console.error(`Error executing SQL: ${sql}`);
-      throw e;
-    }
-  }
-
-  private get $promise(): Promise<SelectQueryReturn<S, FO>> {
-    if (this.$_promise) {
-      return this.$_promise;
-    }
-    return this.$_promise = this.$execute();
-  }
-
-  // Methods to implement the Promise interface
-  get [Symbol.toStringTag]() {
-    return "SelectQueryBuilder";
-  }
-  get then() {
-    return this.$promise.then.bind(this.$promise);
-  }
-  get catch() {
-    return this.$promise.catch.bind(this.$promise);
-  }
-  get finally() {
-    return this.$promise.finally.bind(this.$promise);
   }
 }
 export default SelectQueryBuilder;
