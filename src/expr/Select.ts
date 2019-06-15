@@ -1,14 +1,13 @@
-import Expr, { PickExpr } from "./Expr";
-import ReductionContext from "./ReductionContext";
-import Clause from "./Clause";
-import Limit from "./Limit";
+import { Expr, PickExpr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
+import { Clause } from "./Clause";
+import { Limit } from "./Limit";
 
-class Select extends Expr<"select"> {
-
-  public columns!: Array<Expr<any>>;
-  public from!: Clause<"from">;
-  public where?: Clause<"where">;
-  public limit?: Limit;
+export class Select extends Expr<"select"> {
+  columns!: Array<Expr<any>>;
+  from!: Clause<"from">;
+  where?: Clause<"where">;
+  limit?: Limit;
 
   constructor(args: PickExpr<Select>) {
     super("select");
@@ -17,19 +16,17 @@ class Select extends Expr<"select"> {
 
   toSQL(context: ReductionContext): string {
     return (
-      "SELECT "
-        + this.columnsSQL(context)
-        + this.fromSQL(context)
-        + this.whereSQL(context)
-        + this.limitSQL(context)
-        + ";"
+      "SELECT " +
+      this.columnsSQL(context) +
+      this.fromSQL(context) +
+      this.whereSQL(context) +
+      this.limitSQL(context) +
+      ";"
     );
   }
 
   private columnsSQL(rc: ReductionContext) {
-    return this.columns
-      .map((column) => column.toSQL(rc))
-      .join(", ");
+    return this.columns.map((column) => column.toSQL(rc)).join(", ");
   }
 
   private whereSQL(rc: ReductionContext): string {
@@ -50,7 +47,6 @@ class Select extends Expr<"select"> {
     return "";
   }
 }
-export default Select;
 
 /*
 [ WITH [ RECURSIVE ] with_query [, ...] ]

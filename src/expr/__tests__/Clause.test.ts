@@ -1,17 +1,15 @@
-import Clause from "../Clause";
-import Infix from "../Infix";
-import SQLFragment from "../SQLFragment";
-import Parameter from "../Parameter";
-import ReductionContext from "../ReductionContext";
+import {
+  Clause,
+  Infix,
+  Parameter,
+  ReductionContext,
+  SQLFragment,
+} from "@/expr";
 
 test(`Clause generated correct SQL`, () => {
   const myWhere = new Clause(
     "where",
-    new Infix(
-      ">",
-      new SQLFragment("foo"),
-      new Parameter(123),
-    )
+    new Infix(">", new SQLFragment("foo"), new Parameter(123)),
   );
 
   const myWhereSQL = myWhere.toSQL(new ReductionContext());

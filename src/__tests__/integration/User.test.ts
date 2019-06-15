@@ -1,14 +1,11 @@
-import {assert, IsExact} from "conditional-type-checks";
-import {IntColumn, StringColumn} from "../../columntypes";
-import Database from "../../Database";
-import Table from "../../Table";
-import {getPG, setupPG, teardownPG} from "./utils";
+import { IsExact, assert } from "conditional-type-checks";
+import { getPG, setupPG, teardownPG } from "./utils";
+import { Database, IntColumn, StringColumn, Table } from "@";
 
 beforeEach(setupPG);
 afterEach(teardownPG);
 
 test("User integration test with real Postgres server", async () => {
-
   const pg = getPG();
 
   class UserTable extends Table {
@@ -23,19 +20,20 @@ test("User integration test with real Postgres server", async () => {
   // TODO: make dbts insert this table
   await pg.query(db.users.$creationSQL());
 
-  await db.insertInto(db.users)
-    .values({
-      id: 123,
-      name: "trav",
-    });
+  await db.insertInto(db.users).values({
+    id: 123,
+    name: "trav",
+  });
 
   const myUser = await db
-    .selectOne({id: db.users.id, name: db.users.name})
+    .selectOne({ id: db.users.id, name: db.users.name })
     .from(db.users);
   expect(myUser).toBeTruthy();
 
   // TS doesn't know that toBeTruthy will throw if myUser is null.
-  if (!myUser) { throw new Error(); }
+  if (!myUser) {
+    throw new Error();
+  }
 
   // const myUser = rows[0];
   expect(myUser).toEqual({
@@ -43,17 +41,16 @@ test("User integration test with real Postgres server", async () => {
     name: "trav",
   });
 
-  await db.insertInto(db.users)
-    .values({
-      id: 124,
-      name: "joe",
-    });
+  await db.insertInto(db.users).values({
+    id: 124,
+    name: "joe",
+  });
   const users = await db
-    .select({id: db.users.id, name: db.users.name})
+    .select({ id: db.users.id, name: db.users.name })
     .from(db.users);
   expect(users).toHaveLength(2);
 
-  assert<IsExact<typeof users[0], {id: number, name: string | null}>>(true);
+  assert<IsExact<typeof users[0], { id: number; name: string | null }>>(true);
   expect(users[0]).toEqual({
     id: 123,
     name: "trav",
@@ -65,7 +62,7 @@ test("User integration test with real Postgres server", async () => {
 
   expect(
     await db
-      .selectOne({id: db.users.id, name: db.users.name})
-      .where(db.users.name.eq("joe"))
-  ).toEqual({id: 124, name: "joe"});
+      .selectOne({ id: db.users.id, name: db.users.name })
+      .where(db.users.name.eq("joe")),
+  ).toEqual({ id: 124, name: "joe" });
 });

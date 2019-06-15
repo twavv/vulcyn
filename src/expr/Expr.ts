@@ -1,6 +1,5 @@
-import ReductionContext from "./ReductionContext";
-import { itisa } from "@/util";
-import { PickConstraintIgnoringNull, PickConstraintKeys } from "@/utils";
+import { itisa, PickConstraintIgnoringNull } from "@/utils";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * An AST-like structure which represents a SQL "expression".
@@ -19,18 +18,15 @@ import { PickConstraintIgnoringNull, PickConstraintKeys } from "@/utils";
  *    This system draws from my experience with Julia (which I believe in turn
  *    draws from Lisp). Definitely check it out!
  */
-abstract class Expr<H extends string>  {
+export abstract class Expr<H extends string> {
   get $_iama() {
     return "Expr";
   }
 
-  protected constructor(
-    public head: H,
-  ) {}
+  protected constructor(public head: H) {}
 
   abstract toSQL(context: ReductionContext): string;
 }
-export default Expr;
 
 export function isExpr(x: unknown): x is Expr<string> {
   return itisa(x) === "Expr";
@@ -41,5 +37,7 @@ export function isExpr(x: unknown): x is Expr<string> {
  *
  * This is used to create easy constructors for (e.g.) the Select Expr.
  */
-export type PickExpr<T> = PickConstraintIgnoringNull<T, Expr<any> | Array<Expr<any>>>;
-
+export type PickExpr<T> = PickConstraintIgnoringNull<
+  T,
+  Expr<any> | Array<Expr<any>>
+>;

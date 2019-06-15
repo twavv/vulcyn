@@ -10,19 +10,14 @@
  * Inspired by https://link.medium.com/bOKpZFxJnX
  */
 export type PickConstraintKeys<O, C> = {
-  [K in keyof O]:
-  O[K] extends C ? K : never
+  [K in keyof O]: O[K] extends C ? K : never;
 }[keyof O];
 
 export type PickConstraintsKeysIgnoringNull<O, C> = {
-  [K in keyof O]:
-  NonNullable<O[K]> extends C ? K : never
+  [K in keyof O]: NonNullable<O[K]> extends C ? K : never;
 }[keyof O];
 
-export type PickConstraint<O, C> = Pick<
-  O,
-  PickConstraintKeys<O, C>
->;
+export type PickConstraint<O, C> = Pick<O, PickConstraintKeys<O, C>>;
 
 export type PickConstraintIgnoringNull<O, C> = Pick<
   O,

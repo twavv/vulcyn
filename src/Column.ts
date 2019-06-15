@@ -3,9 +3,9 @@
  *
  * This is used when declaring tables.
  */
-import {itisa} from "./util";
+import { itisa } from "@/utils";
 
-abstract class Column<T, InsertionType = T> {
+export abstract class Column<T, InsertionType = T> {
   abstract readonly $pgType: string;
 
   get $_iama() {
@@ -16,8 +16,8 @@ abstract class Column<T, InsertionType = T> {
   // types (otherwise ColumnClass<int> would be equivalent to
   // ColumnClass<string> because the class itself does not make reference to the
   // type).
-  public $_type!: T;
-  public $_insertionType!: InsertionType;
+  $_type!: T;
+  $_insertionType!: InsertionType;
 
   protected $nullable?: boolean;
   protected $default?: string;
@@ -37,14 +37,8 @@ abstract class Column<T, InsertionType = T> {
   }
 }
 
-export default Column;
-
-export type ColumnTSType<
-    C extends Column<any>
-> = C["$_type"];
-export type ColumnTSInsertionType<
-    C extends Column<any>
-> = C["$_insertionType"];
+export type ColumnTSType<C extends Column<any>> = C["$_type"];
+export type ColumnTSInsertionType<C extends Column<any>> = C["$_insertionType"];
 
 export function isColumn(x: unknown): x is Column<unknown> {
   return itisa(x) === "Column";

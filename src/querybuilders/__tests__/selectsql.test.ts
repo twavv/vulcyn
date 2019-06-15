@@ -1,7 +1,4 @@
-import {IntColumn, StringColumn} from "../../columntypes";
-import Table from "../../Table";
-import TableWrapper from "../../TableWrapper";
-import Database from "../../Database";
+import { Database, IntColumn, StringColumn, Table } from "@";
 
 test("SelectQueryBuilder with spec object", () => {
   class User extends Table {
@@ -10,7 +7,7 @@ test("SelectQueryBuilder with spec object", () => {
   }
 
   // Use null b/c we don't actually us Postgres here
-  const db = Database(null as any, {users: new User});
+  const db = Database(null as any, { users: new User() });
   const sql = db
     .selectOne({
       id: db.users.id,
@@ -32,10 +29,8 @@ test("SelectQueryBuilder with column names", () => {
   }
 
   // Use null b/c we don't actually us Postgres here
-  const db = Database(null as any, {users: new User});
-  const query = db
-    .select(db.users, "id", "name")
-    .from(db.users);
+  const db = Database(null as any, { users: new User() });
+  const query = db.select(db.users, "id", "name").from(db.users);
   const sql = query.$toSQL();
 
   expect(sql).toContain("SELECT ");
@@ -50,7 +45,7 @@ test("SelectQueryBuilder without manual .from()", () => {
     name = new StringColumn().nullable();
   }
 
-  const db = Database(null as any, {users: new User});
+  const db = Database(null as any, { users: new User() });
   const query = db.select(db.users, "id", "name");
   const sql = query.$toSQL();
 

@@ -21,9 +21,8 @@
    [ WHERE condition ]
  */
 
-import Expr, { PickExpr } from "./Expr";
-import ReductionContext from "./ReductionContext";
-import SQLFragment from "./SQLFragment";
+import { Expr, PickExpr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * An INSERT query Expr.
@@ -31,11 +30,10 @@ import SQLFragment from "./SQLFragment";
  * @todo
  *    * Support for RETURNING
  */
-class Insert extends Expr<"select"> {
-
-  public tableName!: Expr<string>;
-  public columns!: Array<Expr<string>>;
-  public values!: Array<Expr<string>>;
+export class Insert extends Expr<"select"> {
+  tableName!: Expr<string>;
+  columns!: Array<Expr<string>>;
+  values!: Array<Expr<string>>;
 
   constructor(args: PickExpr<Insert>) {
     super("select");
@@ -44,11 +42,11 @@ class Insert extends Expr<"select"> {
 
   toSQL(rc: ReductionContext): string {
     return (
-      "INSERT INTO "
-        + this.tableNameSQL(rc)
-        + this.columnsSQL(rc)
-        + this.valuesSQL(rc)
-        + ";"
+      "INSERT INTO " +
+      this.tableNameSQL(rc) +
+      this.columnsSQL(rc) +
+      this.valuesSQL(rc) +
+      ";"
     );
   }
 
@@ -58,22 +56,13 @@ class Insert extends Expr<"select"> {
 
   private columnsSQL(rc: ReductionContext) {
     return (
-      " ("
-      + this.columns
-        .map((column) => column.toSQL(rc))
-        .join(", ")
-      + ")"
+      " (" + this.columns.map((column) => column.toSQL(rc)).join(", ") + ")"
     );
   }
 
   private valuesSQL(rc: ReductionContext) {
     return (
-      " VALUES ("
-      + this.values
-        .map((value) => value.toSQL(rc))
-        .join(", ")
-      + ")"
+      " VALUES (" + this.values.map((value) => value.toSQL(rc)).join(", ") + ")"
     );
   }
 }
-export default Insert;

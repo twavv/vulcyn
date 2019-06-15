@@ -1,4 +1,4 @@
-import Column from "./Column";
+import { Column } from "@";
 
 export class IntColumn extends Column<number> {
   readonly $pgType = "int";

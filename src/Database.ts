@@ -1,16 +1,16 @@
-import SelectQueryBuilder, {
-  PickSelectorSpecFromColumnNames,
-  SelectorSpec
-} from "./queries/SelectQueryBuilder";
-import Table from "./Table";
-import TableWrapper, {isTableWrapper} from "./TableWrapper";
-import {Client} from "pg";
-import {pick} from "./util";
-import Insert from "@/expr/Insert";
-import InsertQueryBuilder from "@/queries/InsertQueryBuilder";
+import { Client } from "pg";
 
-type TableMap = {
-  [k: string]: Table
+import { isTableWrapper, Table, TableWrapper } from "@";
+import {
+  InsertQueryBuilder,
+  PickSelectorSpecFromColumnNames,
+  SelectorSpec,
+  SelectQueryBuilder,
+} from "@/querybuilders";
+import { pick } from "@/utils";
+
+interface TableMap {
+  [k: string]: Table;
 }
 
 /**
@@ -28,49 +28,48 @@ class DatabaseImpl<T extends TableMap> {
 
   // Convenience hack that allows us to avoid extra casting to any in the body
   // of this class.
-  private $ = this as any as Database<T>;
+  private $ = (this as any) as Database<T>;
 
-  constructor(
-    public $pg: Client,
-    tableMap: T,
-  ) {
-    this.$tables = Object.fromEntries(Object.entries(tableMap).map(
-      ([tableName, table]) => {
+  constructor(public $pg: Client, tableMap: T) {
+    this.$tables = Object.fromEntries(
+      Object.entries(tableMap).map(([tableName, table]) => {
         // noinspection SuspiciousTypeOfGuard
         if (!(table instanceof Table)) {
-          throw new Error(`All properties in a TableMap must be Table instances.`);
+          throw new Error(
+            `All properties in a TableMap must be Table instances.`,
+          );
         }
         if (typeof (this as any)[tableName] !== "undefined") {
-          throw new Error(`Table name "${tableName}" conflicts with existing name in DatabaseImpl.`)
+          throw new Error(
+            `Table name "${tableName}" conflicts with existing name in DatabaseImpl.`,
+          );
         }
-        return [
-          tableName,
-          TableWrapper(tableName, table),
-        ];
-      },
-    )) as any;
+        return [tableName, TableWrapper(tableName, table)];
+      }),
+    ) as any;
 
     // Implement TableWrapperMap<T>
     Object.entries(this.$tables).forEach(([tableName, tableWrapper]) => {
       Object.defineProperty(this, tableName, {
-        get() { return tableWrapper; }
-      })
-    })
+        get() {
+          return tableWrapper;
+        },
+      });
+    });
   }
 
   // select(db.users, "id", "name", ...)
-  select<
-      TW extends TableWrapper<string, any>,
-      K extends keyof TW["$columns"],
-  >(
+  select<TW extends TableWrapper<string, any>, K extends keyof TW["$columns"]>(
     table: TW,
     ...keys: K[]
-  ): SelectQueryBuilder<Database<T>, PickSelectorSpecFromColumnNames<TW, K>, false>;
+  ): SelectQueryBuilder<
+    Database<T>,
+    PickSelectorSpecFromColumnNames<TW, K>,
+    false
+  >;
 
   // select({userId: db.users.id, name: db.users.name, ...})
-  select<
-      S extends SelectorSpec
-  >(
+  select<S extends SelectorSpec>(
     spec: S,
   ): SelectQueryBuilder<Database<T>, S, false>;
 
@@ -86,7 +85,9 @@ class DatabaseImpl<T extends TableMap> {
     return new SelectQueryBuilder(this.$, tableOrSpec, false);
   }
 
-  selectOne<S extends SelectorSpec>(spec: S): SelectQueryBuilder<Database<T>, S, true> {
+  selectOne<S extends SelectorSpec>(
+    spec: S,
+  ): SelectQueryBuilder<Database<T>, S, true> {
     // `this as any` required because of hack described above.
     return new SelectQueryBuilder(this as any, spec, true);
   }
@@ -97,10 +98,12 @@ class DatabaseImpl<T extends TableMap> {
 }
 
 export type TableWrapperMap<T extends TableMap> = {
-  [K in keyof T & string]: TableWrapper<K, T[K]>
-}
-type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
-function Database<T extends TableMap>(pg: Client, tables: T): Database<T> {
+  [K in keyof T & string]: TableWrapper<K, T[K]>;
+};
+export type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
+export function Database<T extends TableMap>(
+  pg: Client,
+  tables: T,
+): Database<T> {
   return new DatabaseImpl(pg, tables) as any;
 }
-export default Database;

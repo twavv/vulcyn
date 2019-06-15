@@ -1,6 +1,5 @@
-import SQLFragment from "../../expr/SQLFragment";
-import WhereSubquery from "../WhereSubquery";
-import ReductionContext from "../../expr/ReductionContext";
+import { WhereSubquery } from "@/querybuilders/WhereSubquery";
+import { ReductionContext, SQLFragment } from "@/expr";
 
 test("WhereSubquery with bare SQLFragment", () => {
   const myQuery = new WhereSubquery(new SQLFragment(`foo = 'bar'`));
@@ -10,13 +9,16 @@ test("WhereSubquery with bare SQLFragment", () => {
 });
 
 test("WhereSubquery with builder function", () => {
-  const myQuery = new WhereSubquery((q) => q.or(
-    (q) => q.and(
-        new SQLFragment(`name = 'travtown'`),
-        new SQLFragment('age > 21'),
-      ),
-    new SQLFragment('isadmin = true'),
-  ));
+  const myQuery = new WhereSubquery((q) =>
+    q.or(
+      (q) =>
+        q.and(
+          new SQLFragment(`name = 'travtown'`),
+          new SQLFragment("age > 21"),
+        ),
+      new SQLFragment("isadmin = true"),
+    ),
+  );
   const sql = myQuery.$toExpr().toSQL(new ReductionContext());
 
   expect(sql).toContain("WHERE ");

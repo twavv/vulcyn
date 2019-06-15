@@ -1,31 +1,33 @@
-import QueryBuilder, { ExecutableQueryBuilder } from "./QueryBuilder";
-import Expr from "../expr/Expr";
-import Insert from "../expr/Insert";
-import TableWrapper from "../TableWrapper";
-import Table from "../Table";
-import SQLFragment from "../expr/SQLFragment";
-import ColumnWrapper, { ColumnWrapperTSInsertionType } from "../ColumnWrapper";
-import Parameter from "../expr/Parameter";
+import {
+  ColumnWrapper,
+  ColumnWrapperTSInsertionType,
+  Database,
+  Table,
+  TableWrapper,
+} from "@";
+import { Expr, Insert, Parameter, SQLFragment } from "@/expr";
 import { UndefinedOptional } from "@/utils";
-import Database from "@/Database";
+
+import { ExecutableQueryBuilder } from "./QueryBuilder";
 
 export type InsertInterface<
-    T extends TableWrapper<string, Table>,
-    C extends T["$columns"] = T["$columns"]
-> = UndefinedOptional<{
-  [K in keyof C]: C[K] extends ColumnWrapper<any, any>
-    ? ColumnWrapperTSInsertionType<C[K]>
-    : never;
-}>
+  T extends TableWrapper<string, Table>,
+  C extends T["$columns"] = T["$columns"]
+> = UndefinedOptional<
+  {
+    [K in keyof C]: C[K] extends ColumnWrapper<any, any>
+      ? ColumnWrapperTSInsertionType<C[K]>
+      : never;
+  }
+>;
 
-class InsertQueryBuilder<
-    DB extends Database<any>,
-    TW extends TableWrapper<string, Table>
+export class InsertQueryBuilder<
+  DB extends Database<any>,
+  TW extends TableWrapper<string, Table>
 > extends ExecutableQueryBuilder<DB, unknown> {
-
-  public $tableName: SQLFragment;
-  public $columns?: SQLFragment[];
-  public $values?: Expr<string>[];
+  $tableName: SQLFragment;
+  $columns?: SQLFragment[];
+  $values?: Expr<string>[];
 
   constructor(
     db: DB,
@@ -58,7 +60,7 @@ class InsertQueryBuilder<
       tableName: this.$tableName,
       columns: this.$getColumns(),
       values: this.$getValues(),
-    })
+    });
   }
 
   private $getColumns() {
@@ -79,4 +81,3 @@ class InsertQueryBuilder<
     return await this.$tryExecute();
   }
 }
-export default InsertQueryBuilder;
