@@ -3,7 +3,10 @@ import ColumnWrapper from "./ColumnWrapper";
 import Table, {isTable} from "./Table";
 import {assignGetters, itisa} from "./util";
 
-class TableWrapperClass<TableName extends string, T extends Table> {
+class TableWrapperClass<
+    TableName extends string = string,
+    T extends Table = Table
+> {
   $columns: TableWrapperColumns<T>;
 
   get $_iama() {
@@ -36,7 +39,7 @@ class TableWrapperClass<TableName extends string, T extends Table> {
     assignGetters(this, this.$columns);
   }
 
-  $getColumns():Array<ColumnWrapper<any, any>> {
+  $getColumns(): Array<ColumnWrapper<string, Column<unknown>>> {
     return Object.entries(this.$columns).map(([_, column]) => column);
   }
 

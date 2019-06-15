@@ -4,7 +4,7 @@ import ColumnWrapper from "../../../ColumnWrapper";
 import Database from "../../../Database";
 import Table from "../../../Table";
 import TableWrapper from "../../../TableWrapper";
-import SelectQuery, {PickSelectorSpecFromColumnNames, SelectQueryReturn, SelectRowResult} from "../../SelectQuery";
+import SelectQueryBuilder, {PickSelectorSpecFromColumnNames, SelectQueryReturn, SelectRowResult} from "../../SelectQueryBuilder";
 
 test("PickSelectorSpecFromColumnNames", () => {
   class User extends Table {
@@ -62,13 +62,13 @@ test("SelectQueryReturn has correct type for fetch many", () => {
     >>(true);
 });
 
-test("SelectQuery has correct SelectRowResult type", () => {
+test("SelectQueryBuilder has correct SelectRowResult type", () => {
   class User extends Table {
     id = new IntColumn();
     name = new StringColumn();
   }
   type MyDb = Database<{users: User}>;
-  type MyQueryOne = SelectQuery<MyDb, {id: MyDb["users"]["id"]}, true>;
+  type MyQueryOne = SelectQueryBuilder<MyDb, {id: MyDb["users"]["id"]}, true>;
   assert<IsExact<
     MyQueryOne["$promise"],
     Promise<{id: number} | null>
@@ -80,14 +80,14 @@ test("SelectQuery has correct SelectRowResult type", () => {
     Promise<{name: string}>
   >>(false);
 
-  type MyQueryMany = SelectQuery<MyDb, {id: MyDb["users"]["id"]}, false>;
+  type MyQueryMany = SelectQueryBuilder<MyDb, {id: MyDb["users"]["id"]}, false>;
   assert<IsExact<
     MyQueryMany["$promise"],
     Promise<Array<{id: number}>>
   >>(true);
 });
 
-test("SelectQuery for column names has correct SelectRowResult type", async () => {
+test("SelectQueryBuilder for column names has correct SelectRowResult type", async () => {
   class User extends Table {
     id = new IntColumn();
     name = new StringColumn();
@@ -96,7 +96,7 @@ test("SelectQuery for column names has correct SelectRowResult type", async () =
   const myQuery = db.select(db.users, "id", "name");
   assert<IsExact<
       typeof myQuery,
-      SelectQuery<typeof db, any, any>
+      SelectQueryBuilder<typeof db, any, any>
   >>(true);
   type QueryType = typeof myQuery;
 

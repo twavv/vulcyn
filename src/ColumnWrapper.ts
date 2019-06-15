@@ -17,7 +17,7 @@ class ColumnWrapperClass<N extends string, T> {
   $_type?: T;
 
   constructor(
-    public $table: TableWrapper<any, any>,
+    public $table: TableWrapper<string, Table>,
     public $columnName: string,
     public $column: Column<T>,
   ) {
@@ -46,7 +46,7 @@ class ColumnWrapperClass<N extends string, T> {
 
 type ColumnWrapper<N extends string, T> = ColumnWrapperClass<N, T>;
 function ColumnWrapper<N extends string, T>(
-    $table: TableWrapper<any, any>,
+    $table: TableWrapper<string, Table>,
     $columnName: string,
     $column: Column<T>,
 ) {

@@ -1,7 +1,7 @@
-import SelectQuery, {
+import SelectQueryBuilder, {
   PickSelectorSpecFromColumnNames,
   SelectorSpec
-} from "./queries/SelectQuery";
+} from "./queries/SelectQueryBuilder";
 import Table from "./Table";
 import TableWrapper, {isTableWrapper} from "./TableWrapper";
 import {Client} from "pg";
@@ -54,19 +54,19 @@ class DatabaseImpl<T extends TableMap> {
 
   // select(db.users, "id", "name", ...)
   select<
-      TB extends TableWrapper<any, any>,
-      K extends keyof TB["$columns"],
+      TW extends TableWrapper<string, any>,
+      K extends keyof TW["$columns"],
   >(
-    table: TB,
+    table: TW,
     ...keys: K[]
-  ): SelectQuery<Database<T>, PickSelectorSpecFromColumnNames<TB, K>, false>;
+  ): SelectQueryBuilder<Database<T>, PickSelectorSpecFromColumnNames<TW, K>, false>;
 
   // select({userId: db.users.id, name: db.users.name, ...})
   select<
       S extends SelectorSpec
   >(
     spec: S,
-  ): SelectQuery<Database<T>, S, false>;
+  ): SelectQueryBuilder<Database<T>, S, false>;
 
   // select(...) implementation
   select(tableOrSpec: any, ...keys: any[]) {
@@ -75,14 +75,14 @@ class DatabaseImpl<T extends TableMap> {
         throw new Error(`Cannot select zero columns.`);
       }
       const spec = pick(tableOrSpec.$columns, ...keys);
-      return new SelectQuery(this as any, spec, false);
+      return new SelectQueryBuilder(this as any, spec, false);
     }
-    return new SelectQuery(this as any, tableOrSpec, false);
+    return new SelectQueryBuilder(this as any, tableOrSpec, false);
   }
 
-  selectOne<S extends SelectorSpec>(spec: S): SelectQuery<Database<T>, S, true> {
+  selectOne<S extends SelectorSpec>(spec: S): SelectQueryBuilder<Database<T>, S, true> {
     // `this as any` required because of hack described above.
-    return new SelectQuery(this as any, spec, true);
+    return new SelectQueryBuilder(this as any, spec, true);
   }
 }
 

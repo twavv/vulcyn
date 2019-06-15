@@ -2,7 +2,13 @@ import ColumnWrapper, {ColumnWrapperTSType} from "../ColumnWrapper";
 import Database from "../Database";
 import TableWrapper from "../TableWrapper";
 import WhereSubquery, { WhereSubqueryInputSpecifier } from "./WhereSubquery";
-import ReductionContext from "../expr/ReductionContext";
+import Select from "../expr/Select";
+import Clause from "../expr/Clause";
+import Table from "../Table";
+import SQLFragment from "../expr/SQLFragment";
+import Expr from "../expr/Expr";
+import QueryBuilder from "./QueryBuilder";
+import Limit from "../expr/Limit";
 
 /**
  * The type of the input to a select query.
@@ -15,7 +21,7 @@ import ReductionContext from "../expr/ReductionContext";
  *    db.select(selectorSpec).from(db.users);
  */
 export interface SelectorSpec {
-  [k: string]: ColumnWrapper<any, any>
+  [k: string]: ColumnWrapper<string, unknown>
 }
 
 /**
@@ -51,7 +57,7 @@ export type SelectQueryReturn<
  *    type MyPickedSpec = PickSelectorSpecFromColumnNames<table, "id", "name">;
  */
 export type PickSelectorSpecFromColumnNames<
-    T extends TableWrapper<any, any>,
+    T extends TableWrapper<string, Table>,
     K extends keyof T["$columns"],
 > = {
   [k in K]: T["$columns"][k];
@@ -60,19 +66,38 @@ export type PickSelectorSpecFromColumnNames<
 /**
  * A builder for a select query.
  */
-class SelectQuery<
+class SelectQueryBuilder<
     // Database type
     D extends Database<any>,
     // Selector type
     S extends SelectorSpec,
     // True if fetch one
     FO extends boolean = false,
-> implements Promise<SelectQueryReturn<S, FO>> {
+> extends QueryBuilder implements Promise<SelectQueryReturn<S, FO>> {
   private $_promise?: Promise<SelectQueryReturn<S, FO>>;
-  private $fromTableName?: string;
-  private $whereClause?: WhereSubquery<D>;
 
-  constructor(public $db: D, public $selectorSpec: S, public $fetchOne: FO) {}
+  private $columns: Array<Expr<any>>;
+  private $from?: Clause<"from">;
+  private $where?: Clause<"where">;
+  private $limit?: Limit;
+
+  constructor(
+    public $db: D,
+    public $selectorSpec: S,
+    public $fetchOne: FO,
+  ) {
+    super();
+    this.$columns = Object.entries($selectorSpec).map(([name, column]) => {
+      const {$columnName} = column;
+      if ($columnName != name) {
+        return new SQLFragment(`${$columnName} AS ${name}`);
+      }
+      return new SQLFragment($columnName);
+    });
+    if ($fetchOne) {
+      this.$limit = new Limit(1);
+    }
+  }
 
   /**
    * Set the `FROM` table in the query.
@@ -87,24 +112,24 @@ class SelectQuery<
    *   This can be automagically inferred when all of the columns come from the
    *   same table.
    */
-  public from(table: TableWrapper<any, any>) {
-    this.$fromTableName = table.$tableName;
+  public from(table: TableWrapper<string, Table>) {
+    this.$from = new Clause("from", new SQLFragment(table.$tableName));
     return this;
   }
 
   public where(whereSpecifier: WhereSubqueryInputSpecifier) {
-    this.$whereClause = new WhereSubquery<D>(whereSpecifier);
+    this.$where = new WhereSubquery<D>(whereSpecifier).$toExpr();
     return this;
   }
 
-  public $SQL() {
-    let query = `SELECT`;
-    query += this.$getSelectorSpecSQL();
-    query += this.$getFromSQL();
-    query += this.$getWhereSQL();
-    query += this.$getLimitSQL();
-    query += `;`;
-    return query;
+  public $toExpr() {
+    return new Select({
+      columns: this.$columns,
+      from: this.$from || this.$guessFromClause(),
+      where: this.$where,
+      limit: this.$limit,
+    });
+    // TODO: LIMIT
   }
 
   private $getSelectorSpecSQL() {
@@ -116,26 +141,7 @@ class SelectQuery<
     );
   }
 
-  private $getFromSQL() {
-    const tableName: string = this.$fromTableName || this.$guessTableName();
-    return ` FROM ${tableName}`;
-  }
-
-  private $getWhereSQL() {
-    if (!this.$whereClause) {
-      return "";
-    }
-    return ` ${this.$whereClause.$toExpr().toSQL(new ReductionContext())}`;
-  }
-
-  private $getLimitSQL() {
-    if (this.$fetchOne) {
-      return ` LIMIT 1`;
-    }
-    return ``;
-  }
-
-  private $guessTableName() {
+  private $guessFromClause() {
     let guess: string | null = null;
     for (const selector of Object.values(this.$selectorSpec)) {
       if (guess === null) {
@@ -154,15 +160,25 @@ class SelectQuery<
         `Cannot guess table name from query with no columns selected.`
       );
     }
-    return guess;
+    return new Clause("from", new SQLFragment(guess));
   }
 
   public async $execute(): Promise<SelectQueryReturn<S, FO>> {
-    const result = await this.$db.$pg.query(this.$SQL());
+    const result = await this.$tryExecute();
     if (this.$fetchOne) {
       return result.rows[0] || null;
     }
     return result.rows as any;
+  }
+
+  private async $tryExecute() {
+    const sql = this.$toSQL();
+    try {
+      return await this.$db.$pg.query(sql);
+    } catch (e) {
+      console.error(`Error executing SQL: ${sql}`);
+      throw e;
+    }
   }
 
   private get $promise(): Promise<SelectQueryReturn<S, FO>> {
@@ -174,7 +190,7 @@ class SelectQuery<
 
   // Methods to implement the Promise interface
   get [Symbol.toStringTag]() {
-    return "SelectQuery";
+    return "SelectQueryBuilder";
   }
   get then() {
     return this.$promise.then.bind(this.$promise);
@@ -186,4 +202,4 @@ class SelectQuery<
     return this.$promise.finally.bind(this.$promise);
   }
 }
-export default SelectQuery;
+export default SelectQueryBuilder;

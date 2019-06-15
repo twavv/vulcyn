@@ -3,7 +3,7 @@ import Table from "../../Table";
 import TableWrapper from "../../TableWrapper";
 import Database from "../../Database";
 
-test("SelectQuery with spec object", () => {
+test("SelectQueryBuilder with spec object", () => {
   class User extends Table {
     id = new IntColumn();
     name = new StringColumn().nullable();
@@ -17,16 +17,15 @@ test("SelectQuery with spec object", () => {
       name: db.users.name,
     })
     .from(db.users)
-    .$SQL();
+    .$toSQL();
 
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users ");
-  expect(sql).toContain(" id ");
-  expect(sql).toContain(" name ");
+  expect(sql).toContain(" id, name ");
   expect(sql).toContain(" LIMIT 1");
 });
 
-test("SelectQuery with column names", () => {
+test("SelectQueryBuilder with column names", () => {
   class User extends Table {
     id = new IntColumn();
     name = new StringColumn().nullable();
@@ -37,7 +36,7 @@ test("SelectQuery with column names", () => {
   const query = db
     .select(db.users, "id", "name")
     .from(db.users);
-  const sql = query.$SQL();
+  const sql = query.$toSQL();
 
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users");
@@ -45,7 +44,7 @@ test("SelectQuery with column names", () => {
   expect(sql).toEqual(expect.stringMatching(/ name[ ,]/));
 });
 
-test("SelectQuery without manual .from()", () => {
+test("SelectQueryBuilder without manual .from()", () => {
   class User extends Table {
     id = new IntColumn();
     name = new StringColumn().nullable();
@@ -53,7 +52,7 @@ test("SelectQuery without manual .from()", () => {
 
   const db = Database(null as any, {users: new User});
   const query = db.select(db.users, "id", "name");
-  const sql = query.$SQL();
+  const sql = query.$toSQL();
 
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users");

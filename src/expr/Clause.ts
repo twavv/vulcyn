@@ -4,7 +4,7 @@ import ReductionContext from "./ReductionContext";
 /**
  * The name (in lowercase) of any valid SQL clause.
  */
-type ClauseHead = "where";
+type ClauseHead = "where" | "from";
 
 /**
  * An Expr that represents a SQL clause.
@@ -17,10 +17,13 @@ type ClauseHead = "where";
  *    for WHERE and SET and friends. The advantage of this approach would be
  *    better static analysis (for example, we could enforce that SET clause
  *    bodies are exclusively "=" infix Exprs with static typing).
+ *
+ * @todo
+ *    I think it's definitely better to have these be their own Expr classes.
  */
-class Clause extends Expr<ClauseHead> {
+class Clause<H extends ClauseHead> extends Expr<H> {
   constructor(
-    head: ClauseHead,
+    head: H,
     public body: Expr<any>,
   ) {
     super(head);

@@ -19,7 +19,6 @@ test("WhereSubquery with builder function", () => {
   ));
   const sql = myQuery.$toExpr().toSQL(new ReductionContext());
 
-  console.log(sql);
   expect(sql).toContain("WHERE ");
   expect(sql).toContain(" AND ");
   expect(sql).toContain(") OR (");
