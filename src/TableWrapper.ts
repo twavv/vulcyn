@@ -1,4 +1,4 @@
-import Column, {ColumnTSType, isColumn} from "./Column";
+import Column, { ColumnTSInsertionType, ColumnTSType, isColumn } from "./Column";
 import ColumnWrapper from "./ColumnWrapper";
 import Table, { isTable, TableColumns } from "./Table";
 import {assignGetters, itisa} from "./util";
@@ -66,7 +66,7 @@ class TableWrapperClass<
  */
 export type TableWrapperColumns<T extends Table, C extends TableColumns<T> = TableColumns<T>> = {
   [K in keyof C & string]: C[K] extends Column<any>
-    ? ColumnWrapper<K, ColumnTSType<C[K]>>
+    ? ColumnWrapper<K, ColumnTSType<C[K]>, ColumnTSInsertionType<C[K]>>
     : never;
 }
 

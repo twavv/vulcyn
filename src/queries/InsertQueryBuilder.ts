@@ -4,17 +4,18 @@ import Insert from "../expr/Insert";
 import TableWrapper from "../TableWrapper";
 import Table from "../Table";
 import SQLFragment from "../expr/SQLFragment";
-import ColumnWrapper, { ColumnWrapperTSType } from "../ColumnWrapper";
+import ColumnWrapper, { ColumnWrapperTSInsertionType } from "../ColumnWrapper";
 import Parameter from "../expr/Parameter";
+import { UndefinedOptional } from "@/utils";
 
 export type InsertInterface<
     T extends TableWrapper<string, Table>,
     C extends T["$columns"] = T["$columns"]
-> = {
+> = UndefinedOptional<{
   [K in keyof C]: C[K] extends ColumnWrapper<any, any>
-    ? ColumnWrapperTSType<C[K]>
+    ? ColumnWrapperTSInsertionType<C[K]>
     : never;
-}
+}>
 
 // TODO: typing
 class InsertQueryBuilder<
