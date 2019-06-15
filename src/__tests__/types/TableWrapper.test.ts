@@ -1,7 +1,7 @@
-import {assert, IsExact} from "conditional-type-checks";
-import {IntColumn, StringColumn} from "../../columntypes";
-import ColumnWrapper, {ColumnWrapperTSType} from "../../ColumnWrapper";
-import {TableWrapperMap} from "../../Database";
+import { assert, IsExact } from "conditional-type-checks";
+import { IntColumn, StringColumn } from "../../columntypes";
+import ColumnWrapper, { ColumnWrapperTSType } from "../../ColumnWrapper";
+import { TableWrapperMap } from "../../Database";
 import Table from "../../Table";
 import TableWrapper, { TableWrapperColumns } from "../../TableWrapper";
 
@@ -12,19 +12,10 @@ test("TableWrapper correctly maps column types", () => {
   }
 
   const userWrapper = TableWrapper("users", new User());
-  assert<IsExact<
-    typeof userWrapper,
-    TableWrapper<"users", User>
-  >>(true);
+  assert<IsExact<typeof userWrapper, TableWrapper<"users", User>>>(true);
 
-  assert<IsExact<
-    typeof userWrapper["id"],
-    ColumnWrapper<"id", number>
-  >>(true);
-  assert<IsExact<
-    typeof userWrapper["id"],
-    ColumnWrapper<"id", string>
-  >>(false);
+  assert<IsExact<typeof userWrapper["id"], ColumnWrapper<"id", number>>>(true);
+  assert<IsExact<typeof userWrapper["id"], ColumnWrapper<"id", string>>>(false);
 
   assert<IsExact<ColumnWrapperTSType<typeof userWrapper.id>, number>>(true);
   assert<IsExact<ColumnWrapperTSType<typeof userWrapper.id>, string>>(false);
@@ -41,8 +32,10 @@ test("TableWrapperColumns doesn't include non-columns", () => {
     name = new StringColumn();
   }
   type TWC = TableWrapperColumns<UserTable>;
-  assert<IsExact<
-    TableWrapperColumns<UserTable>,
-    {id: ColumnWrapper<"id", number>, name: ColumnWrapper<"name", string>}
-  >>(true);
+  assert<
+    IsExact<
+      TableWrapperColumns<UserTable>,
+      { id: ColumnWrapper<"id", number>; name: ColumnWrapper<"name", string> }
+    >
+  >(true);
 });

@@ -4,10 +4,7 @@ import ReductionContext from "./ReductionContext";
 export type LogicalOperatorType = "and" | "or";
 
 class LogicalOperator extends Expr<"binaryoperator"> {
-  constructor(
-    public operator: LogicalOperatorType,
-    public args: Expr<any>[]
-  ) {
+  constructor(public operator: LogicalOperatorType, public args: Expr<any>[]) {
     super("binaryoperator");
   }
 

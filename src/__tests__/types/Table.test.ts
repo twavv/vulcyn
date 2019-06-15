@@ -12,8 +12,5 @@ test("TableColumns has correct shape", () => {
   type TC = TableColumns<UserTable>;
 
   // NOTE: We use Has because Column<number> is not exactly IntColumn
-  assert<Has<
-      TC,
-      {id: Column<number>, name: Column<string>}
-  >>(true);
+  assert<Has<TC, { id: Column<number>; name: Column<string> }>>(true);
 });

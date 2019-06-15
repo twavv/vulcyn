@@ -10,19 +10,20 @@ import { UndefinedOptional } from "@/utils";
 import Database from "@/Database";
 
 export type InsertInterface<
-    T extends TableWrapper<string, Table>,
-    C extends T["$columns"] = T["$columns"]
-> = UndefinedOptional<{
-  [K in keyof C]: C[K] extends ColumnWrapper<any, any>
-    ? ColumnWrapperTSInsertionType<C[K]>
-    : never;
-}>
+  T extends TableWrapper<string, Table>,
+  C extends T["$columns"] = T["$columns"]
+> = UndefinedOptional<
+  {
+    [K in keyof C]: C[K] extends ColumnWrapper<any, any>
+      ? ColumnWrapperTSInsertionType<C[K]>
+      : never;
+  }
+>;
 
 class InsertQueryBuilder<
-    DB extends Database<any>,
-    TW extends TableWrapper<string, Table>
+  DB extends Database<any>,
+  TW extends TableWrapper<string, Table>
 > extends ExecutableQueryBuilder<DB, unknown> {
-
   public $tableName: SQLFragment;
   public $columns?: SQLFragment[];
   public $values?: Expr<string>[];
@@ -58,7 +59,7 @@ class InsertQueryBuilder<
       tableName: this.$tableName,
       columns: this.$getColumns(),
       values: this.$getValues(),
-    })
+    });
   }
 
   private $getColumns() {

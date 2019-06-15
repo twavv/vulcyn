@@ -1,5 +1,5 @@
 import Column from "./Column";
-import {itisa} from "./util";
+import { itisa } from "./util";
 import { PickConstraint } from "@/utils";
 
 class Table {

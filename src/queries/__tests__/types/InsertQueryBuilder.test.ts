@@ -11,8 +11,5 @@ test("InsertInterface has correct shape", () => {
   }
   type UserTW = TableWrapper<"users", UserTable>;
   type UserInsertInterface = InsertInterface<UserTW>;
-  assert<IsExact<
-    UserInsertInterface,
-    {id: number, name: string}
-  >>(true);
+  assert<IsExact<UserInsertInterface, { id: number; name: string }>>(true);
 });

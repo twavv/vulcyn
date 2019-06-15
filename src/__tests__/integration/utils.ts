@@ -1,10 +1,12 @@
-import {Client} from "pg";
+import { Client } from "pg";
 
 let pgdb: Client | undefined = undefined;
 
 export function getPG(): Client {
   if (pgdb === undefined) {
-    throw new Error(`Postgres is not initialized - did you call setupPG in beforeEach?`);
+    throw new Error(
+      `Postgres is not initialized - did you call setupPG in beforeEach?`,
+    );
   }
   return pgdb;
 }
@@ -19,7 +21,9 @@ export function getPG(): Client {
  */
 export async function setupPG() {
   if (pgdb) {
-    throw new Error(`Postgres client already initialized - did you forget to call teardownPG in beforeEach?`);
+    throw new Error(
+      `Postgres client already initialized - did you forget to call teardownPG in beforeEach?`,
+    );
   }
   const {
     DBTS_TEST_PG_HOST = "localhost",
@@ -42,9 +46,9 @@ export async function setupPG() {
 export async function teardownPG() {
   const client = getPG();
   const tables = (await client.query(
-    `SELECT tablename FROM pg_catalog.pg_tables `
-    + `WHERE schemaname = 'public';`
-  )).rows.map(({tablename}) => tablename);
+    `SELECT tablename FROM pg_catalog.pg_tables ` +
+      `WHERE schemaname = 'public';`,
+  )).rows.map(({ tablename }) => tablename);
   await client.query(`DROP TABLE ${tables.join(", ")};`);
   pgdb = undefined;
   await client.end();

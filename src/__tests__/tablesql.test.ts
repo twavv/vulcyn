@@ -1,4 +1,4 @@
-import {IntColumn, StringColumn} from "../columntypes";
+import { IntColumn, StringColumn } from "../columntypes";
 import Table from "../Table";
 import TableWrapper from "../TableWrapper";
 

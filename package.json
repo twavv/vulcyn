@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
+    "prettier": "prettier --write \"./src/**/*.ts\"",
     "test": "jest"
   },
   "keywords": [],
@@ -20,6 +21,7 @@
     "conditional-type-checks": "^1.0.1",
     "jest": "^24.8.0",
     "jest-circus": "^24.8.0",
+    "prettier": "^1.18.2",
     "ts-jest": "^24.0.2"
   },
   "files": [

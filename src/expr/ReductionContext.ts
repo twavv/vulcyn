@@ -12,7 +12,7 @@ class ReductionContext {
    */
   addParameter(value: any) {
     this.$parameters.push(value);
-    return this.$currentParameter += 1;
+    return (this.$currentParameter += 1);
   }
 
   parameters() {

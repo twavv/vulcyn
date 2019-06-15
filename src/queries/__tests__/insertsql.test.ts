@@ -15,22 +15,17 @@ test("InsertQueryBuilder without undefined values", () => {
     books: new BooksTable(),
   });
 
-  const q = new InsertQueryBuilder(
-    null as any,
-    db.books
-  ).values({
+  const q = new InsertQueryBuilder(null as any, db.books).values({
     id: 123,
     name: "Travis",
-    publisher: null
+    publisher: null,
   });
 
   const rc = new ReductionContext();
   expect(q.$toSQL(rc)).toEqual(
-    `INSERT INTO books (id, name, publisher) VALUES ($1, $2, $3);`
+    `INSERT INTO books (id, name, publisher) VALUES ($1, $2, $3);`,
   );
-  expect(rc.parameters()).toEqual(
-    [123, "Travis", null],
-  );
+  expect(rc.parameters()).toEqual([123, "Travis", null]);
 });
 
 test("InsertQueryBuilder with undefined values", () => {
@@ -44,19 +39,12 @@ test("InsertQueryBuilder with undefined values", () => {
     books: new BooksTable(),
   });
 
-  const q = new InsertQueryBuilder(
-    null as any,
-    db.books
-  ).values({
+  const q = new InsertQueryBuilder(null as any, db.books).values({
     id: 123,
     name: "Travis",
   });
 
   const rc = new ReductionContext();
-  expect(q.$toSQL(rc)).toEqual(
-    `INSERT INTO books (id, name) VALUES ($1, $2);`
-  );
-  expect(rc.parameters()).toEqual(
-    [123, "Travis"],
-  );
+  expect(q.$toSQL(rc)).toEqual(`INSERT INTO books (id, name) VALUES ($1, $2);`);
+  expect(rc.parameters()).toEqual([123, "Travis"]);
 });

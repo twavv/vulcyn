@@ -4,9 +4,9 @@
  * This is used in the implementation of the codebase. It is necessary because
  * the `Column` doesn't have access to things like the table name.
  */
-import Column, {isColumn} from "./Column";
+import Column, { isColumn } from "./Column";
 import Table from "./Table";
-import {itisa} from "./util";
+import { itisa } from "./util";
 import TableWrapper from "./TableWrapper";
 import SQLFragment from "./expr/SQLFragment";
 
@@ -24,7 +24,9 @@ class ColumnWrapperClass<N extends string, T, IT> {
   ) {
     if (!isColumn($column)) {
       const reprstr = itisa($column) || typeof $column;
-      throw new Error(`In ColumnWrapper, $column must be a Column (got ${reprstr}).`)
+      throw new Error(
+        `In ColumnWrapper, $column must be a Column (got ${reprstr}).`,
+      );
     }
   }
 
@@ -33,7 +35,7 @@ class ColumnWrapperClass<N extends string, T, IT> {
   }
 
   $creationSQL() {
-    const {$columnName, $column} = this;
+    const { $columnName, $column } = this;
     return `${$columnName} ${$column.$creationSQL()}`;
   }
 
@@ -45,21 +47,21 @@ class ColumnWrapperClass<N extends string, T, IT> {
   }
 }
 
-type ColumnWrapper<N extends string, T, IT=T> = ColumnWrapperClass<N, T, IT>;
-function ColumnWrapper<N extends string, T, IT=T>(
-    $table: TableWrapper<string, Table>,
-    $columnName: string,
-    $column: Column<T, IT>,
+type ColumnWrapper<N extends string, T, IT = T> = ColumnWrapperClass<N, T, IT>;
+function ColumnWrapper<N extends string, T, IT = T>(
+  $table: TableWrapper<string, Table>,
+  $columnName: string,
+  $column: Column<T, IT>,
 ) {
   return new ColumnWrapperClass<N, T, IT>($table, $columnName, $column);
 }
 export default ColumnWrapper;
 
 export type ColumnWrapperTSType<
-    W extends ColumnWrapperClass<any, any, any>
+  W extends ColumnWrapperClass<any, any, any>
 > = W["$_type"];
 export type ColumnWrapperTSInsertionType<
-    W extends ColumnWrapperClass<any, any, any>
+  W extends ColumnWrapperClass<any, any, any>
 > = W["$_insertionType"];
 
 export function isColumnWrapper(x: any): x is ColumnWrapper<string, unknown> {

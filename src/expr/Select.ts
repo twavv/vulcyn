@@ -4,7 +4,6 @@ import Clause from "./Clause";
 import Limit from "./Limit";
 
 class Select extends Expr<"select"> {
-
   public columns!: Array<Expr<any>>;
   public from!: Clause<"from">;
   public where?: Clause<"where">;
@@ -17,19 +16,17 @@ class Select extends Expr<"select"> {
 
   toSQL(context: ReductionContext): string {
     return (
-      "SELECT "
-        + this.columnsSQL(context)
-        + this.fromSQL(context)
-        + this.whereSQL(context)
-        + this.limitSQL(context)
-        + ";"
+      "SELECT " +
+      this.columnsSQL(context) +
+      this.fromSQL(context) +
+      this.whereSQL(context) +
+      this.limitSQL(context) +
+      ";"
     );
   }
 
   private columnsSQL(rc: ReductionContext) {
-    return this.columns
-      .map((column) => column.toSQL(rc))
-      .join(", ");
+    return this.columns.map((column) => column.toSQL(rc)).join(", ");
   }
 
   private whereSQL(rc: ReductionContext): string {

@@ -2,9 +2,7 @@ import Expr from "./Expr";
 import ReductionContext from "./ReductionContext";
 
 class Parameter extends Expr<"parameter"> {
-  constructor(
-    protected value: any,
-  ) {
+  constructor(protected value: any) {
     super("parameter");
   }
 

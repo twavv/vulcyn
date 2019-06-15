@@ -1,6 +1,6 @@
 import Database from "../Database";
-import SQLFragment, {isSQLFragment} from "../expr/SQLFragment";
-import {itisa} from "../util";
+import SQLFragment, { isSQLFragment } from "../expr/SQLFragment";
+import { itisa } from "../util";
 import Clause from "../expr/Clause";
 import LogicalOperator from "../expr/LogicalOperator";
 import Expr from "../expr/Expr";
@@ -14,9 +14,7 @@ import Expr from "../expr/Expr";
 class WhereSubquery<DB extends Database<any>> {
   readonly $body: Expr<any>;
 
-  constructor(
-    input: WhereSubqueryInputSpecifier,
-  ) {
+  constructor(input: WhereSubqueryInputSpecifier) {
     if (isSQLFragment(input)) {
       this.$body = input;
     } else {
@@ -31,23 +29,21 @@ class WhereSubquery<DB extends Database<any>> {
 export default WhereSubquery;
 
 class WhereSubqueryBuilder {
-
   private $andor(
-      type: LogicalOperator["operator"],
-      specifiers: WhereSubqueryInputSpecifier[],
+    type: LogicalOperator["operator"],
+    specifiers: WhereSubqueryInputSpecifier[],
   ) {
     const first = specifiers[0];
     if (specifiers.length === 1 && isSQLFragment(first)) {
       return first;
     }
 
-    const children = specifiers
-      .map((s) => {
-        if (isSQLFragment(s)) {
-          return s;
-        }
-        return s(new WhereSubqueryBuilder());
-      });
+    const children = specifiers.map((s) => {
+      if (isSQLFragment(s)) {
+        return s;
+      }
+      return s(new WhereSubqueryBuilder());
+    });
     return new LogicalOperator(type, children);
   }
 
@@ -60,7 +56,9 @@ class WhereSubqueryBuilder {
 }
 
 type WhereSubqueryBuilderFunction = (q: WhereSubqueryBuilder) => Expr<any>;
-export type WhereSubqueryInputSpecifier = SQLFragment | WhereSubqueryBuilderFunction;
+export type WhereSubqueryInputSpecifier =
+  | SQLFragment
+  | WhereSubqueryBuilderFunction;
 
 // type ConditionNode = ConditionInternalNode | SQLFragment;
 // class ConditionInternalNode {

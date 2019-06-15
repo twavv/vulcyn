@@ -1,4 +1,4 @@
-import ColumnWrapper, {ColumnWrapperTSType} from "../ColumnWrapper";
+import ColumnWrapper, { ColumnWrapperTSType } from "../ColumnWrapper";
 import Database from "../Database";
 import TableWrapper from "../TableWrapper";
 import WhereSubquery, { WhereSubqueryInputSpecifier } from "./WhereSubquery";
@@ -21,7 +21,7 @@ import Limit from "../expr/Limit";
  *    db.select(selectorSpec).from(db.users);
  */
 export interface SelectorSpec {
-  [k: string]: ColumnWrapper<string, unknown>
+  [k: string]: ColumnWrapper<string, unknown>;
 }
 
 /**
@@ -35,15 +35,13 @@ export interface SelectorSpec {
  *    db.select(selectorSpec).from(db.users);
  *    // Has type {id: number, name: string}
  */
-export type SelectRowResult<
-    T extends SelectorSpec,
-> = {
+export type SelectRowResult<T extends SelectorSpec> = {
   [k in keyof T]: ColumnWrapperTSType<T[k]>;
 };
 
 export type SelectQueryReturn<
-    S extends SelectorSpec,
-    FetchOne extends boolean
+  S extends SelectorSpec,
+  FetchOne extends boolean
 > = FetchOne extends true
   ? (SelectRowResult<S> | null)
   : Array<SelectRowResult<S>>;
@@ -57,36 +55,32 @@ export type SelectQueryReturn<
  *    type MyPickedSpec = PickSelectorSpecFromColumnNames<table, "id", "name">;
  */
 export type PickSelectorSpecFromColumnNames<
-    T extends TableWrapper<string, Table>,
-    K extends keyof T["$columns"],
+  T extends TableWrapper<string, Table>,
+  K extends keyof T["$columns"]
 > = {
   [k in K]: T["$columns"][k];
-}
+};
 
 /**
  * A builder for a select query.
  */
 class SelectQueryBuilder<
-    // Database type
-    D extends Database<any>,
-    // Selector type
-    S extends SelectorSpec,
-    // True if fetch one
-    FO extends boolean = false,
+  // Database type
+  D extends Database<any>,
+  // Selector type
+  S extends SelectorSpec,
+  // True if fetch one
+  FO extends boolean = false
 > extends ExecutableQueryBuilder<D, SelectQueryReturn<S, FO>> {
   private $columns: Array<Expr<any>>;
   private $from?: Clause<"from">;
   private $where?: Clause<"where">;
   private $limit?: Limit;
 
-  constructor(
-    db: D,
-    public $selectorSpec: S,
-    public $fetchOne: FO,
-  ) {
+  constructor(db: D, public $selectorSpec: S, public $fetchOne: FO) {
     super(db);
     this.$columns = Object.entries($selectorSpec).map(([name, column]) => {
-      const {$columnName} = column;
+      const { $columnName } = column;
       if ($columnName != name) {
         return new SQLFragment(`${$columnName} AS ${name}`);
       }
@@ -139,14 +133,14 @@ class SelectQueryBuilder<
       }
       if (selector.$tableName !== guess) {
         throw new Error(
-          `Unable to guess table name in query with columns from multiple `
-            + `tables; please set .from(table) on the query.`
+          `Unable to guess table name in query with columns from multiple ` +
+            `tables; please set .from(table) on the query.`,
         );
       }
     }
     if (guess === null) {
       throw new Error(
-        `Cannot guess table name from query with no columns selected.`
+        `Cannot guess table name from query with no columns selected.`,
       );
     }
     return new Clause("from", new SQLFragment(guess));

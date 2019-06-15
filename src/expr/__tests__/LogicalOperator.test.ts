@@ -9,6 +9,6 @@ test("LogicalOperator AND", () => {
     new LogicalOperator("and", [
       new Infix(">", new SQLFragment("age"), new Parameter(21)),
       new Infix("=", new SQLFragment("location"), new Parameter("NYC")),
-    ]).toSQL(new ReductionContext())
+    ]).toSQL(new ReductionContext()),
   ).toEqual("(age > $1) AND (location = $2)");
 });

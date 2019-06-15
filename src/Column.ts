@@ -3,7 +3,7 @@
  *
  * This is used when declaring tables.
  */
-import {itisa} from "./util";
+import { itisa } from "./util";
 
 abstract class Column<T, InsertionType = T> {
   abstract readonly $pgType: string;
@@ -39,12 +39,8 @@ abstract class Column<T, InsertionType = T> {
 
 export default Column;
 
-export type ColumnTSType<
-    C extends Column<any>
-> = C["$_type"];
-export type ColumnTSInsertionType<
-    C extends Column<any>
-> = C["$_insertionType"];
+export type ColumnTSType<C extends Column<any>> = C["$_type"];
+export type ColumnTSInsertionType<C extends Column<any>> = C["$_insertionType"];
 
 export function isColumn(x: unknown): x is Column<unknown> {
   return itisa(x) === "Column";

@@ -22,10 +22,7 @@ type ClauseHead = "where" | "from";
  *    I think it's definitely better to have these be their own Expr classes.
  */
 class Clause<H extends ClauseHead> extends Expr<H> {
-  constructor(
-    head: H,
-    public body: Expr<any>,
-  ) {
+  constructor(head: H, public body: Expr<any>) {
     super(head);
   }
 

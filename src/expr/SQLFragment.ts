@@ -8,10 +8,7 @@ import ReductionContext from "./ReductionContext";
  * SQL symbols.
  */
 class SQLFragment extends Expr<"sqlfragment"> {
-
-  constructor(
-    public sql: string,
-  ) {
+  constructor(public sql: string) {
     super("sqlfragment");
   }
 

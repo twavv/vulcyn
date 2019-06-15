@@ -10,13 +10,16 @@ test("WhereSubquery with bare SQLFragment", () => {
 });
 
 test("WhereSubquery with builder function", () => {
-  const myQuery = new WhereSubquery((q) => q.or(
-    (q) => q.and(
-        new SQLFragment(`name = 'travtown'`),
-        new SQLFragment('age > 21'),
-      ),
-    new SQLFragment('isadmin = true'),
-  ));
+  const myQuery = new WhereSubquery((q) =>
+    q.or(
+      (q) =>
+        q.and(
+          new SQLFragment(`name = 'travtown'`),
+          new SQLFragment("age > 21"),
+        ),
+      new SQLFragment("isadmin = true"),
+    ),
+  );
   const sql = myQuery.$toExpr().toSQL(new ReductionContext());
 
   expect(sql).toContain("WHERE ");

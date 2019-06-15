@@ -8,15 +8,14 @@ test("PickConstraint has correct shape", () => {
     address?: string;
   }
 
-  assert<IsExact<
-    PickConstraint<Person, string>,
-    {name: string}
-  >>(true);
+  assert<IsExact<PickConstraint<Person, string>, { name: string }>>(true);
 
-  assert<IsExact<
-    PickConstraintIgnoringNull<Person, string>,
-    {name: string, address?: string}
-  >>(true);
+  assert<
+    IsExact<
+      PickConstraintIgnoringNull<Person, string>,
+      { name: string; address?: string }
+    >
+  >(true);
 
   interface Pet {
     name: string;
@@ -24,8 +23,10 @@ test("PickConstraint has correct shape", () => {
     owner: Person;
   }
 
-  assert<IsExact<
-    PickConstraintIgnoringNull<Pet["owner"], string>,
-    {name: string, address?: string}
-    >>(true);
+  assert<
+    IsExact<
+      PickConstraintIgnoringNull<Pet["owner"], string>,
+      { name: string; address?: string }
+    >
+  >(true);
 });

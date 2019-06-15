@@ -1,12 +1,16 @@
-import Column, { ColumnTSInsertionType, ColumnTSType, isColumn } from "./Column";
+import Column, {
+  ColumnTSInsertionType,
+  ColumnTSType,
+  isColumn,
+} from "./Column";
 import ColumnWrapper from "./ColumnWrapper";
 import Table, { isTable, TableColumns } from "./Table";
-import {assignGetters, itisa} from "./util";
+import { assignGetters, itisa } from "./util";
 import { PickConstraint } from "@/utils";
 
 class TableWrapperClass<
-    TableName extends string = string,
-    T extends Table = Table
+  TableName extends string = string,
+  T extends Table = Table
 > {
   $columns: TableWrapperColumns<T>;
 
@@ -15,43 +19,44 @@ class TableWrapperClass<
   }
 
   private get $() {
-    return this as any as TableWrapper<TableName, T>;
+    return (this as any) as TableWrapper<TableName, T>;
   }
 
   constructor(public $tableName: TableName, public $table: T) {
-    if (!(isTable($table))) {
+    if (!isTable($table)) {
       const reprstr = itisa($table) || typeof $table;
-      throw new Error(`In TableWrapper, $table must be a Table (got ${reprstr}).`)
+      throw new Error(
+        `In TableWrapper, $table must be a Table (got ${reprstr}).`,
+      );
     }
     // I don't see a way to do this that appeases TypeScript.
     this.$columns = Object.fromEntries(
-      Object.entries($table).map(
-        ([columnName, column]) => {
+      Object.entries($table)
+        .map(([columnName, column]) => {
           if (!isColumn(column)) {
             return [];
           }
-          return [
-            columnName,
-            ColumnWrapper(this.$, columnName, column as any),
-          ];
-        },
-      ).filter((x) => x.length > 0)
+          return [columnName, ColumnWrapper(this.$, columnName, column as any)];
+        })
+        .filter((x) => x.length > 0),
     ) as any;
     assignGetters(this, this.$columns);
   }
 
   $getColumns(): Array<ColumnWrapper<string, unknown>> {
-    return Object.entries(this.$columns).map(([_, column]) => column as ColumnWrapper<string, unknown>);
+    return Object.entries(this.$columns).map(
+      ([_, column]) => column as ColumnWrapper<string, unknown>,
+    );
   }
 
   $creationSQL() {
     return (
-      `CREATE TABLE ${this.$table.$getTableDBName(this.$tableName)} (\n`
-      + this.$getColumns()
+      `CREATE TABLE ${this.$table.$getTableDBName(this.$tableName)} (\n` +
+      this.$getColumns()
         .map((column) => column.$creationSQL())
         .map((sql) => `  ${sql}`)
-        .join(`,\n`)
-      + `\n);`
+        .join(`,\n`) +
+      `\n);`
     );
   }
 }
@@ -64,17 +69,22 @@ class TableWrapperClass<
  *    quite figure out that C[K] extends Column<any> even though it always does
  *    by the definition of TableColumns<T>.
  */
-export type TableWrapperColumns<T extends Table, C extends TableColumns<T> = TableColumns<T>> = {
+export type TableWrapperColumns<
+  T extends Table,
+  C extends TableColumns<T> = TableColumns<T>
+> = {
   [K in keyof C & string]: C[K] extends Column<any>
     ? ColumnWrapper<K, ColumnTSType<C[K]>, ColumnTSInsertionType<C[K]>>
     : never;
-}
+};
 
-type TableWrapper<TableName extends string, T extends Table> =
-  TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
+type TableWrapper<
+  TableName extends string,
+  T extends Table
+> = TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
 function TableWrapper<N extends string, T extends Table>(
-    tableName: N,
-    table: T
+  tableName: N,
+  table: T,
 ): TableWrapper<N, T> {
   return new TableWrapperClass<N, T>(tableName, table) as any;
 }
