@@ -4,10 +4,10 @@ import Clause from "./Clause";
 import Limit from "./Limit";
 
 class Select extends Expr<"select"> {
-  public columns!: Array<Expr<any>>;
-  public from!: Clause<"from">;
-  public where?: Clause<"where">;
-  public limit?: Limit;
+  columns!: Array<Expr<any>>;
+  from!: Clause<"from">;
+  where?: Clause<"where">;
+  limit?: Limit;
 
   constructor(args: PickExpr<Select>) {
     super("select");

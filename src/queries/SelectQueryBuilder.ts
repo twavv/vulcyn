@@ -104,17 +104,17 @@ class SelectQueryBuilder<
    *   This can be automagically inferred when all of the columns come from the
    *   same table.
    */
-  public from(table: TableWrapper<string, Table>) {
+  from(table: TableWrapper<string, Table>) {
     this.$from = new Clause("from", new SQLFragment(table.$tableName));
     return this;
   }
 
-  public where(whereSpecifier: WhereSubqueryInputSpecifier) {
+  where(whereSpecifier: WhereSubqueryInputSpecifier) {
     this.$where = new WhereSubquery<D>(whereSpecifier).$toExpr();
     return this;
   }
 
-  public $toExpr() {
+  $toExpr() {
     return new Select({
       columns: this.$columns,
       from: this.$from || this.$guessFromClause(),
@@ -122,6 +122,14 @@ class SelectQueryBuilder<
       limit: this.$limit,
     });
     // TODO: LIMIT
+  }
+
+  async $execute(): Promise<SelectQueryReturn<S, FO>> {
+    const result = await this.$tryExecute();
+    if (this.$fetchOne) {
+      return result.rows[0] || null;
+    }
+    return result.rows as any;
   }
 
   private $guessFromClause() {
@@ -144,14 +152,6 @@ class SelectQueryBuilder<
       );
     }
     return new Clause("from", new SQLFragment(guess));
-  }
-
-  public async $execute(): Promise<SelectQueryReturn<S, FO>> {
-    const result = await this.$tryExecute();
-    if (this.$fetchOne) {
-      return result.rows[0] || null;
-    }
-    return result.rows as any;
   }
 }
 export default SelectQueryBuilder;

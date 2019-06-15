@@ -1,4 +1,4 @@
-import { assert, IsExact } from "conditional-type-checks";
+import { IsExact, assert } from "conditional-type-checks";
 import { IntColumn, StringColumn } from "../../columntypes";
 import Database from "../../Database";
 import Table from "../../Table";

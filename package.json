@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "prettier": "prettier --write \"./src/**/*.ts\"",
+    "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
+    "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js",
     "test": "jest"
   },
   "keywords": [],
@@ -18,7 +19,14 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
+    "add": "^2.0.6",
     "conditional-type-checks": "^1.0.1",
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^5.0.0",
+    "eslint-plugin-jest": "^22.6.4",
+    "eslint-plugin-prettier": "^3.1.0",
     "jest": "^24.8.0",
     "jest-circus": "^24.8.0",
     "prettier": "^1.18.2",

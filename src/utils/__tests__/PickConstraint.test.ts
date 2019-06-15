@@ -1,4 +1,4 @@
-import { assert, IsExact } from "conditional-type-checks";
+import { IsExact, assert } from "conditional-type-checks";
 import { PickConstraint, PickConstraintIgnoringNull } from "@/utils";
 
 test("PickConstraint has correct shape", () => {

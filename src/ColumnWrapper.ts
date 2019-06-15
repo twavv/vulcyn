@@ -5,10 +5,10 @@
  * the `Column` doesn't have access to things like the table name.
  */
 import Column, { isColumn } from "./Column";
-import Table from "./Table";
-import { itisa } from "./util";
-import TableWrapper from "./TableWrapper";
 import SQLFragment from "./expr/SQLFragment";
+import Table from "./Table";
+import TableWrapper from "./TableWrapper";
+import { itisa } from "@/utils";
 
 class ColumnWrapperClass<N extends string, T, IT> {
   get $_iama() {

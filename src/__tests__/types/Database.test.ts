@@ -1,9 +1,10 @@
-import { assert, IsExact } from "conditional-type-checks";
-import { IntColumn, StringColumn } from "../../columntypes";
-import ColumnWrapper, { ColumnWrapperTSType } from "../../ColumnWrapper";
-import Database, { TableWrapperMap } from "../../Database";
-import Table from "../../Table";
-import TableWrapper from "../../TableWrapper";
+import { IsExact, assert } from "conditional-type-checks";
+
+import { IntColumn, StringColumn } from "@/columntypes";
+import ColumnWrapper from "@/ColumnWrapper";
+import Database, { TableWrapperMap } from "@/Database";
+import Table from "@/Table";
+import TableWrapper from "@/TableWrapper";
 
 test("TableWrapperMap correctly maps tables", () => {
   class User extends Table {

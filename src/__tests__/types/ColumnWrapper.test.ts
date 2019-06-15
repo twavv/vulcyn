@@ -1,7 +1,8 @@
-import { assert, IsExact } from "conditional-type-checks";
-import Column, { ColumnTSType } from "../../Column";
-import { StringColumn } from "../../columntypes";
-import ColumnWrapper, { ColumnWrapperTSType } from "../../ColumnWrapper";
+import { IsExact, assert } from "conditional-type-checks";
+
+import Column, { ColumnTSType } from "@/Column";
+import ColumnWrapper, { ColumnWrapperTSType } from "@/ColumnWrapper";
+import { StringColumn } from "@/columntypes";
 
 type WrapColumn<N extends string, C extends Column<any>> = ColumnWrapper<
   "colname",

@@ -1,4 +1,4 @@
-import { assert, Has } from "conditional-type-checks";
+import { Has, assert } from "conditional-type-checks";
 import { IntColumn, StringColumn } from "@/columntypes";
 import Table, { TableColumns } from "@/Table";
 import Column from "@/Column";

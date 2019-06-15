@@ -4,9 +4,8 @@ import Column, {
   isColumn,
 } from "./Column";
 import ColumnWrapper from "./ColumnWrapper";
-import Table, { isTable, TableColumns } from "./Table";
-import { assignGetters, itisa } from "./util";
-import { PickConstraint } from "@/utils";
+import Table, { TableColumns, isTable } from "./Table";
+import { assignGetters, itisa } from "@/utils";
 
 class TableWrapperClass<
   TableName extends string = string,

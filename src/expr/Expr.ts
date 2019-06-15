@@ -1,6 +1,5 @@
 import ReductionContext from "./ReductionContext";
-import { itisa } from "@/util";
-import { PickConstraintIgnoringNull, PickConstraintKeys } from "@/utils";
+import { itisa, PickConstraintIgnoringNull } from "@/utils";
 
 /**
  * An AST-like structure which represents a SQL "expression".

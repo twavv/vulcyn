@@ -1,4 +1,4 @@
-import QueryBuilder, { ExecutableQueryBuilder } from "./QueryBuilder";
+import { ExecutableQueryBuilder } from "./QueryBuilder";
 import Expr from "../expr/Expr";
 import Insert from "../expr/Insert";
 import TableWrapper from "../TableWrapper";
@@ -24,9 +24,9 @@ class InsertQueryBuilder<
   DB extends Database<any>,
   TW extends TableWrapper<string, Table>
 > extends ExecutableQueryBuilder<DB, unknown> {
-  public $tableName: SQLFragment;
-  public $columns?: SQLFragment[];
-  public $values?: Expr<string>[];
+  $tableName: SQLFragment;
+  $columns?: SQLFragment[];
+  $values?: Expr<string>[];
 
   constructor(
     db: DB,

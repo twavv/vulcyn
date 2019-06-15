@@ -1,7 +1,6 @@
-import { IntColumn, StringColumn } from "../../columntypes";
-import Table from "../../Table";
-import TableWrapper from "../../TableWrapper";
-import Database from "../../Database";
+import Database from "@/Database";
+import Table from "@/Table";
+import { IntColumn, StringColumn } from "@/columntypes";
 
 test("SelectQueryBuilder with spec object", () => {
   class User extends Table {

@@ -6,7 +6,7 @@ class Limit extends Expr<"limit"> {
     super("limit");
   }
 
-  toSQL(context: ReductionContext): string {
+  toSQL(_context: ReductionContext): string {
     return `LIMIT ${this.limit}`;
   }
 }

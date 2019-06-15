@@ -23,7 +23,6 @@
 
 import Expr, { PickExpr } from "./Expr";
 import ReductionContext from "./ReductionContext";
-import SQLFragment from "./SQLFragment";
 
 /**
  * An INSERT query Expr.
@@ -32,9 +31,9 @@ import SQLFragment from "./SQLFragment";
  *    * Support for RETURNING
  */
 class Insert extends Expr<"select"> {
-  public tableName!: Expr<string>;
-  public columns!: Array<Expr<string>>;
-  public values!: Array<Expr<string>>;
+  tableName!: Expr<string>;
+  columns!: Array<Expr<string>>;
+  values!: Array<Expr<string>>;
 
   constructor(args: PickExpr<Insert>) {
     super("select");

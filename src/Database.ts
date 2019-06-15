@@ -1,17 +1,18 @@
+import { Client } from "pg";
+
+import { pick } from "@/utils";
+import Table from "./Table";
+import TableWrapper, { isTableWrapper } from "./TableWrapper";
+
 import SelectQueryBuilder, {
   PickSelectorSpecFromColumnNames,
   SelectorSpec,
-} from "./queries/SelectQueryBuilder";
-import Table from "./Table";
-import TableWrapper, { isTableWrapper } from "./TableWrapper";
-import { Client } from "pg";
-import { pick } from "./util";
-import Insert from "@/expr/Insert";
+} from "@/queries/SelectQueryBuilder";
 import InsertQueryBuilder from "@/queries/InsertQueryBuilder";
 
-type TableMap = {
+interface TableMap {
   [k: string]: Table;
-};
+}
 
 /**
  * The implementation of Database<T>.

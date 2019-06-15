@@ -1,6 +1,5 @@
 import Column from "./Column";
-import { itisa } from "./util";
-import { PickConstraint } from "@/utils";
+import { itisa, PickConstraint } from "@/utils";
 
 class Table {
   get $_iama() {

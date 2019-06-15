@@ -1,9 +1,9 @@
-import { assert, IsExact } from "conditional-type-checks";
-import { IntColumn, StringColumn } from "../../columntypes";
-import ColumnWrapper, { ColumnWrapperTSType } from "../../ColumnWrapper";
-import { TableWrapperMap } from "../../Database";
-import Table from "../../Table";
-import TableWrapper, { TableWrapperColumns } from "../../TableWrapper";
+import { IsExact, assert } from "conditional-type-checks";
+
+import Table from "@/Table";
+import TableWrapper, { TableWrapperColumns } from "@/TableWrapper";
+import ColumnWrapper, { ColumnWrapperTSType } from "@/ColumnWrapper";
+import { IntColumn, StringColumn } from "@/columntypes";
 
 test("TableWrapper correctly maps column types", () => {
   class User extends Table {
@@ -31,7 +31,6 @@ test("TableWrapperColumns doesn't include non-columns", () => {
     id = new IntColumn();
     name = new StringColumn();
   }
-  type TWC = TableWrapperColumns<UserTable>;
   assert<
     IsExact<
       TableWrapperColumns<UserTable>,

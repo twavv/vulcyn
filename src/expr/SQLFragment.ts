@@ -12,7 +12,7 @@ class SQLFragment extends Expr<"sqlfragment"> {
     super("sqlfragment");
   }
 
-  toSQL(context: ReductionContext): string {
+  toSQL(_context: ReductionContext): string {
     return this.sql;
   }
 }

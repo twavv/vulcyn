@@ -1,6 +1,7 @@
-import { assert, IsExact } from "conditional-type-checks";
-import Column, { ColumnTSType } from "../../Column";
-import { StringColumn } from "../../columntypes";
+import { IsExact, assert } from "conditional-type-checks";
+
+import Column, { ColumnTSType } from "@/Column";
+import { StringColumn } from "@/columntypes";
 
 test("Column types compare sanely", () => {
   assert<IsExact<Column<string>, Column<number>>>(false);

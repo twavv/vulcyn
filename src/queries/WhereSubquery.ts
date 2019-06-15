@@ -1,6 +1,5 @@
 import Database from "../Database";
 import SQLFragment, { isSQLFragment } from "../expr/SQLFragment";
-import { itisa } from "../util";
 import Clause from "../expr/Clause";
 import LogicalOperator from "../expr/LogicalOperator";
 import Expr from "../expr/Expr";
@@ -59,31 +58,3 @@ type WhereSubqueryBuilderFunction = (q: WhereSubqueryBuilder) => Expr<any>;
 export type WhereSubqueryInputSpecifier =
   | SQLFragment
   | WhereSubqueryBuilderFunction;
-
-// type ConditionNode = ConditionInternalNode | SQLFragment;
-// class ConditionInternalNode {
-//   get $_iama() {
-//     return "ConditionInternalNode";
-//   }
-//   constructor(
-//     public type: "AND" | "OR",
-//     public children: ConditionNode[],
-//   ) {}
-// }
-//
-// function isConditionInternalNode(x: unknown): x is ConditionInternalNode {
-//   return itisa(x) === "ConditionInternalNode";
-// }
-//
-// function conditionGraphSQL(graph: ConditionNode): string {
-//   if (isSQLFragment(graph)) {
-//     return `(${graph.sql})`;
-//   }
-//   if (isConditionInternalNode(graph)) {
-//     const expression = graph.children
-//       .map((c) => conditionGraphSQL(c))
-//       .join(` ${graph.type} `);
-//     return `(${expression})`;
-//   }
-//   throw new Error(`Cannot convert non-ConditionNode to SQL (got type ${itisa(graph)}).`);
-// }

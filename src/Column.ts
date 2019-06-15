@@ -3,7 +3,7 @@
  *
  * This is used when declaring tables.
  */
-import { itisa } from "./util";
+import { itisa } from "@/utils";
 
 abstract class Column<T, InsertionType = T> {
   abstract readonly $pgType: string;
@@ -16,8 +16,8 @@ abstract class Column<T, InsertionType = T> {
   // types (otherwise ColumnClass<int> would be equivalent to
   // ColumnClass<string> because the class itself does not make reference to the
   // type).
-  public $_type!: T;
-  public $_insertionType!: InsertionType;
+  $_type!: T;
+  $_insertionType!: InsertionType;
 
   protected $nullable?: boolean;
   protected $default?: string;
