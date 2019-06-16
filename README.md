@@ -27,11 +27,18 @@ Simply write your tables as a class that extends `Table` using the various `Colu
 Pass an object with all of your tables into the `Database` call.
 ```ts
 import {Client} from "pg";
-import {Database, Table, IntColumn, TextColumn} from "dbts";
+import {
+  Database,
+  IntColumn,
+  SerialColumn,
+  Table,
+  TextColumn,
+} from "dbts";
 
 class UserTable extends Table {
-  id = new IntColumn();
+  id = new SerialColumn();
   name = new TextColumn();
+  age = new IntColumn();
   address = new TextColumn().nullable();
 }
 
@@ -48,7 +55,16 @@ There's currently no support for migrations or anything similar.
 
 ## Querying Data
 ```ts
+// Has type Array<{ id: number; name: string; address: string | null }>
 const users = db.select(db.users, "id", "name", "address");
+```
+
+You can also add WHERE clauses.
+The `and` and `or` functions provide a syntactically nice way to do this.
+```ts
+const teenagers = db
+  .select(db.users, "id", "name", "address")
+  .where(and(db.users.age.gte(13), db.users.age.lte(19)));
 ```
 
 If you try do do bad things™, you'll get type errors.
@@ -70,8 +86,7 @@ Columns with defaults (including nullable columns) need not be specified.
 ```ts
 await db
   .insertInto(db.users)
-  .values({
-    id: 123,
+  .values({,
     name: "Sylvia The Cat",
   });
 ```
