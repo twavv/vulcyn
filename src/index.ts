@@ -4,5 +4,5 @@ export * from "./TableWrapper";
 export * from "./Column";
 export * from "./ColumnWrapper";
 
-// TODO: rename this
+export * from "./querybuilders/sugar";
 export * from "./columns";

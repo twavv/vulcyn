@@ -1,5 +1,13 @@
 import { getPG, setupPG, teardownPG } from "./utils";
-import { Database, IntColumn, SerialColumn, Table, TextColumn } from "@";
+import {
+  and,
+  Database,
+  IntColumn,
+  or,
+  SerialColumn,
+  Table,
+  TextColumn,
+} from "@";
 
 beforeAll(setupPG);
 afterAll(teardownPG);
@@ -57,9 +65,10 @@ test("Comparisons integration tests", async () => {
     new Set(
       await db
         .select(db.animals, "name")
-        .where((q) =>
-          q.or(db.animals.age.gt(3), (q) =>
-            q.and(db.animals.age.lt(3), db.animals.species.eq("cat")),
+        .where(
+          or(
+            db.animals.age.gt(3),
+            and(db.animals.age.lt(3), db.animals.species.eq("cat")),
           ),
         ),
     ),
