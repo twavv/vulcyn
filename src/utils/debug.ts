@@ -1,3 +1,3 @@
 import createLogger from "debug";
 
-export const debug = createLogger("dbts");
+export const debug = createLogger("DBTS");
