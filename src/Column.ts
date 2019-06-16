@@ -6,8 +6,20 @@
 import { itisa } from "@/utils";
 import { CreateTableColumn, Expr, LTRTokens, SQLFragment } from "@/expr";
 
-export abstract class Column<T, InsertionType = T> {
-  abstract readonly $pgType: string;
+/**
+ * A utility type that contains information about a Column's data.
+ *
+ * This is useful as a type to intersect with a column to change it's type
+ * parameters (e.g. after marking it as nullable).
+ */
+export interface ColumnTypeData<T, InsertionType = T> {
+  $_type: T;
+  $_insertionType: InsertionType;
+}
+
+export abstract class Column<T, InsertionType = T>
+  implements ColumnTypeData<T, InsertionType> {
+  protected abstract $pgType: string;
 
   get $_iama() {
     return "Column";

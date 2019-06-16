@@ -1,6 +1,6 @@
 import { IsExact, assert } from "conditional-type-checks";
 import { getPG, setupPG, teardownPG } from "./utils";
-import { Database, IntColumn, StringColumn, Table } from "@";
+import { Database, IntColumn, TextColumn, Table } from "@";
 import { SQLFragment } from "@/expr";
 
 beforeEach(setupPG);
@@ -11,8 +11,8 @@ test("User integration test with real Postgres server", async () => {
 
   class UserTable extends Table {
     id = new IntColumn();
-    name = new StringColumn().nullable();
-    greeting = new StringColumn().defaultExpr(new SQLFragment("'Hello!'"));
+    name = new TextColumn().nullable();
+    greeting = new TextColumn().defaultExpr(new SQLFragment("'Hello!'"));
   }
 
   const db = Database(pg, {

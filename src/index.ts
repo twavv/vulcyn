@@ -5,4 +5,4 @@ export * from "./Column";
 export * from "./ColumnWrapper";
 
 // TODO: rename this
-export * from "./columntypes";
+export * from "./columns";

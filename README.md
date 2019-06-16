@@ -27,12 +27,12 @@ Simply write your tables as a class that extends `Table` using the various `Colu
 Pass an object with all of your tables into the `Database` call.
 ```ts
 import {Client} from "pg";
-import {Database, Table, IntColumn, StringColumn} from "dbts";
+import {Database, Table, IntColumn, TextColumn} from "dbts";
 
 class UserTable extends Table {
   id = new IntColumn();
-  name = new StringColumn();
-  address = new StringColumn().nullable();
+  name = new TextColumn();
+  address = new TextColumn().nullable();
 }
 
 const pg = new Client();

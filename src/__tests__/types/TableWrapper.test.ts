@@ -3,7 +3,7 @@ import {
   ColumnWrapper,
   ColumnWrapperTSType,
   IntColumn,
-  StringColumn,
+  TextColumn,
   Table,
   TableWrapper,
   TableWrapperColumns,
@@ -12,7 +12,7 @@ import {
 test("TableWrapper correctly maps column types", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
 
   const userWrapper = TableWrapper("users", new User());
@@ -33,7 +33,7 @@ test("TableWrapper correctly maps column types", () => {
 test("TableWrapperColumns doesn't include non-columns", () => {
   class UserTable extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   assert<
     IsExact<

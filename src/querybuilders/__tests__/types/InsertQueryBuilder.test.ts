@@ -1,11 +1,11 @@
 import { IsExact, assert } from "conditional-type-checks";
-import { IntColumn, StringColumn, Table, TableWrapper } from "@";
+import { IntColumn, TextColumn, Table, TableWrapper } from "@";
 import { InsertInterface } from "@/querybuilders";
 
 test("InsertInterface has correct shape", () => {
   class UserTable extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   type UserTW = TableWrapper<"users", UserTable>;
   type UserInsertInterface = InsertInterface<UserTW>;
