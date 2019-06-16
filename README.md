@@ -40,7 +40,11 @@ await pg.connect();
 const db = Database(pg, {
   users: new UserTable(),
 });
+await db.createTables();
 ```
+
+There's currently no support for migrations or anything similar.
+`db.createTables` simply issues a `CREATE TABLE ` statement for every table that you've defined.
 
 ## Querying Data
 ```ts

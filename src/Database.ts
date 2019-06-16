@@ -7,7 +7,8 @@ import {
   SelectorSpec,
   SelectQueryBuilder,
 } from "@/querybuilders";
-import { pick } from "@/utils";
+import { debug, pick } from "@/utils";
+import { ReductionContext } from "@/expr";
 
 interface TableMap {
   [k: string]: Table;
@@ -24,6 +25,7 @@ interface TableMap {
  * those properties do, in fact, exist).
  */
 class DatabaseImpl<T extends TableMap> {
+  $debug = debug.extend("Database");
   $tables: TableWrapperMap<T>;
 
   // Convenience hack that allows us to avoid extra casting to any in the body
@@ -56,6 +58,17 @@ class DatabaseImpl<T extends TableMap> {
         },
       });
     });
+  }
+
+  async createTables() {
+    // TODO: We'll have to do some work to construct a DAG of table dependencies
+    //    once we start allowing REFERENCES.
+    for (const table of Object.values(this.$tables)) {
+      const rc = new ReductionContext();
+      const sql = table.$creationSQL(rc);
+      this.$debug(`Creating table ${table.$tableName}`, sql);
+      await this.$pg.query(sql, rc.parameters());
+    }
   }
 
   // select(db.users, "id", "name", ...)

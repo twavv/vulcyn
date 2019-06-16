@@ -33,15 +33,12 @@ class ColumnWrapperImpl<N extends string, T, IT> {
     return this.$table.$tableName;
   }
 
-  $creationSQL() {
-    const { $columnName, $column } = this;
-    return `${$columnName} ${$column.$creationSQL()}`;
+  $creationExpr() {
+    return this.$column.$creationExpr(this.$columnName);
   }
 
   // Methods for WHERE query generation
   eq(t: T) {
-    // TODO TODO TODO TODO TODO
-    // NO SQL INJECTION IN THIS HOUSE
     return new Infix("=", new SQLFragment(this.$columnName), new Parameter(t));
   }
 }
