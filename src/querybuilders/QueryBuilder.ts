@@ -7,7 +7,7 @@ abstract class QueryBuilder<DB extends Database<any>> {
 
   protected constructor(protected $db: Database<any>) {}
 
-  abstract $toExpr(): Expr<any>;
+  abstract $toExpr(): Expr<string>;
 
   $toSQL(rc?: ReductionContext) {
     rc = rc || new ReductionContext();
@@ -42,7 +42,7 @@ export abstract class ExecutableQueryBuilder<DB extends Database<any>, R>
     try {
       return await this.$db.$pg.query(sql, rc.parameters());
     } catch (e) {
-      console.error(`Error executing SQL: ${sql}`);
+      this.$debug(`Error executing query:`, sql);
       throw e;
     }
   }

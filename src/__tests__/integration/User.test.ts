@@ -82,4 +82,16 @@ test("User integration test with real Postgres server", async () => {
       .selectOne({ id: db.users.id, name: db.users.name })
       .where(db.users.name.eq("joe")),
   ).toEqual({ id: 124, name: "joe" });
+
+  await db
+    .update(db.users)
+    .set({
+      name: "travvo",
+    })
+    .where(db.users.name.eq("trav"));
+  expect(
+    await db
+      .selectOne({ id: db.users.id, name: db.users.name })
+      .where(db.users.name.eq("travvo")),
+  ).toEqual({ id: 123, name: "travvo" });
 });

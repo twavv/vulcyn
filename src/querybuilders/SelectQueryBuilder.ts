@@ -121,7 +121,6 @@ export class SelectQueryBuilder<
       where: this.$where,
       limit: this.$limit,
     });
-    // TODO: LIMIT
   }
 
   async $execute(): Promise<SelectQueryReturn<S, FO>> {
