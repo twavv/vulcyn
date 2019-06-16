@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
-    "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js",
+    "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js ./*.md",
     "test": "jest"
   },
   "keywords": [],
