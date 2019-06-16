@@ -1,12 +1,12 @@
-import { Database, IntColumn, StringColumn, Table } from "@";
+import { Database, IntColumn, TextColumn, Table } from "@";
 import { ReductionContext } from "@/expr";
 import { InsertQueryBuilder } from "@/querybuilders";
 
 test("InsertQueryBuilder without undefined values", () => {
   class BooksTable extends Table {
     id = new IntColumn();
-    name = new StringColumn();
-    publisher = new StringColumn().nullable();
+    name = new TextColumn();
+    publisher = new TextColumn().nullable();
   }
 
   const db = Database(null as any, {
@@ -29,8 +29,8 @@ test("InsertQueryBuilder without undefined values", () => {
 test("InsertQueryBuilder with undefined values", () => {
   class BooksTable extends Table {
     id = new IntColumn();
-    name = new StringColumn();
-    publisher = new StringColumn().nullable();
+    name = new TextColumn();
+    publisher = new TextColumn().nullable();
   }
 
   const db = Database(null as any, {

@@ -1,9 +1,9 @@
-import { Database, IntColumn, StringColumn, Table } from "@";
+import { Database, IntColumn, TextColumn, Table } from "@";
 
 test("SelectQueryBuilder with spec object", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn().nullable();
+    name = new TextColumn().nullable();
   }
 
   // Use null b/c we don't actually us Postgres here
@@ -25,7 +25,7 @@ test("SelectQueryBuilder with spec object", () => {
 test("SelectQueryBuilder with column names", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn().nullable();
+    name = new TextColumn().nullable();
   }
 
   // Use null b/c we don't actually us Postgres here
@@ -42,7 +42,7 @@ test("SelectQueryBuilder with column names", () => {
 test("SelectQueryBuilder without manual .from()", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn().nullable();
+    name = new TextColumn().nullable();
   }
 
   const db = Database(null as any, { users: new User() });

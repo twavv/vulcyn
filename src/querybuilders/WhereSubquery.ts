@@ -23,7 +23,7 @@ export class WhereSubquery<DB extends Database<any>> {
   }
 }
 
-class WhereSubqueryBuilder {
+export class WhereSubqueryBuilder {
   private $andor(
     type: LogicalOperator["operator"],
     specifiers: WhereSubqueryInputSpecifier[],

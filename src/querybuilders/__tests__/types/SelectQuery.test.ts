@@ -3,7 +3,7 @@ import {
   ColumnWrapper,
   Database,
   IntColumn,
-  StringColumn,
+  TextColumn,
   Table,
   TableWrapper,
 } from "@";
@@ -17,7 +17,7 @@ import {
 test("PickSelectorSpecFromColumnNames", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
 
   type UserWrapper = TableWrapper<"users", User>;
@@ -33,7 +33,7 @@ test("PickSelectorSpecFromColumnNames", () => {
 test("SelectRowResult has correct type", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   type MyDb = Database<{ users: User }>;
   assert<IsExact<SelectRowResult<{ id: MyDb["users"]["id"] }>, { id: number }>>(
@@ -44,7 +44,7 @@ test("SelectRowResult has correct type", () => {
 test("SelectQueryReturn has correct type for fetch one", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   type MyDb = Database<{ users: User }>;
   type MyQueryReturn = SelectQueryReturn<
@@ -59,7 +59,7 @@ test("SelectQueryReturn has correct type for fetch one", () => {
 test("SelectQueryReturn has correct type for fetch many", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   type MyDb = Database<{ users: User }>;
   type MyQueryReturn = SelectQueryReturn<
@@ -74,7 +74,7 @@ test("SelectQueryReturn has correct type for fetch many", () => {
 test("SelectQueryBuilder has correct SelectRowResult type", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   type MyDb = Database<{ users: User }>;
   type MyQueryOne = SelectQueryBuilder<MyDb, { id: MyDb["users"]["id"] }, true>;
@@ -96,7 +96,7 @@ test("SelectQueryBuilder has correct SelectRowResult type", () => {
 test("SelectQueryBuilder for column names has correct SelectRowResult type", async () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
   const db = Database(null as any, { users: new User() });
   const myQuery = db.select(db.users, "id", "name");

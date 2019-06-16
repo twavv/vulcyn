@@ -3,7 +3,7 @@ import {
   ColumnWrapper,
   Database,
   IntColumn,
-  StringColumn,
+  TextColumn,
   Table,
   TableWrapper,
   TableWrapperMap,
@@ -12,7 +12,7 @@ import {
 test("TableWrapperMap correctly maps tables", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
 
   assert<IsExact<true, false>>(false);
@@ -27,7 +27,7 @@ test("TableWrapperMap correctly maps tables", () => {
 test("Database correctly maps column types", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
 
   const db = Database(null as any, { users: new User() });
@@ -46,7 +46,7 @@ test("Database correctly maps column types", () => {
 test("Database has TableWrappers defined.", () => {
   class UserTable extends Table {
     id = new IntColumn();
-    name = new StringColumn();
+    name = new TextColumn();
   }
 
   const db = Database(null as any, {

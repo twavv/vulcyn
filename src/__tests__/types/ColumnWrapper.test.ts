@@ -4,7 +4,7 @@ import {
   ColumnTSType,
   ColumnWrapper,
   ColumnWrapperTSType,
-  StringColumn,
+  TextColumn,
 } from "@";
 
 type WrapColumn<N extends string, C extends Column<any>> = ColumnWrapper<
@@ -31,7 +31,7 @@ test("ColumnWrapper has correct TSType", () => {
 });
 
 test("Nullable column wrappers have correct TSType", () => {
-  const nonNullString = new StringColumn();
+  const nonNullString = new TextColumn();
   assert<
     IsExact<
       WrapColumn<"colname", typeof nonNullString>,
@@ -45,7 +45,7 @@ test("Nullable column wrappers have correct TSType", () => {
     >
   >(false);
 
-  const nullString = new StringColumn().nullable();
+  const nullString = new TextColumn().nullable();
   assert<
     IsExact<
       WrapColumn<"colname", typeof nullString>,

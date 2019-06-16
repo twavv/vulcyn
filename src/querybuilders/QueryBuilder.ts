@@ -1,10 +1,13 @@
 import { Database } from "@";
 import { Expr, ReductionContext } from "@/expr";
+import { debug } from "@/utils";
 
 abstract class QueryBuilder<DB extends Database<any>> {
-  abstract $toExpr(): Expr<any>;
+  protected $debug = debug.extend("QueryBuilder");
 
   protected constructor(protected $db: Database<any>) {}
+
+  abstract $toExpr(): Expr<any>;
 
   $toSQL(rc?: ReductionContext) {
     rc = rc || new ReductionContext();
@@ -35,6 +38,7 @@ export abstract class ExecutableQueryBuilder<DB extends Database<any>, R>
   protected async $tryExecute() {
     const rc = new ReductionContext();
     const sql = this.$toSQL(rc);
+    this.$debug("Executing query:", sql);
     try {
       return await this.$db.$pg.query(sql, rc.parameters());
     } catch (e) {

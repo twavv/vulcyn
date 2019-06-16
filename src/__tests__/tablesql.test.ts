@@ -1,9 +1,9 @@
-import { IntColumn, StringColumn, Table, TableWrapper } from "@";
+import { IntColumn, TextColumn, Table, TableWrapper } from "@";
 
 test("Table creation SQL is correct", () => {
   class User extends Table {
     id = new IntColumn();
-    name = new StringColumn().nullable();
+    name = new TextColumn().nullable();
   }
 
   let tw = TableWrapper("users", new User());
