@@ -25,7 +25,7 @@ export abstract class Expr<H extends string> {
 
   protected constructor(public head: H) {}
 
-  abstract toSQL(context: ReductionContext): string;
+  abstract toSQL(rc: ReductionContext): string;
 }
 
 export function isExpr(x: unknown): x is Expr<string> {

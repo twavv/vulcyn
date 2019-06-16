@@ -9,6 +9,7 @@ import {
   TableColumns,
 } from "@";
 import { assignGetters, itisa } from "@/utils";
+import { CreateTable, ReductionContext, SQLFragment } from "@/expr";
 
 export class TableWrapperClass<
   TableName extends string = string,
@@ -21,7 +22,7 @@ export class TableWrapperClass<
   }
 
   private get $() {
-    return (this as any) as TableWrapper<TableName, T>;
+    return this as (this & TableWrapper<TableName, T>);
   }
 
   constructor(public $tableName: TableName, public $table: T) {
@@ -51,15 +52,19 @@ export class TableWrapperClass<
     );
   }
 
-  $creationSQL() {
-    return (
-      `CREATE TABLE ${this.$table.$getTableDBName(this.$tableName)} (\n` +
-      this.$getColumns()
-        .map((column) => column.$creationSQL())
-        .map((sql) => `  ${sql}`)
-        .join(`,\n`) +
-      `\n);`
-    );
+  $creationExpr() {
+    return new CreateTable({
+      tableName: new SQLFragment(this.$tableName),
+      columns: this.$columnsExprs(),
+    });
+  }
+
+  $creationSQL(rc?: ReductionContext): string {
+    return this.$creationExpr().toSQL(rc || new ReductionContext());
+  }
+
+  private $columnsExprs() {
+    return this.$getColumns().map((column) => column.$creationExpr());
   }
 }
 

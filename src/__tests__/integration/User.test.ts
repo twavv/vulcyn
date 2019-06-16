@@ -1,6 +1,7 @@
 import { IsExact, assert } from "conditional-type-checks";
 import { getPG, setupPG, teardownPG } from "./utils";
 import { Database, IntColumn, StringColumn, Table } from "@";
+import { SQLFragment } from "@/expr";
 
 beforeEach(setupPG);
 afterEach(teardownPG);
@@ -11,22 +12,25 @@ test("User integration test with real Postgres server", async () => {
   class UserTable extends Table {
     id = new IntColumn();
     name = new StringColumn().nullable();
+    greeting = new StringColumn().defaultExpr(new SQLFragment("'Hello!'"));
   }
 
   const db = Database(pg, {
     users: new UserTable(),
   });
 
-  // TODO: make dbts insert this table
-  await pg.query(db.users.$creationSQL());
-
+  await db.createTables();
   await db.insertInto(db.users).values({
     id: 123,
     name: "trav",
   });
 
   const myUser = await db
-    .selectOne({ id: db.users.id, name: db.users.name })
+    .selectOne({
+      id: db.users.id,
+      name: db.users.name,
+      greeting: db.users.greeting,
+    })
     .from(db.users);
   expect(myUser).toBeTruthy();
 
@@ -39,25 +43,38 @@ test("User integration test with real Postgres server", async () => {
   expect(myUser).toEqual({
     id: 123,
     name: "trav",
+    greeting: "Hello!",
   });
 
   await db.insertInto(db.users).values({
     id: 124,
     name: "joe",
+    greeting: "Bonjour!",
   });
   const users = await db
-    .select({ id: db.users.id, name: db.users.name })
+    .select({
+      id: db.users.id,
+      name: db.users.name,
+      greeting: db.users.greeting,
+    })
     .from(db.users);
   expect(users).toHaveLength(2);
 
-  assert<IsExact<typeof users[0], { id: number; name: string | null }>>(true);
+  assert<
+    IsExact<
+      typeof users[0],
+      { id: number; name: string | null; greeting: string }
+    >
+  >(true);
   expect(users[0]).toEqual({
     id: 123,
     name: "trav",
+    greeting: "Hello!",
   });
   expect(users[1]).toEqual({
     id: 124,
     name: "joe",
+    greeting: "Bonjour!",
   });
 
   expect(

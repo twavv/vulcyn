@@ -4,6 +4,7 @@
  * This is used when declaring tables.
  */
 import { itisa } from "@/utils";
+import { CreateTableColumn, Expr, LTRTokens, SQLFragment } from "@/expr";
 
 export abstract class Column<T, InsertionType = T> {
   abstract readonly $pgType: string;
@@ -12,28 +13,62 @@ export abstract class Column<T, InsertionType = T> {
     return "Column";
   }
 
-  // This is never set but is required to keep postgres from collapsing our
-  // types (otherwise ColumnClass<int> would be equivalent to
-  // ColumnClass<string> because the class itself does not make reference to the
-  // type).
+  // These are never actually set but enable some TypeScript conveniences and
+  // help prevent TypeScript from collapsing Column<int> to Column<string>
+  // (which happens if the class itself makes no reference to the generic type).
   $_type!: T;
   $_insertionType!: InsertionType;
 
   protected $nullable?: boolean;
-  protected $default?: string;
+  protected $default?: Expr<string>;
   // TODO: Support more column constraints.
   // https://www.postgresql.org/docs/10/sql-createtable.html
 
   nullable(): Column<T | null, T | null | undefined> {
     this.$nullable = true;
-    return this as any;
+    return this as (this & {
+      $_type: T | null;
+      $_insertionType: T | undefined | null;
+    });
   }
 
-  $creationSQL() {
-    let query = `${this.$pgType}`;
-    query += this.$nullable ? ` NULL` : ` NOT NULL`;
-    query += this.$default ? ` DEFAULT ${this.$default}` : ``;
-    return query;
+  /**
+   * Set the default value of the column to an Expr.
+   *
+   * @todo
+   *    This is named defaultExpr to denote that the argument is not a *value*,
+   *    but rather, an Expr. We should also implement a .default() that will
+   *    appropriately escape the value and convert it to an Expr (it's work
+   *    nothing that CREATE TABLE queries can't handle parameters so this is not
+   *    entirely trivial).
+   */
+  defaultExpr(expr: Expr<string>): Column<T, T | undefined> {
+    this.$default = expr;
+    return this as (this & { $_type: T; $_insertionType: T | undefined });
+  }
+
+  $creationExpr(name: string) {
+    return new CreateTableColumn({
+      name: new SQLFragment(name),
+      dataType: new SQLFragment(this.$pgType),
+      constraint: this.$constraintExpr(),
+    });
+  }
+
+  private $constraintExpr() {
+    const tokens = new LTRTokens();
+
+    if (this.$nullable) {
+      tokens.appendToken(new SQLFragment("NULL"));
+    } else {
+      tokens.appendToken(new SQLFragment("NOT NULL"));
+    }
+
+    if (this.$default) {
+      tokens.appendToken(new SQLFragment("DEFAULT"), this.$default);
+    }
+
+    return tokens;
   }
 }
 

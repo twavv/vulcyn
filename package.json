@@ -13,7 +13,9 @@
   "author": "Travis DePrato",
   "license": "MIT",
   "dependencies": {
+    "@types/debug": "^4.1.4",
     "@types/pg": "^7.4.14",
+    "debug": "^4.1.1",
     "pg": "^7.11.0",
     "typescript": "^3.5.1"
   },
