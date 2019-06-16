@@ -1,12 +1,8 @@
 import { Expr } from "./Expr";
 import { ReductionContext } from "./ReductionContext";
 
-export class Infix extends Expr<"infix"> {
-  constructor(
-    public infix: string,
-    public lhs: Expr<any>,
-    public rhs: Expr<any>,
-  ) {
+export class Infix<I extends string> extends Expr<"infix"> {
+  constructor(public infix: I, public lhs: Expr<any>, public rhs: Expr<any>) {
     super("infix");
   }
 

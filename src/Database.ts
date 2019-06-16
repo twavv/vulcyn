@@ -6,6 +6,7 @@ import {
   PickSelectorSpecFromColumnNames,
   SelectorSpec,
   SelectQueryBuilder,
+  UpdateQueryBuilder,
 } from "@/querybuilders";
 import { debug, pick } from "@/utils";
 import { ReductionContext } from "@/expr";
@@ -107,6 +108,10 @@ class DatabaseImpl<T extends TableMap> {
 
   insertInto<TW extends TableWrapper<string, Table>>(table: TW) {
     return new InsertQueryBuilder(this.$, table);
+  }
+
+  update<TW extends TableWrapper<string, Table>>(table: TW) {
+    return new UpdateQueryBuilder(this.$, table);
   }
 }
 

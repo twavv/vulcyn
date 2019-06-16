@@ -38,14 +38,9 @@ export class InsertQueryBuilder<
     this.$tableName = new SQLFragment($table.$tableName);
   }
 
-  // TODO: typing
   values(spec: InsertInterface<TW>) {
-    let columns = [] as this["$columns"];
-    let values = [] as this["$values"];
-    // if (values.length !== this.$columns.length) {
-    //   throw new Error(`Number of columns and values must match.`);
-    // }
-    // this.$values = values.map((value) => new Parameter(value));
+    const columns = [] as this["$columns"];
+    const values = [] as this["$values"];
     Object.entries(spec).forEach(([columnName, value]) => {
       columns!.push(new SQLFragment(columnName));
       values!.push(new Parameter(value));

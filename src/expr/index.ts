@@ -11,3 +11,4 @@ export * from "./Parameter";
 export * from "./ReductionContext";
 export * from "./Select";
 export * from "./SQLFragment";
+export * from "./Update";
