@@ -25,7 +25,7 @@ interface TableMap {
  * those properties do, in fact, exist).
  */
 class DatabaseImpl<T extends TableMap> {
-  $debug = debug.extend("db");
+  $debug = debug.extend("Database");
   $tables: TableWrapperMap<T>;
 
   // Convenience hack that allows us to avoid extra casting to any in the body

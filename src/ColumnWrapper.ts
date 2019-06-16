@@ -39,7 +39,31 @@ class ColumnWrapperImpl<N extends string, T, IT> {
 
   // Methods for WHERE query generation
   eq(t: T) {
-    return new Infix("=", new SQLFragment(this.$columnName), new Parameter(t));
+    return this.$comparison("=", t);
+  }
+
+  gt(t: T) {
+    return this.$comparison(">", t);
+  }
+
+  gte(t: T) {
+    return this.$comparison(">=", t);
+  }
+
+  lt(t: T) {
+    return this.$comparison("<", t);
+  }
+
+  lte(t: T) {
+    return this.$comparison("<=", t);
+  }
+
+  private $comparison(infix: string, t: T) {
+    return new Infix(
+      infix,
+      new SQLFragment(this.$columnName),
+      new Parameter(t),
+    );
   }
 }
 
