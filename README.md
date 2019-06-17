@@ -110,7 +110,7 @@ await db.insertInto(db.users).values({
 ```ts
 await db
   .update(db.users)
-  .values({
+  .set({
     name: "Sylvia, Queen of Cats",
   })
   .where(db.users.name.eq("Sylvia The Cat"));
