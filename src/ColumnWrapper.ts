@@ -9,7 +9,7 @@ import { itisa } from "@/utils";
 import { Column, isColumn, Table, TableWrapper } from "@";
 import { ColumnReference, CreateTableColumn, Infix, Parameter } from "@/expr";
 
-type Comparable<T> = T | ColumnWrapper<string, T>;
+type Comparable<T> = T | ColumnWrapper<string, T, any>;
 class ColumnWrapperImpl<N extends string, T, IT> {
   $_type!: T;
   $_insertionType!: IT;
