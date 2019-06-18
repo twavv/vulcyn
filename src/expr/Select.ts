@@ -1,12 +1,13 @@
 import { Expr, PickExpr } from "./Expr";
 import { ReductionContext } from "./ReductionContext";
-import { Clause } from "./Clause";
+import { From } from "./From";
 import { Limit } from "./Limit";
+import { Where } from "./Where";
 
 export class Select extends Expr<"select"> {
   columns!: Array<Expr<any>>;
-  from!: Clause<"from">;
-  where?: Clause<"where">;
+  from!: From;
+  where?: Where;
   limit?: Limit;
 
   constructor(args: PickExpr<Select>) {

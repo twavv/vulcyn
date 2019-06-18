@@ -5,7 +5,7 @@ import {
   Table,
   TableWrapper,
 } from "@";
-import { Clause, Expr, Limit, Select, SQLFragment } from "@/expr";
+import { Expr, From, Limit, Select, SQLFragment, Where } from "@/expr";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
 import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
@@ -73,8 +73,8 @@ export class SelectQueryBuilder<
   FO extends boolean = false
 > extends ExecutableQueryBuilder<D, SelectQueryReturn<S, FO>> {
   private $columns: Array<Expr<any>>;
-  private $from?: Clause<"from">;
-  private $where?: Clause<"where">;
+  private $from?: From;
+  private $where?: Where;
   private $limit?: Limit;
 
   constructor(db: D, public $selectorSpec: S, public $fetchOne: FO) {
@@ -105,7 +105,7 @@ export class SelectQueryBuilder<
    *   same table.
    */
   from(table: TableWrapper<string, Table>) {
-    this.$from = new Clause("from", new SQLFragment(table.$tableName));
+    this.$from = new From(new SQLFragment(table.$tableName));
     return this;
   }
 
@@ -150,6 +150,6 @@ export class SelectQueryBuilder<
         `Cannot guess table name from query with no columns selected.`,
       );
     }
-    return new Clause("from", new SQLFragment(guess));
+    return new From(new SQLFragment(guess));
   }
 }

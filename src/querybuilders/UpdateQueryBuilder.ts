@@ -6,13 +6,13 @@ import {
   TableWrapper,
 } from "@";
 import {
-  Clause,
   Expr,
   Infix,
   Parameter,
   SQLFragment,
   Update,
   UpdatesArray,
+  Where,
 } from "@/expr";
 import { hasEntry } from "@/utils";
 
@@ -36,7 +36,7 @@ export class UpdateQueryBuilder<
   TW extends TableWrapper<string, Table>
 > extends ExecutableQueryBuilder<DB, unknown> {
   protected $updates?: UpdatesArray;
-  protected $where?: Clause<"where">;
+  protected $where?: Where;
 
   constructor(db: DB, public $table: TW) {
     super(db);
