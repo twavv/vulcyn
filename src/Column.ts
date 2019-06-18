@@ -7,6 +7,10 @@ import { CreateTableColumn, Expr, LTRTokens, SQLFragment } from "@/expr";
  * A column in a table.
  *
  * This is used when declaring tables.
+ *
+ * @todo
+ *    Support more column constraints.
+ *    https://www.postgresql.org/docs/10/sql-createtable.html
  */
 export abstract class Column<T, InsertionType = T> {
   abstract $pgType: string;
@@ -28,8 +32,12 @@ export abstract class Column<T, InsertionType = T> {
     tableClass: typeof Table;
     columnName: string;
   };
-  // TODO: Support more column constraints.
-  // https://www.postgresql.org/docs/10/sql-createtable.html
+
+  $prepare(columnWrapper: ColumnWrapper<string, T, InsertionType>) {
+    if (this.$references) {
+      columnWrapper.$tableWrapper.$addReference(this.$references.tableClass);
+    }
+  }
 
   nullable(
     isNullable?: true,

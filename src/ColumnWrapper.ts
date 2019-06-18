@@ -10,18 +10,22 @@ import { Column, isColumn, Table, TableWrapper } from "@";
 import { CreateTableColumn, Infix, Parameter, SQLFragment } from "@/expr";
 
 class ColumnWrapperImpl<N extends string, T, IT> {
+  $_type!: T;
+  $_insertionType!: IT;
   get $_iama() {
     return "ColumnWrapper";
   }
-  $_type!: T;
-  $_insertionType!: IT;
 
   get $db() {
-    return this.$table.$db;
+    return this.$tableWrapper.$db;
+  }
+
+  get $tableName() {
+    return this.$tableWrapper.$tableName;
   }
 
   constructor(
-    public $table: TableWrapper<string, Table>,
+    public $tableWrapper: TableWrapper<string, Table>,
     public $columnName: string,
     public $column: Column<T, IT>,
   ) {
@@ -33,8 +37,8 @@ class ColumnWrapperImpl<N extends string, T, IT> {
     }
   }
 
-  get $tableName() {
-    return this.$table.$tableName;
+  $prepare() {
+    this.$column.$prepare(this);
   }
 
   $creationExpr(): CreateTableColumn {

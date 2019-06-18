@@ -21,8 +21,14 @@ test("Author and Books tables with join", async () => {
     authors: new AuthorsTable(),
     books: new BooksTable(),
   });
+
+  // Make sure we've built the DAG correctly.
+  expect(db.authors.$references).toEqual(new Set());
+  expect(db.books.$references).toEqual(new Set([db.authors]));
+
   await db.createTables();
 
+  // Make sure that we get errors if we violate referential integrity
   expect(
     db.insertInto(db.books).values({
       title: "Intro to Introductions",

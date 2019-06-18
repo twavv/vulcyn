@@ -66,6 +66,7 @@ class DatabaseImpl<T extends TableMap = {}> {
 
     // Implement TableWrapperMap<T>
     Object.entries(this.$tables).forEach(([tableName, tableWrapper]) => {
+      tableWrapper.$prepare();
       Object.defineProperty(this, tableName, {
         get() {
           return tableWrapper;

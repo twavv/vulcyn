@@ -69,6 +69,18 @@ export class TableWrapperClass<
     assignGetters(this, this.$columns);
   }
 
+  /**
+   * Perform post-construction initialization steps.
+   *
+   * This is executed after the constructor to ensure that all the tables are
+   * registered with the Database instance (this is required to implement
+   * FOREIGN KEY constraints and to add the appropriate tables to the
+   * $references set).
+   */
+  $prepare() {
+    this.$getColumns().forEach((column) => column.$prepare());
+  }
+
   $getColumnByName(name: string): ColumnWrapper<string, unknown> {
     if (name in this.$columns) {
       return (this.$columns as any)[name];
@@ -77,13 +89,11 @@ export class TableWrapperClass<
   }
 
   $getColumns(): Array<ColumnWrapper<string, unknown>> {
-    return Object.entries(this.$columns).map(
-      ([_, column]) => column as ColumnWrapper<string, unknown>,
-    );
+    return Object.values(this.$columns);
   }
 
-  $addReference(tableWrapper: TableWrapper) {
-    this.$references.add(tableWrapper);
+  $addReference(table: typeof Table) {
+    this.$references.add(this.$db.$getTableWrapperForTable(table));
     return this;
   }
 
