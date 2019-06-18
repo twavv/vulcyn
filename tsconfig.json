@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
+    "plugins": [
+      { "transform": "ts-transformer-imports" }
+    ],
     "target": "es5",
     "module": "commonjs",
     "lib": [
       "esnext"
     ],
     "declaration": true,
-    "outDir": "./lib",
+    "outDir": "./dist",
     "strict": true,
     "baseUrl": "./",
     "paths": {
-      "@": ["./src/index.ts"],
+      "@": ["./src/"],
       "@/*": [
         "./src/*"
       ]
