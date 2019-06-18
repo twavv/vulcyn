@@ -7,7 +7,7 @@
 
 import { itisa } from "@/utils";
 import { Column, isColumn, Table, TableWrapper } from "@";
-import { Infix, Parameter, SQLFragment } from "@/expr";
+import { CreateTableColumn, Infix, Parameter, SQLFragment } from "@/expr";
 
 class ColumnWrapperImpl<N extends string, T, IT> {
   get $_iama() {
@@ -15,6 +15,10 @@ class ColumnWrapperImpl<N extends string, T, IT> {
   }
   $_type!: T;
   $_insertionType!: IT;
+
+  get $db() {
+    return this.$table.$db;
+  }
 
   constructor(
     public $table: TableWrapper<string, Table>,
@@ -33,8 +37,8 @@ class ColumnWrapperImpl<N extends string, T, IT> {
     return this.$table.$tableName;
   }
 
-  $creationExpr() {
-    return this.$column.$creationExpr(this.$columnName);
+  $creationExpr(): CreateTableColumn {
+    return this.$column.$creationExpr(this, this.$columnName);
   }
 
   // Methods for WHERE query generation

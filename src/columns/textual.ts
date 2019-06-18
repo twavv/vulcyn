@@ -8,7 +8,7 @@ import { Column } from "@";
  * those data types which are implemented.
  */
 export class TextColumn extends Column<string> {
-  protected readonly $pgType = "text";
+  readonly $pgType = "text";
 }
 
 /**
@@ -17,5 +17,5 @@ export class TextColumn extends Column<string> {
  * The enum validity is only enforced by TypeScript, not the database itself.
  */
 export class TextEnumColumn<E extends string> extends Column<E> {
-  protected readonly $pgType = "text";
+  readonly $pgType = "text";
 }

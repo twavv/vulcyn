@@ -3,6 +3,7 @@ import {
   ColumnTSInsertionType,
   ColumnTSType,
   ColumnWrapper,
+  Database,
   isColumn,
   isTable,
   Table,
@@ -17,6 +18,24 @@ export class TableWrapperClass<
 > {
   $columns: TableWrapperColumns<T>;
 
+  /**
+   * The set of tables that this table references with foreign key constraints.
+   *
+   * References are added by child ColumnWrapper's and ultimately this set of
+   * references is used by the Database class to construct a DAG of table
+   * dependencies (so that tables with foreign keys are created *after* the
+   * tables that they reference).
+   */
+  $references: Set<TableWrapper> = new Set();
+
+  /**
+   * Flag to mark a TableWrapper as "visited" when it is created.
+   *
+   * This is used to avoid creating a table multiple times if multiple tables
+   * reference this table.
+   */
+  $wasCreated: boolean = false;
+
   get $_iama() {
     return "TableWrapper";
   }
@@ -25,7 +44,11 @@ export class TableWrapperClass<
     return this as (this & TableWrapper<TableName, T>);
   }
 
-  constructor(public $tableName: TableName, public $table: T) {
+  constructor(
+    public $db: Database<{}>,
+    public $tableName: TableName,
+    public $table: T,
+  ) {
     if (!isTable($table)) {
       const reprstr = itisa($table) || typeof $table;
       throw new Error(
@@ -46,10 +69,22 @@ export class TableWrapperClass<
     assignGetters(this, this.$columns);
   }
 
+  $getColumnByName(name: string): ColumnWrapper<string, unknown> {
+    if (name in this.$columns) {
+      return (this.$columns as any)[name];
+    }
+    throw new Error(`Unknown column in table ${this.$tableName}: ${name}.`);
+  }
+
   $getColumns(): Array<ColumnWrapper<string, unknown>> {
     return Object.entries(this.$columns).map(
       ([_, column]) => column as ColumnWrapper<string, unknown>,
     );
+  }
+
+  $addReference(tableWrapper: TableWrapper) {
+    this.$references.add(tableWrapper);
+    return this;
   }
 
   $creationExpr() {
@@ -86,14 +121,15 @@ export type TableWrapperColumns<
 };
 
 export type TableWrapper<
-  TableName extends string,
-  T extends Table
+  TableName extends string = string,
+  T extends Table = Table
 > = TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
 export function TableWrapper<N extends string, T extends Table>(
+  db: Database,
   tableName: N,
   table: T,
 ): TableWrapper<N, T> {
-  return new TableWrapperClass<N, T>(tableName, table) as any;
+  return new TableWrapperClass<N, T>(db, tableName, table) as any;
 }
 
 export function isTableWrapper(x: unknown): x is TableWrapper<string, Table> {

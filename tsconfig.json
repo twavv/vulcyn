@@ -15,7 +15,7 @@
         "./src/*"
       ]
     },
-    "esModuleInterop": true
+    "downlevelIteration": true
   },
   "include": [
     "./src/**/*.ts"

@@ -7,6 +7,7 @@ import {
   Table,
   TableWrapper,
   TableWrapperColumns,
+  Database,
 } from "@";
 
 test("TableWrapper correctly maps column types", () => {
@@ -15,7 +16,11 @@ test("TableWrapper correctly maps column types", () => {
     name = new TextColumn();
   }
 
-  const userWrapper = TableWrapper("users", new User());
+  const userWrapper = TableWrapper(
+    (null as any) as Database,
+    "users",
+    new User(),
+  );
   assert<IsExact<typeof userWrapper, TableWrapper<"users", User>>>(true);
 
   assert<IsExact<typeof userWrapper["id"], ColumnWrapper<"id", number>>>(true);
