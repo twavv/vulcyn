@@ -16,7 +16,7 @@ export class Join<J extends JoinType = JoinType> extends Expr<"join"> {
   }
 
   toSQL(rc: ReductionContext): string {
-    return this.joinTypeSQL() + this.fromSQL(rc) + this.onSQL(rc) + ";";
+    return this.joinTypeSQL() + this.fromSQL(rc) + this.onSQL(rc);
   }
 
   private joinTypeSQL() {
@@ -39,6 +39,6 @@ export class Join<J extends JoinType = JoinType> extends Expr<"join"> {
     if (!this.on) {
       return "";
     }
-    return " " + this.on.toSQL(rc);
+    return " ON " + this.on.toSQL(rc);
   }
 }

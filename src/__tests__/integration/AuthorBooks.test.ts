@@ -35,4 +35,20 @@ test("Author and Books tables with join", async () => {
       authorId: 123,
     }),
   ).rejects.toThrow();
+
+  await db.insertInto(db.authors).values({ name: "Travis" });
+  await db
+    .insertInto(db.books)
+    .values({ title: "Intro to Introductions", authorId: 1 });
+  await db
+    .insertInto(db.books)
+    .values({ title: "Advanced Greetings", authorId: 1 });
+
+  const books = await db
+    .select({ authorName: db.authors.name, title: db.books.title })
+    .from(db.authors.join(db.books, db.authors.id.eq(db.books.authorId)));
+  expect(books).toEqual([
+    { authorName: "Travis", title: "Intro to Introductions" },
+    { authorName: "Travis", title: "Advanced Greetings" },
+  ]);
 });

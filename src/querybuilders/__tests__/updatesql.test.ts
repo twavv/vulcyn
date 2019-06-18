@@ -29,7 +29,7 @@ test("UpdateQueryBuilder generates correct SQL", () => {
   // NOTE: We treat the order of the query parameters as implementation details.
   expect(sql).toEqual(
     expect.stringMatching(
-      /^UPDATE mytable SET name = \$[0-9], number = \$[0-9] WHERE \(id = \$[0-9]\) OR \(id = \$[0-9]\);$/,
+      /^UPDATE mytable SET name = \$[0-9], number = \$[0-9] WHERE \((mytable\.)?id = \$[0-9]\) OR \((mytable\.)?id = \$[0-9]\);$/,
     ),
   );
   expect(new Set(rc.parameters())).toEqual(new Set(["trav", null, 123, 456]));

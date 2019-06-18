@@ -2,10 +2,22 @@ import {
   ColumnWrapper,
   ColumnWrapperTSType,
   Database,
+  isTableWrapper,
   Table,
   TableWrapper,
 } from "@";
-import { Expr, From, Limit, Select, SQLFragment, Where } from "@/expr";
+import {
+  ColumnReference,
+  Expr,
+  From,
+  FromItem,
+  isExpr,
+  Limit,
+  LTRTokens,
+  Select,
+  SQLFragment,
+  Where,
+} from "@/expr";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
 import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
@@ -81,10 +93,19 @@ export class SelectQueryBuilder<
     super(db);
     this.$columns = Object.entries($selectorSpec).map(([name, column]) => {
       const { $columnName } = column;
+      const columnReference = new ColumnReference(
+        column.$tableName,
+        column.$columnName,
+      );
       if ($columnName != name) {
-        return new SQLFragment(`${$columnName} AS ${name}`);
+        // NOTE: we do quotes here to ensure that casing is correct in result
+        // object.
+        return new LTRTokens([
+          columnReference,
+          new SQLFragment(`AS "${name}"`),
+        ]);
       }
-      return new SQLFragment($columnName);
+      return columnReference;
     });
     if ($fetchOne) {
       this.$limit = new Limit(1);
@@ -99,14 +120,18 @@ export class SelectQueryBuilder<
    *   db
    *     .select({...})
    *     .from(db.users);
-   *
-   * @todo
-   *   This can be automagically inferred when all of the columns come from the
-   *   same table.
    */
-  from(table: TableWrapper<string, Table>) {
-    this.$from = new From(new SQLFragment(table.$tableName));
-    return this;
+  from(table: TableWrapper<string, Table> | From) {
+    if (isExpr(table) && table.head === "from") {
+      this.$from = table;
+      return this;
+    } else if (isTableWrapper(table)) {
+      this.$from = new From(new FromItem(new SQLFragment(table.$tableName)));
+      return this;
+    }
+    throw new Error(
+      `In SelectQueryBuilder, .from(...) must be a table or From Expr.`,
+    );
   }
 
   where(whereSpecifier: WhereSubqueryInputSpecifier) {
@@ -150,6 +175,6 @@ export class SelectQueryBuilder<
         `Cannot guess table name from query with no columns selected.`,
       );
     }
-    return new From(new SQLFragment(guess));
+    return new From(new FromItem(new SQLFragment(guess)));
   }
 }

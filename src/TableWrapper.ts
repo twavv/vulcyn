@@ -10,7 +10,16 @@ import {
   TableColumns,
 } from "@";
 import { assignGetters, itisa } from "@/utils";
-import { CreateTable, ReductionContext, SQLFragment } from "@/expr";
+import {
+  CreateTable,
+  Expr,
+  From,
+  FromItem,
+  Join,
+  JoinType,
+  ReductionContext,
+  SQLFragment,
+} from "@/expr";
 
 export class TableWrapperClass<
   TableName extends string = string,
@@ -67,6 +76,26 @@ export class TableWrapperClass<
         .filter((x) => x.length > 0),
     ) as any;
     assignGetters(this, this.$columns);
+  }
+
+  join(fromItem: TableWrapper<string, Table> | From, on: Expr<string>): From {
+    return this.$joinImpl(JoinType.INNER, fromItem, on);
+  }
+
+  private $joinImpl(
+    type: JoinType,
+    fromItem: TableWrapper<string, Table> | From,
+    on: Expr<string>,
+  ): From {
+    const fromExpr = isTableWrapper(fromItem)
+      ? new SQLFragment(fromItem.$tableName)
+      : fromItem;
+    return new From(
+      new FromItem(
+        new SQLFragment(this.$tableName),
+        new Join(type, fromExpr, on),
+      ),
+    );
   }
 
   /**

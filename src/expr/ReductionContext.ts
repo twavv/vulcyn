@@ -8,6 +8,16 @@ export class ReductionContext {
   private $parameters: any[] = [];
 
   /**
+   * True if we should always use qualified column names
+   * (i.e. `tablename.columnname` instead of just `columnname`).
+   */
+  private $qualifyNames: boolean;
+
+  constructor({ qualifyNames = true }: { qualifyNames?: boolean } = {}) {
+    this.$qualifyNames = qualifyNames;
+  }
+
+  /**
    * Get the index of the next parameter.
    */
   addParameter(value: any) {
@@ -17,5 +27,9 @@ export class ReductionContext {
 
   parameters() {
     return this.$parameters;
+  }
+
+  qualifyNames() {
+    return this.$qualifyNames;
   }
 }

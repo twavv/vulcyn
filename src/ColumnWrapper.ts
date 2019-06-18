@@ -7,8 +7,9 @@
 
 import { itisa } from "@/utils";
 import { Column, isColumn, Table, TableWrapper } from "@";
-import { CreateTableColumn, Infix, Parameter, SQLFragment } from "@/expr";
+import { ColumnReference, CreateTableColumn, Infix, Parameter } from "@/expr";
 
+type Comparable<T> = T | ColumnWrapper<string, T>;
 class ColumnWrapperImpl<N extends string, T, IT> {
   $_type!: T;
   $_insertionType!: IT;
@@ -46,31 +47,33 @@ class ColumnWrapperImpl<N extends string, T, IT> {
   }
 
   // Methods for WHERE query generation
-  eq(t: T) {
+  eq(t: Comparable<T>) {
     return this.$comparison("=", t);
   }
 
-  gt(t: T) {
+  gt(t: Comparable<T>) {
     return this.$comparison(">", t);
   }
 
-  gte(t: T) {
+  gte(t: Comparable<T>) {
     return this.$comparison(">=", t);
   }
 
-  lt(t: T) {
+  lt(t: Comparable<T>) {
     return this.$comparison("<", t);
   }
 
-  lte(t: T) {
+  lte(t: Comparable<T>) {
     return this.$comparison("<=", t);
   }
 
-  private $comparison(infix: string, t: T) {
+  private $comparison(infix: string, t: T | ColumnWrapper<string, T>) {
     return new Infix(
       infix,
-      new SQLFragment(this.$columnName),
-      new Parameter(t),
+      new ColumnReference(this.$tableName, this.$columnName),
+      isColumnWrapper(t)
+        ? new ColumnReference(t.$tableName, t.$columnName)
+        : new Parameter(t),
     );
   }
 }

@@ -1,24 +1,13 @@
 import { Expr } from "./Expr";
 import { ReductionContext } from "./ReductionContext";
-import { Join } from "./Join";
+import { FromItem } from "./FromItem";
 
 export class From extends Expr<"from"> {
-  constructor(public tableName: Expr<string>, public join?: Join) {
+  constructor(public fromItem: FromItem) {
     super("from");
   }
 
   toSQL(rc: ReductionContext): string {
-    return "FROM" + this.tableNameSQL(rc) + this.joinSQL(rc);
-  }
-
-  private tableNameSQL(rc: ReductionContext) {
-    return " " + this.tableName.toSQL(rc);
-  }
-
-  private joinSQL(rc: ReductionContext) {
-    if (!this.join) {
-      return "";
-    }
-    return " " + this.join.toSQL(rc);
+    return "FROM " + this.fromItem.toSQL(rc);
   }
 }
