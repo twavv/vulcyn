@@ -1,12 +1,12 @@
 import { Expr, PickExpr } from "./Expr";
 import { ReductionContext } from "./ReductionContext";
-import { From } from "./From";
 import { Limit } from "./Limit";
 import { Where } from "./Where";
+import { FromItem } from "./FromItem";
 
 export class Select extends Expr<"select"> {
   columns!: Array<Expr<any>>;
-  from!: From;
+  from!: FromItem;
   where?: Where;
   limit?: Limit;
 
@@ -38,7 +38,7 @@ export class Select extends Expr<"select"> {
   }
 
   private fromSQL(rc: ReductionContext): string {
-    return " " + this.from.toSQL(rc);
+    return " FROM " + this.from.toSQL(rc);
   }
 
   private limitSQL(rc: ReductionContext): string {

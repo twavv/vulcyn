@@ -9,7 +9,6 @@ import {
 import {
   ColumnReference,
   Expr,
-  From,
   FromItem,
   isExpr,
   Limit,
@@ -85,7 +84,7 @@ export class SelectQueryBuilder<
   FO extends boolean = false
 > extends ExecutableQueryBuilder<D, SelectQueryReturn<S, FO>> {
   private $columns: Array<Expr<any>>;
-  private $from?: From;
+  private $from?: FromItem;
   private $where?: Where;
   private $limit?: Limit;
 
@@ -121,12 +120,12 @@ export class SelectQueryBuilder<
    *     .select({...})
    *     .from(db.users);
    */
-  from(table: TableWrapper<string, Table> | From) {
-    if (isExpr(table) && table.head === "from") {
+  from(table: TableWrapper<string, Table> | FromItem) {
+    if (isExpr(table)) {
       this.$from = table;
       return this;
     } else if (isTableWrapper(table)) {
-      this.$from = new From(new FromItem(new SQLFragment(table.$tableName)));
+      this.$from = new FromItem(new SQLFragment(table.$tableName));
       return this;
     }
     throw new Error(
@@ -175,6 +174,6 @@ export class SelectQueryBuilder<
         `Cannot guess table name from query with no columns selected.`,
       );
     }
-    return new From(new FromItem(new SQLFragment(guess)));
+    return new FromItem(new SQLFragment(guess));
   }
 }

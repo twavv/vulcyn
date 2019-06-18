@@ -13,7 +13,6 @@ import { assignGetters, itisa } from "@/utils";
 import {
   CreateTable,
   Expr,
-  From,
   FromItem,
   Join,
   JoinType,
@@ -78,23 +77,21 @@ export class TableWrapperClass<
     assignGetters(this, this.$columns);
   }
 
-  join(fromItem: TableWrapper<string, Table> | From, on: Expr<string>): From {
+  join(fromItem: TableWrapper<string, Table> | FromItem, on: Expr<string>) {
     return this.$joinImpl(JoinType.INNER, fromItem, on);
   }
 
   private $joinImpl(
     type: JoinType,
-    fromItem: TableWrapper<string, Table> | From,
+    fromItem: TableWrapper<string, Table> | FromItem,
     on: Expr<string>,
-  ): From {
+  ): FromItem {
     const fromExpr = isTableWrapper(fromItem)
       ? new SQLFragment(fromItem.$tableName)
       : fromItem;
-    return new From(
-      new FromItem(
-        new SQLFragment(this.$tableName),
-        new Join(type, fromExpr, on),
-      ),
+    return new FromItem(
+      new SQLFragment(this.$tableName),
+      new Join(type, fromExpr, on),
     );
   }
 

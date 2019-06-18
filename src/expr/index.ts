@@ -2,7 +2,6 @@ export * from "./ColumnReference";
 export * from "./CreateTable";
 export * from "./CreateTableColumn";
 export * from "./Expr";
-export * from "./From";
 export * from "./FromItem";
 export * from "./Infix";
 export * from "./Insert";
