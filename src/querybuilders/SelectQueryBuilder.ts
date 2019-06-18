@@ -2,10 +2,21 @@ import {
   ColumnWrapper,
   ColumnWrapperTSType,
   Database,
+  isTableWrapper,
   Table,
   TableWrapper,
 } from "@";
-import { Clause, Expr, Limit, Select, SQLFragment } from "@/expr";
+import {
+  ColumnReference,
+  Expr,
+  FromItem,
+  isExpr,
+  Limit,
+  LTRTokens,
+  Select,
+  SQLFragment,
+  Where,
+} from "@/expr";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
 import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
@@ -73,18 +84,27 @@ export class SelectQueryBuilder<
   FO extends boolean = false
 > extends ExecutableQueryBuilder<D, SelectQueryReturn<S, FO>> {
   private $columns: Array<Expr<any>>;
-  private $from?: Clause<"from">;
-  private $where?: Clause<"where">;
+  private $from?: FromItem;
+  private $where?: Where;
   private $limit?: Limit;
 
   constructor(db: D, public $selectorSpec: S, public $fetchOne: FO) {
     super(db);
     this.$columns = Object.entries($selectorSpec).map(([name, column]) => {
       const { $columnName } = column;
+      const columnReference = new ColumnReference(
+        column.$tableName,
+        column.$columnName,
+      );
       if ($columnName != name) {
-        return new SQLFragment(`${$columnName} AS ${name}`);
+        // NOTE: we do quotes here to ensure that casing is correct in result
+        // object.
+        return new LTRTokens([
+          columnReference,
+          new SQLFragment(`AS "${name}"`),
+        ]);
       }
-      return new SQLFragment($columnName);
+      return columnReference;
     });
     if ($fetchOne) {
       this.$limit = new Limit(1);
@@ -99,14 +119,18 @@ export class SelectQueryBuilder<
    *   db
    *     .select({...})
    *     .from(db.users);
-   *
-   * @todo
-   *   This can be automagically inferred when all of the columns come from the
-   *   same table.
    */
-  from(table: TableWrapper<string, Table>) {
-    this.$from = new Clause("from", new SQLFragment(table.$tableName));
-    return this;
+  from(table: TableWrapper<string, Table> | FromItem) {
+    if (isExpr(table)) {
+      this.$from = table;
+      return this;
+    } else if (isTableWrapper(table)) {
+      this.$from = new FromItem(new SQLFragment(table.$tableName));
+      return this;
+    }
+    throw new Error(
+      `In SelectQueryBuilder, .from(...) must be a table or From Expr.`,
+    );
   }
 
   where(whereSpecifier: WhereSubqueryInputSpecifier) {
@@ -150,6 +174,6 @@ export class SelectQueryBuilder<
         `Cannot guess table name from query with no columns selected.`,
       );
     }
-    return new Clause("from", new SQLFragment(guess));
+    return new FromItem(new SQLFragment(guess));
   }
 }

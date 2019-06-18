@@ -1,5 +1,5 @@
-import { Expr } from "@/expr/Expr";
-import { ReductionContext } from "@/expr/ReductionContext";
+import { Expr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 /**
  * An Expr which is a wrapper around a sequence of tokens.

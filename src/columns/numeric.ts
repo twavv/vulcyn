@@ -4,7 +4,7 @@ import { Column } from "@";
  * An int (or smallint) column.
  */
 export class IntColumn extends Column<number> {
-  protected $pgType = "int";
+  $pgType = "int";
 
   smallint() {
     this.$pgType = "smallint";
@@ -19,14 +19,19 @@ export class IntColumn extends Column<number> {
  * as it existed before the advent of the BigInt proposal).
  */
 export class BigintColumn extends Column<string, string | number> {
-  protected $pgType = "bigint";
+  $pgType = "bigint";
 }
 
 /**
  * A serial column.
  */
 export class SerialColumn extends Column<number, number | undefined> {
-  protected readonly $pgType = "serial";
+  readonly $pgType = "serial";
+
+  constructor() {
+    super();
+    this.unique(true);
+  }
 }
 
 /**
@@ -35,7 +40,7 @@ export class SerialColumn extends Column<number, number | undefined> {
  * The type may be set to double precision using the `.double()` method.
  */
 export class FloatColumn extends Column<number> {
-  protected $pgType = "real";
+  $pgType = "real";
 
   double() {
     this.$pgType = "double precision";

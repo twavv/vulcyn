@@ -1,8 +1,8 @@
-import { Clause } from "./Clause";
 import { Expr, PickExpr } from "./Expr";
 import { Infix } from "./Infix";
 import { ReductionContext } from "./ReductionContext";
 import { SQLFragment } from "./SQLFragment";
+import { Where } from "./Where";
 
 /**
  * An array of updates.
@@ -16,7 +16,7 @@ export class Update extends Expr<"update"> {
   // NOTE: These need to be public have non-null assertions to allow PickExpr to work.
   readonly tableName!: SQLFragment;
   readonly updates!: UpdatesArray;
-  readonly where!: Clause<"where">;
+  readonly where!: Where;
 
   constructor(args: PickExpr<Update>) {
     super("update");

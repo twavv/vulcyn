@@ -7,17 +7,26 @@
 
 import { itisa } from "@/utils";
 import { Column, isColumn, Table, TableWrapper } from "@";
-import { Infix, Parameter, SQLFragment } from "@/expr";
+import { ColumnReference, CreateTableColumn, Infix, Parameter } from "@/expr";
 
+type Comparable<T> = T | ColumnWrapper<string, T, any>;
 class ColumnWrapperImpl<N extends string, T, IT> {
+  $_type!: T;
+  $_insertionType!: IT;
   get $_iama() {
     return "ColumnWrapper";
   }
-  $_type!: T;
-  $_insertionType!: IT;
+
+  get $db() {
+    return this.$tableWrapper.$db;
+  }
+
+  get $tableName() {
+    return this.$tableWrapper.$tableName;
+  }
 
   constructor(
-    public $table: TableWrapper<string, Table>,
+    public $tableWrapper: TableWrapper<string, Table>,
     public $columnName: string,
     public $column: Column<T, IT>,
   ) {
@@ -29,40 +38,42 @@ class ColumnWrapperImpl<N extends string, T, IT> {
     }
   }
 
-  get $tableName() {
-    return this.$table.$tableName;
+  $prepare() {
+    this.$column.$prepare(this);
   }
 
-  $creationExpr() {
-    return this.$column.$creationExpr(this.$columnName);
+  $creationExpr(): CreateTableColumn {
+    return this.$column.$creationExpr(this, this.$columnName);
   }
 
   // Methods for WHERE query generation
-  eq(t: T) {
+  eq(t: Comparable<T>) {
     return this.$comparison("=", t);
   }
 
-  gt(t: T) {
+  gt(t: Comparable<T>) {
     return this.$comparison(">", t);
   }
 
-  gte(t: T) {
+  gte(t: Comparable<T>) {
     return this.$comparison(">=", t);
   }
 
-  lt(t: T) {
+  lt(t: Comparable<T>) {
     return this.$comparison("<", t);
   }
 
-  lte(t: T) {
+  lte(t: Comparable<T>) {
     return this.$comparison("<=", t);
   }
 
-  private $comparison(infix: string, t: T) {
+  private $comparison(infix: string, t: T | ColumnWrapper<string, T>) {
     return new Infix(
       infix,
-      new SQLFragment(this.$columnName),
-      new Parameter(t),
+      new ColumnReference(this.$tableName, this.$columnName),
+      isColumnWrapper(t)
+        ? new ColumnReference(t.$tableName, t.$columnName)
+        : new Parameter(t),
     );
   }
 }

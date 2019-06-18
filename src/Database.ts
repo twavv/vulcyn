@@ -1,6 +1,6 @@
 import { Client } from "pg";
 
-import { isTableWrapper, Table, TableWrapper } from "@";
+import { isTable, isTableWrapper, Table, TableWrapper } from "@";
 import {
   InsertQueryBuilder,
   PickSelectorSpecFromColumnNames,
@@ -25,9 +25,17 @@ interface TableMap {
  * class have the `TableWrapperMap<T>` class intersected on (which tells TS that
  * those properties do, in fact, exist).
  */
-class DatabaseImpl<T extends TableMap> {
+class DatabaseImpl<T extends TableMap = {}> {
   $debug = debug.extend("Database");
   $tables: TableWrapperMap<T>;
+
+  // A map to be able to lookup a TableWrapper given it's Table class.
+  // This is necessary for things like column.reference(...) because when
+  // that code is executed, only the Table (not TableWrapper) is available.
+  $tableToWrapperMap: Map<
+    typeof Table,
+    TableWrapper<string, Table>
+  > = new Map();
 
   // Convenience hack that allows us to avoid extra casting to any in the body
   // of this class.
@@ -36,8 +44,7 @@ class DatabaseImpl<T extends TableMap> {
   constructor(public $pg: Client, tableMap: T) {
     this.$tables = Object.fromEntries(
       Object.entries(tableMap).map(([tableName, table]) => {
-        // noinspection SuspiciousTypeOfGuard
-        if (!(table instanceof Table)) {
+        if (!isTable(table)) {
           throw new Error(
             `All properties in a TableMap must be Table instances.`,
           );
@@ -47,12 +54,19 @@ class DatabaseImpl<T extends TableMap> {
             `Table name "${tableName}" conflicts with existing name in DatabaseImpl.`,
           );
         }
-        return [tableName, TableWrapper(tableName, table)];
+
+        const tableWrapper = TableWrapper(this, tableName, table);
+        this.$tableToWrapperMap.set(
+          Object.getPrototypeOf(table).constructor,
+          tableWrapper,
+        );
+        return [tableName, tableWrapper];
       }),
     ) as any;
 
     // Implement TableWrapperMap<T>
     Object.entries(this.$tables).forEach(([tableName, tableWrapper]) => {
+      tableWrapper.$prepare();
       Object.defineProperty(this, tableName, {
         get() {
           return tableWrapper;
@@ -62,14 +76,37 @@ class DatabaseImpl<T extends TableMap> {
   }
 
   async createTables() {
-    // TODO: We'll have to do some work to construct a DAG of table dependencies
-    //    once we start allowing REFERENCES.
     for (const table of Object.values(this.$tables)) {
-      const rc = new ReductionContext();
-      const sql = table.$creationSQL(rc);
-      this.$debug(`Creating table ${table.$tableName}`, sql);
-      await this.$pg.query(sql, rc.parameters());
+      await this.$createTablesRecursive(table);
     }
+  }
+
+  /**
+   * Create a table if it hasn't been created, recursively creating dependent
+   * tables if necessary.
+   *
+   * This method creates dependent tables **before** the table given as the
+   * argument (this is necessary for FOREIGN KEY constraints). This is
+   * effectively a poor man's topological sort (this runs in O(n^2)). It could
+   * be made more efficient, but since the number of tables in a given
+   * application is usually on the order of tens, it's probably not worth it.
+   */
+  private async $createTablesRecursive(t: TableWrapper) {
+    if (t.$wasCreated) {
+      // Avoid double-creating tables
+      return;
+    }
+
+    // TODO: We could actually store this as a flag ("no" | "yes" | "in-progress")
+    //    which would allow us to detect cycles in the "dag".
+    t.$wasCreated = true;
+    for (const dependent of t.$references) {
+      await this.$createTablesRecursive(dependent);
+    }
+    const rc = new ReductionContext();
+    const sql = t.$creationSQL(rc);
+    this.$debug(`Creating table ${t.$tableName}`, sql);
+    await this.$pg.query(sql, rc.parameters());
   }
 
   // select(db.users, "id", "name", ...)
@@ -113,15 +150,36 @@ class DatabaseImpl<T extends TableMap> {
   update<TW extends TableWrapper<string, Table>>(table: TW) {
     return new UpdateQueryBuilder(this.$, table);
   }
+
+  /**
+   * Lookup a TableWrapper given the associated Table class.
+   *
+   * This is used to implement functionality in columns (especially FORIEGN
+   * KEY constraints) that require information that's only available in the
+   * miscellaneous wrapper types (e.g. table and column names and types). For
+   * example, a column can reference a table, must when the `.reference(...)`
+   * is executed, the TableWrapper class doesn't exist yet.
+   */
+  $getTableWrapperForTable(t: typeof Table) {
+    const wrapper = this.$tableToWrapperMap.get(t);
+    if (!wrapper) {
+      throw new Error(
+        `Unable to find TableWrapper for table ${t.name}; ` +
+          `did you forget to add it to the Database constructor?`,
+      );
+    }
+    return wrapper;
+  }
 }
 
 export type TableWrapperMap<T extends TableMap> = {
   [K in keyof T & string]: TableWrapper<K, T[K]>;
 };
-export type Database<T extends TableMap> = DatabaseImpl<T> & TableWrapperMap<T>;
-export function Database<T extends TableMap>(
+export type Database<T extends TableMap = {}> = DatabaseImpl<T> &
+  TableWrapperMap<T>;
+export const Database = <T extends TableMap = {}>(
   pg: Client,
   tables: T,
-): Database<T> {
+): Database<T> => {
   return new DatabaseImpl(pg, tables) as any;
-}
+};

@@ -18,7 +18,7 @@ test("SelectQueryBuilder with spec object", () => {
 
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users ");
-  expect(sql).toContain(" id, name ");
+  expect(sql).toEqual(expect.stringMatching(/ (users\.)?id, (users\.)?name /));
   expect(sql).toContain(" LIMIT 1");
 });
 
@@ -35,8 +35,8 @@ test("SelectQueryBuilder with column names", () => {
 
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users");
-  expect(sql).toEqual(expect.stringMatching(/ id[ ,]/));
-  expect(sql).toEqual(expect.stringMatching(/ name[ ,]/));
+  expect(sql).toEqual(expect.stringMatching(/ (users\.)?id[ ,]/));
+  expect(sql).toEqual(expect.stringMatching(/ (users\.)?name[ ,]/));
 });
 
 test("SelectQueryBuilder without manual .from()", () => {
@@ -51,6 +51,6 @@ test("SelectQueryBuilder without manual .from()", () => {
 
   expect(sql).toContain("SELECT ");
   expect(sql).toContain(" FROM users");
-  expect(sql).toEqual(expect.stringMatching(/ id[ ,]/));
-  expect(sql).toEqual(expect.stringMatching(/ name[ ,]/));
+  expect(sql).toEqual(expect.stringMatching(/ (users\.)?id[ ,]/));
+  expect(sql).toEqual(expect.stringMatching(/ (users\.)?name[ ,]/));
 });

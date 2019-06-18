@@ -1,5 +1,5 @@
-import { Expr, PickExpr } from "@/expr/Expr";
-import { ReductionContext } from "@/expr/ReductionContext";
+import { Expr, PickExpr } from "./Expr";
+import { ReductionContext } from "./ReductionContext";
 
 export class CreateTableColumn extends Expr<"create-table-column"> {
   name!: Expr<string>;

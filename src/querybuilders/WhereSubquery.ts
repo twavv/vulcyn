@@ -1,5 +1,5 @@
 import { Database } from "@";
-import { Clause, Expr, isExpr, isSQLFragment, LogicalOperator } from "@/expr";
+import { Expr, isExpr, isSQLFragment, LogicalOperator, Where } from "@/expr";
 
 /**
  * A subquery for a WHERE clause.
@@ -19,7 +19,7 @@ export class WhereSubquery<DB extends Database<any>> {
   }
 
   $toExpr() {
-    return new Clause("where", this.$body);
+    return new Where(this.$body);
   }
 }
 

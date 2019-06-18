@@ -1,25 +1,19 @@
-/**
- * A column in a table.
- *
- * This is used when declaring tables.
- */
+import { ColumnWrapper } from "@/ColumnWrapper";
+import { Table } from "@/Table";
 import { itisa } from "@/utils";
 import { CreateTableColumn, Expr, LTRTokens, SQLFragment } from "@/expr";
 
 /**
- * A utility type that contains information about a Column's data.
+ * A column in a table.
  *
- * This is useful as a type to intersect with a column to change it's type
- * parameters (e.g. after marking it as nullable).
+ * This is used when declaring tables.
+ *
+ * @todo
+ *    Support more column constraints.
+ *    https://www.postgresql.org/docs/10/sql-createtable.html
  */
-export interface ColumnTypeData<T, InsertionType = T> {
-  $_type: T;
-  $_insertionType: InsertionType;
-}
-
-export abstract class Column<T, InsertionType = T>
-  implements ColumnTypeData<T, InsertionType> {
-  protected abstract $pgType: string;
+export abstract class Column<T, InsertionType = T> {
+  abstract $pgType: string;
 
   get $_iama() {
     return "Column";
@@ -33,15 +27,27 @@ export abstract class Column<T, InsertionType = T>
 
   protected $nullable?: boolean;
   protected $default?: Expr<string>;
-  // TODO: Support more column constraints.
-  // https://www.postgresql.org/docs/10/sql-createtable.html
+  protected $unique?: boolean;
+  protected $references?: {
+    tableClass: typeof Table;
+    columnName: string;
+  };
 
-  nullable(): Column<T | null, T | null | undefined> {
-    this.$nullable = true;
-    return this as (this & {
-      $_type: T | null;
-      $_insertionType: T | undefined | null;
-    });
+  $prepare(columnWrapper: ColumnWrapper<string, T, InsertionType>) {
+    if (this.$references) {
+      columnWrapper.$tableWrapper.$addReference(this.$references.tableClass);
+    }
+  }
+
+  nullable(
+    isNullable?: true,
+  ): Column<T | null, InsertionType | undefined | null>;
+  nullable(
+    isNullable: false,
+  ): Column<Exclude<T, null>, Exclude<InsertionType, undefined | null>>;
+  nullable(isNullable: boolean = true) {
+    this.$nullable = isNullable;
+    return this as any;
   }
 
   /**
@@ -54,20 +60,38 @@ export abstract class Column<T, InsertionType = T>
    *    nothing that CREATE TABLE queries can't handle parameters so this is not
    *    entirely trivial).
    */
-  defaultExpr(expr: Expr<string>): Column<T, T | undefined> {
+  defaultExpr(expr: Expr<string>): Column<T, InsertionType | undefined> {
     this.$default = expr;
-    return this as (this & { $_type: T; $_insertionType: T | undefined });
+    return this;
   }
 
-  $creationExpr(name: string) {
+  unique(isUnique: boolean = true) {
+    this.$unique = isUnique;
+    return this;
+  }
+
+  references<TB extends Table, N extends keyof TB & string>(
+    tableClass: { new (...args: any[]): TB },
+    columnName: N,
+  ) {
+    this.$references = { tableClass, columnName };
+    return this;
+  }
+
+  $creationExpr(
+    columnWrapper: ColumnWrapper<string, T, InsertionType>,
+    name: string,
+  ) {
     return new CreateTableColumn({
       name: new SQLFragment(name),
       dataType: new SQLFragment(this.$pgType),
-      constraint: this.$constraintExpr(),
+      constraint: this.$constraintExpr(columnWrapper),
     });
   }
 
-  private $constraintExpr() {
+  private $constraintExpr(
+    columnWrapper: ColumnWrapper<string, T, InsertionType>,
+  ) {
     const tokens = new LTRTokens();
 
     if (this.$nullable) {
@@ -78,6 +102,23 @@ export abstract class Column<T, InsertionType = T>
 
     if (this.$default) {
       tokens.appendToken(new SQLFragment("DEFAULT"), this.$default);
+    }
+
+    if (this.$unique) {
+      tokens.appendToken(new SQLFragment("UNIQUE"));
+    }
+
+    if (this.$references) {
+      const db = columnWrapper.$db;
+      const { tableClass, columnName } = this.$references;
+      const tableWrapper = db.$getTableWrapperForTable(tableClass);
+      const refColumn = tableWrapper.$getColumnByName(columnName);
+
+      tokens.appendToken(
+        new SQLFragment(
+          `REFERENCES ${tableWrapper.$tableName}(${refColumn.$columnName})`,
+        ),
+      );
     }
 
     return tokens;

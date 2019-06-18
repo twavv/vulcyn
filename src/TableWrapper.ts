@@ -3,19 +3,46 @@ import {
   ColumnTSInsertionType,
   ColumnTSType,
   ColumnWrapper,
+  Database,
   isColumn,
   isTable,
   Table,
   TableColumns,
 } from "@";
 import { assignGetters, itisa } from "@/utils";
-import { CreateTable, ReductionContext, SQLFragment } from "@/expr";
+import {
+  CreateTable,
+  Expr,
+  FromItem,
+  Join,
+  JoinType,
+  ReductionContext,
+  SQLFragment,
+} from "@/expr";
 
 export class TableWrapperClass<
   TableName extends string = string,
   T extends Table = Table
 > {
   $columns: TableWrapperColumns<T>;
+
+  /**
+   * The set of tables that this table references with foreign key constraints.
+   *
+   * References are added by child ColumnWrapper's and ultimately this set of
+   * references is used by the Database class to construct a DAG of table
+   * dependencies (so that tables with foreign keys are created *after* the
+   * tables that they reference).
+   */
+  $references: Set<TableWrapper> = new Set();
+
+  /**
+   * Flag to mark a TableWrapper as "visited" when it is created.
+   *
+   * This is used to avoid creating a table multiple times if multiple tables
+   * reference this table.
+   */
+  $wasCreated: boolean = false;
 
   get $_iama() {
     return "TableWrapper";
@@ -25,7 +52,11 @@ export class TableWrapperClass<
     return this as (this & TableWrapper<TableName, T>);
   }
 
-  constructor(public $tableName: TableName, public $table: T) {
+  constructor(
+    public $db: Database<{}>,
+    public $tableName: TableName,
+    public $table: T,
+  ) {
     if (!isTable($table)) {
       const reprstr = itisa($table) || typeof $table;
       throw new Error(
@@ -46,10 +77,50 @@ export class TableWrapperClass<
     assignGetters(this, this.$columns);
   }
 
-  $getColumns(): Array<ColumnWrapper<string, unknown>> {
-    return Object.entries(this.$columns).map(
-      ([_, column]) => column as ColumnWrapper<string, unknown>,
+  join(fromItem: TableWrapper<string, Table> | FromItem, on: Expr<string>) {
+    return this.$joinImpl(JoinType.INNER, fromItem, on);
+  }
+
+  private $joinImpl(
+    type: JoinType,
+    fromItem: TableWrapper<string, Table> | FromItem,
+    on: Expr<string>,
+  ): FromItem {
+    const fromExpr = isTableWrapper(fromItem)
+      ? new SQLFragment(fromItem.$tableName)
+      : fromItem;
+    return new FromItem(
+      new SQLFragment(this.$tableName),
+      new Join(type, fromExpr, on),
     );
+  }
+
+  /**
+   * Perform post-construction initialization steps.
+   *
+   * This is executed after the constructor to ensure that all the tables are
+   * registered with the Database instance (this is required to implement
+   * FOREIGN KEY constraints and to add the appropriate tables to the
+   * $references set).
+   */
+  $prepare() {
+    this.$getColumns().forEach((column) => column.$prepare());
+  }
+
+  $getColumnByName(name: string): ColumnWrapper<string, unknown> {
+    if (name in this.$columns) {
+      return (this.$columns as any)[name];
+    }
+    throw new Error(`Unknown column in table ${this.$tableName}: ${name}.`);
+  }
+
+  $getColumns(): Array<ColumnWrapper<string, unknown>> {
+    return Object.values(this.$columns);
+  }
+
+  $addReference(table: typeof Table) {
+    this.$references.add(this.$db.$getTableWrapperForTable(table));
+    return this;
   }
 
   $creationExpr() {
@@ -86,14 +157,15 @@ export type TableWrapperColumns<
 };
 
 export type TableWrapper<
-  TableName extends string,
-  T extends Table
+  TableName extends string = string,
+  T extends Table = Table
 > = TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
 export function TableWrapper<N extends string, T extends Table>(
+  db: Database,
   tableName: N,
   table: T,
 ): TableWrapper<N, T> {
-  return new TableWrapperClass<N, T>(tableName, table) as any;
+  return new TableWrapperClass<N, T>(db, tableName, table) as any;
 }
 
 export function isTableWrapper(x: unknown): x is TableWrapper<string, Table> {
