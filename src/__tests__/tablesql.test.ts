@@ -1,4 +1,4 @@
-import { IntColumn, TextColumn, Table, TableWrapper, Database } from "@";
+import { IntColumn, TextColumn, Table, createTableWrapper, Database } from "@";
 
 test("Table creation SQL is correct", () => {
   class User extends Table {
@@ -6,7 +6,7 @@ test("Table creation SQL is correct", () => {
     name = new TextColumn().nullable();
   }
 
-  let tw = TableWrapper(null as any, "users", new User());
+  let tw = createTableWrapper(null as any, "users", new User());
   const sql = tw.$creationSQL();
 
   expect(sql).toContain("CREATE TABLE users");

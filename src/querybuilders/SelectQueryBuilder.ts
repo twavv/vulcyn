@@ -1,11 +1,16 @@
+/**
+ * Hello!
+ */
+console.log("hello");
 import {
-  ColumnWrapper,
+  // ColumnWrapper,
   ColumnWrapperTSType,
   Database,
   isTableWrapper,
   Table,
   TableWrapper,
 } from "@";
+import { ColumnWrapper } from "@/ColumnWrapper";
 import {
   ColumnReference,
   Expr,

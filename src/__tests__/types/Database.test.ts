@@ -5,8 +5,8 @@ import {
   IntColumn,
   TextColumn,
   Table,
-  TableWrapper,
   TableWrapperMap,
+  TableWrapper,
 } from "@";
 
 test("TableWrapperMap correctly maps tables", () => {

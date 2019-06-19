@@ -5,18 +5,19 @@ import {
   IntColumn,
   TextColumn,
   Table,
-  TableWrapper,
+  createTableWrapper,
   TableWrapperColumns,
   Database,
+  TableWrapper,
 } from "@";
 
-test("TableWrapper correctly maps column types", () => {
+test("createTableWrapper correctly maps column types", () => {
   class User extends Table {
     id = new IntColumn();
     name = new TextColumn();
   }
 
-  const userWrapper = TableWrapper(
+  const userWrapper = createTableWrapper(
     (null as any) as Database,
     "users",
     new User(),

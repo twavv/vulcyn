@@ -34,3 +34,6 @@ Thumbs.db
 # Ignore built ts files
 dist/
 lib/
+
+# NPM package files
+*.tgz

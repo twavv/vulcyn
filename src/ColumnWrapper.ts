@@ -83,11 +83,11 @@ export type ColumnWrapper<N extends string, T, IT = T> = ColumnWrapperImpl<
   T,
   IT
 >;
-export function ColumnWrapper<N extends string, T, IT = T>(
+export function createColumnWrapper<N extends string, T, IT = T>(
   $table: TableWrapper<string, Table>,
   $columnName: string,
   $column: Column<T, IT>,
-) {
+): ColumnWrapper<N, T, IT> {
   return new ColumnWrapperImpl<N, T, IT>($table, $columnName, $column);
 }
 

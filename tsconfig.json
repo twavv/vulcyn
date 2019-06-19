@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "plugins": [
-      { "transform": "ts-transformer-imports" }
+      { "transform": "typescript-transform-paths" },
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
     ],
     "target": "es5",
     "module": "commonjs",
@@ -13,7 +14,7 @@
     "strict": true,
     "baseUrl": "./",
     "paths": {
-      "@": ["./src/"],
+      "@": ["./src/index"],
       "@/*": [
         "./src/*"
       ]

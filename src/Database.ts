@@ -1,6 +1,12 @@
 import { Client } from "pg";
 
-import { isTable, isTableWrapper, Table, TableWrapper } from "@";
+import {
+  createTableWrapper,
+  isTable,
+  isTableWrapper,
+  Table,
+  TableWrapper,
+} from "@";
 import {
   InsertQueryBuilder,
   PickSelectorSpecFromColumnNames,
@@ -55,7 +61,7 @@ class DatabaseImpl<T extends TableMap = {}> {
           );
         }
 
-        const tableWrapper = TableWrapper(this, tableName, table);
+        const tableWrapper = createTableWrapper(this, tableName, table);
         this.$tableToWrapperMap.set(
           Object.getPrototypeOf(table).constructor,
           tableWrapper,
@@ -152,13 +158,13 @@ class DatabaseImpl<T extends TableMap = {}> {
   }
 
   /**
-   * Lookup a TableWrapper given the associated Table class.
+   * Lookup a createTableWrapper given the associated Table class.
    *
    * This is used to implement functionality in columns (especially FORIEGN
    * KEY constraints) that require information that's only available in the
    * miscellaneous wrapper types (e.g. table and column names and types). For
    * example, a column can reference a table, must when the `.reference(...)`
-   * is executed, the TableWrapper class doesn't exist yet.
+   * is executed, the createTableWrapper class doesn't exist yet.
    */
   $getTableWrapperForTable(t: typeof Table) {
     const wrapper = this.$tableToWrapperMap.get(t);

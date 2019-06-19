@@ -3,6 +3,7 @@ import {
   ColumnTSInsertionType,
   ColumnTSType,
   ColumnWrapper,
+  createColumnWrapper,
   Database,
   isColumn,
   isTable,
@@ -37,7 +38,7 @@ export class TableWrapperClass<
   $references: Set<TableWrapper> = new Set();
 
   /**
-   * Flag to mark a TableWrapper as "visited" when it is created.
+   * Flag to mark a createTableWrapper as "visited" when it is created.
    *
    * This is used to avoid creating a table multiple times if multiple tables
    * reference this table.
@@ -70,7 +71,10 @@ export class TableWrapperClass<
           if (!isColumn(column)) {
             return [];
           }
-          return [columnName, ColumnWrapper(this.$, columnName, column as any)];
+          return [
+            columnName,
+            createColumnWrapper(this.$, columnName, column as any),
+          ];
         })
         .filter((x) => x.length > 0),
     ) as any;
@@ -160,7 +164,7 @@ export type TableWrapper<
   TableName extends string = string,
   T extends Table = Table
 > = TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
-export function TableWrapper<N extends string, T extends Table>(
+export function createTableWrapper<N extends string, T extends Table>(
   db: Database,
   tableName: N,
   table: T,

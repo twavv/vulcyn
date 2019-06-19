@@ -4,7 +4,7 @@ import {
   or,
   SerialColumn,
   Table,
-  TableWrapper,
+  createTableWrapper,
   TextColumn,
 } from "@";
 import { UpdateQueryBuilder } from "@/querybuilders";
@@ -16,7 +16,11 @@ test("UpdateQueryBuilder generates correct SQL", () => {
     name = new TextColumn();
     number = new IntColumn().nullable();
   }
-  const tw = TableWrapper((null as any) as Database, "mytable", new MyTable());
+  const tw = createTableWrapper(
+    (null as any) as Database,
+    "mytable",
+    new MyTable(),
+  );
 
   const qb = new UpdateQueryBuilder(null as any, tw)
     .set({ name: "trav", number: null })
