@@ -5,6 +5,7 @@ import { CreateTableColumn } from "./CreateTableColumn";
 export class CreateTable extends Expr<"create-table"> {
   tableName!: Expr<string>;
   columns!: Array<CreateTableColumn>;
+  constraints?: Array<Expr>;
 
   constructor(args: PickExpr<CreateTable>) {
     super("create-table");
@@ -26,6 +27,8 @@ export class CreateTable extends Expr<"create-table"> {
   }
 
   private columnsSQL(rc: ReductionContext): string {
-    return this.columns.map((column) => column.toSQL(rc)).join(", ");
+    return [...this.columns, ...this.constraints]
+      .map((column) => column.toSQL(rc))
+      .join(", ");
   }
 }

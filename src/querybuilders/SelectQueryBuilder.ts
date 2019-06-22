@@ -1,9 +1,4 @@
-/**
- * Hello!
- */
-console.log("hello");
 import {
-  // ColumnWrapper,
   ColumnWrapperTSType,
   Database,
   isTableWrapper,

@@ -1,6 +1,7 @@
 export * from "./PickConstraint";
 export * from "./UndefinedOptional";
 
+export * from "./classes";
 export * from "./debug";
 export * from "./iama";
 export * from "./getters";

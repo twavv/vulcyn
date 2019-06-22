@@ -18,7 +18,7 @@ import { ReductionContext } from "./ReductionContext";
  *    This system draws from my experience with Julia (which I believe in turn
  *    draws from Lisp). Definitely check it out!
  */
-export abstract class Expr<H extends string> {
+export abstract class Expr<H extends string = string> {
   get $_iama() {
     return "Expr";
   }

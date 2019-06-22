@@ -10,6 +10,7 @@ export * from "./Limit";
 export * from "./LogicalOperator";
 export * from "./LTRTokens";
 export * from "./Parameter";
+export * from "./PrimaryKey";
 export * from "./ReductionContext";
 export * from "./Select";
 export * from "./SQLFragment";

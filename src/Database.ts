@@ -112,7 +112,12 @@ class DatabaseImpl<T extends TableMap = {}> {
     const rc = new ReductionContext();
     const sql = t.$creationSQL(rc);
     this.$debug(`Creating table ${t.$tableName}`, sql);
-    await this.$pg.query(sql, rc.parameters());
+    try {
+      await this.$pg.query(sql, rc.parameters());
+    } catch (error) {
+      this.$debug("Error executing query:", sql, error);
+      throw error;
+    }
   }
 
   // select(db.users, "id", "name", ...)

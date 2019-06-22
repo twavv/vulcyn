@@ -3,9 +3,11 @@ import {
   ColumnTSInsertionType,
   ColumnTSType,
   ColumnWrapper,
+  Constraint,
   createColumnWrapper,
   Database,
   isColumn,
+  isConstraint,
   isTable,
   Table,
   TableColumns,
@@ -26,6 +28,7 @@ export class TableWrapperClass<
   T extends Table = Table
 > {
   $columns: TableWrapperColumns<T>;
+  $constraints: { [name: string]: Constraint };
 
   /**
    * The set of tables that this table references with foreign key constraints.
@@ -64,20 +67,20 @@ export class TableWrapperClass<
         `In TableWrapper, $table must be a Table (got ${reprstr}).`,
       );
     }
+
     // I don't see a way to do this that appeases TypeScript.
-    this.$columns = Object.fromEntries(
-      Object.entries($table)
-        .map(([columnName, column]) => {
-          if (!isColumn(column)) {
-            return [];
-          }
-          return [
-            columnName,
-            createColumnWrapper(this.$, columnName, column as any),
-          ];
-        })
-        .filter((x) => x.length > 0),
-    ) as any;
+    const columns: { [name: string]: ColumnWrapper<string, Table> } = {};
+    const constraints: { [name: string]: Constraint } = {};
+    Object.entries($table).forEach(([name, value]) => {
+      if (isColumn(value)) {
+        columns[name] = createColumnWrapper(this.$, name, value as any);
+      } else if (isConstraint(value)) {
+        constraints[name] = value;
+      }
+    });
+
+    this.$columns = columns as any;
+    this.$constraints = constraints;
     assignGetters(this, this.$columns);
   }
 
@@ -131,6 +134,7 @@ export class TableWrapperClass<
     return new CreateTable({
       tableName: new SQLFragment(this.$tableName),
       columns: this.$columnsExprs(),
+      constraints: this.$constraintExprs(),
     });
   }
 
@@ -140,6 +144,12 @@ export class TableWrapperClass<
 
   private $columnsExprs() {
     return this.$getColumns().map((column) => column.$creationExpr());
+  }
+
+  private $constraintExprs(): Array<Expr> {
+    return Object.entries(this.$constraints).map(([name, constraint]) =>
+      constraint.$creationExpr(this.$, name),
+    );
   }
 }
 

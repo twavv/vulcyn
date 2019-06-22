@@ -6,3 +6,4 @@ export * from "./ColumnWrapper";
 
 export * from "./querybuilders/sugar";
 export * from "./columns";
+export * from "./constraints";
