@@ -15,4 +15,21 @@ test("Integration test with users and posts", async () => {
 
   const result = await db.select(db.users, "id", "name");
   assert<IsExact<(typeof result)[0], { id: number; name: string }>>(true);
+
+  await db.insertInto(db.users).values({
+    name: "Travis",
+  });
+  await db.insertInto(db.posts).values({
+    authorId: 1,
+    body: "My first post!",
+  });
+
+  const post = await db.selectOne({
+    body: db.posts.body,
+    createdAt: db.posts.createdAt,
+  });
+  expect(post).toBeTruthy();
+
+  const { createdAt } = post!;
+  expect(new Date().getTime() - createdAt.getTime()).toBeLessThan(5);
 });
