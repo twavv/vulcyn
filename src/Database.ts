@@ -142,11 +142,30 @@ class DatabaseImpl<T extends TableMap = {}> {
     return new SelectQueryBuilder(this.$, tableOrSpec, false);
   }
 
+  // selectOne(db.users, "id", "name", ...)
+  selectOne<
+    TW extends TableWrapper<string, any>,
+    K extends keyof TW["$columns"]
+  >(
+    table: TW,
+    ...keys: K[]
+  ): SelectQueryBuilder<
+    Database<T>,
+    PickSelectorSpecFromColumnNames<TW, K>,
+    true
+  >;
   selectOne<S extends SelectorSpec>(
     spec: S,
-  ): SelectQueryBuilder<Database<T>, S, true> {
-    // `this as any` required because of hack described above.
-    return new SelectQueryBuilder(this as any, spec, true);
+  ): SelectQueryBuilder<Database<T>, S, true>;
+  selectOne(tableOrSpec: any, ...keys: any[]) {
+    if (isTableWrapper(tableOrSpec)) {
+      if (keys.length === 0) {
+        throw new Error(`Cannot select zero columns.`);
+      }
+      const spec = pick<any, any>(tableOrSpec.$columns, ...keys);
+      return new SelectQueryBuilder(this.$, spec, false);
+    }
+    return new SelectQueryBuilder(this.$, tableOrSpec, true);
   }
 
   insertInto<TW extends TableWrapper<string, Table>>(table: TW) {

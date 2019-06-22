@@ -24,10 +24,7 @@ test("Integration test with users and posts", async () => {
     body: "My first post!",
   });
 
-  const post = await db.selectOne({
-    body: db.posts.body,
-    createdAt: db.posts.createdAt,
-  });
+  const post = await db.selectOne(db.posts, "createdAt");
   expect(post).toBeTruthy();
 
   const { createdAt } = post!;
