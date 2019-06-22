@@ -25,24 +25,20 @@ export class InsertQueryBuilder<
   DB extends Database<any>,
   TW extends TableWrapper<string, Table>
 > extends ExecutableQueryBuilder<DB, unknown> {
-  $tableName: SQLFragment;
+  $tableName: Expr;
   $columns?: SQLFragment[];
   $values?: Expr<string>[];
 
-  constructor(
-    db: DB,
-    $table: TW,
-    // $insertionSpec: Array<ColumnWrapper<string, unknown>>,
-  ) {
+  constructor(db: DB, public $table: TW) {
     super(db);
-    this.$tableName = new SQLFragment($table.$tableName);
+    this.$tableName = $table.$tableName;
   }
 
   values(spec: InsertInterface<TW>) {
     const columns = [] as this["$columns"];
     const values = [] as this["$values"];
     Object.entries(spec).forEach(([columnName, value]) => {
-      columns!.push(new SQLFragment(columnName));
+      columns!.push(this.$table.$getColumnWrapper(columnName).$columnName);
       values!.push(new Parameter(value));
     });
     this.$columns = columns;

@@ -22,11 +22,13 @@ import {
   ReductionContext,
   SQLFragment,
 } from "@/expr";
+import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
 
 export class TableWrapperClass<
   TableName extends string = string,
   T extends Table = Table
 > {
+  $tableName: SQLFragment;
   $columns: TableWrapperColumns<T>;
   $constraints: { [name: string]: Constraint };
 
@@ -58,7 +60,7 @@ export class TableWrapperClass<
 
   constructor(
     public $db: Database<{}>,
-    public $tableName: TableName,
+    public $tablePropName: TableName,
     public $table: T,
   ) {
     if (!isTable($table)) {
@@ -67,6 +69,9 @@ export class TableWrapperClass<
         `In TableWrapper, $table must be a Table (got ${reprstr}).`,
       );
     }
+    this.$tableName = new SQLFragment(
+      camel2snake(assertSQLSafeIdentifier($tablePropName)),
+    );
 
     // I don't see a way to do this that appeases TypeScript.
     const columns: { [name: string]: ColumnWrapper<string, Table> } = {};
@@ -93,13 +98,8 @@ export class TableWrapperClass<
     fromItem: TableWrapper<string, Table> | FromItem,
     on: Expr<string>,
   ): FromItem {
-    const fromExpr = isTableWrapper(fromItem)
-      ? new SQLFragment(fromItem.$tableName)
-      : fromItem;
-    return new FromItem(
-      new SQLFragment(this.$tableName),
-      new Join(type, fromExpr, on),
-    );
+    const fromExpr = isTableWrapper(fromItem) ? fromItem.$tableName : fromItem;
+    return new FromItem(this.$tableName, new Join(type, fromExpr, on));
   }
 
   /**
@@ -114,7 +114,10 @@ export class TableWrapperClass<
     this.$getColumns().forEach((column) => column.$prepare());
   }
 
-  $getColumnByName(name: string): ColumnWrapper<string, unknown> {
+  /**
+   * Get a column wrapper given the property name of a column.
+   */
+  $getColumnWrapper(name: string): ColumnWrapper<string, unknown> {
     if (name in this.$columns) {
       return (this.$columns as any)[name];
     }
@@ -132,7 +135,7 @@ export class TableWrapperClass<
 
   $creationExpr() {
     return new CreateTable({
-      tableName: new SQLFragment(this.$tableName),
+      tableName: this.$tableName,
       columns: this.$columnsExprs(),
       constraints: this.$constraintExprs(),
     });

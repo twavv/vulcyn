@@ -168,7 +168,7 @@ class DatabaseImpl<T extends TableMap = {}> {
         throw new Error(`Cannot select zero columns.`);
       }
       const spec = pick<any, any>(tableOrSpec.$columns, ...keys);
-      return new SelectQueryBuilder(this.$, spec, false);
+      return new SelectQueryBuilder(this.$, spec, true);
     }
     return new SelectQueryBuilder(this.$, tableOrSpec, true);
   }

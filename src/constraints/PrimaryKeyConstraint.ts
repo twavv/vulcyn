@@ -1,7 +1,7 @@
 import { Table, TableWrapper } from "@";
-import { PrimaryKey, SQLFragment } from "@/expr";
-import { Constraint } from "./Constraint";
+import { PrimaryKey } from "@/expr";
 import { ClassOf } from "@/utils";
+import { Constraint } from "./Constraint";
 
 /**
  * A primary key constraint on at least one column.
@@ -20,9 +20,9 @@ export class PrimaryKeyConstraint<T extends Table = Table> extends Constraint<
   }
 
   $creationExpr(tableWrapper: TableWrapper<string, T>) {
-    const columns = this.$columns
-      .map((column) => tableWrapper.$getColumnByName(column))
-      .map((columnWrapper) => new SQLFragment(columnWrapper.$columnName));
+    const columns = this.$columns.map(
+      (column) => tableWrapper.$getColumnWrapper(column).$columnName,
+    );
     return new PrimaryKey(columns);
   }
 }

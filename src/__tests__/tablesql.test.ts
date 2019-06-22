@@ -5,6 +5,7 @@ import {
   createTableWrapper,
   Database,
   PrimaryKeyConstraint,
+  SerialColumn,
 } from "@";
 
 test("Table creation SQL is correct", () => {
@@ -37,7 +38,7 @@ test("Table creation SQL with references is correct", () => {
 
   const petsSQL = db.pets.$creationSQL();
   expect(petsSQL).toEqual(
-    expect.stringMatching(/ownerId INT .+ REFERENCES users\(id\)/i),
+    expect.stringMatching(/owner_id INT .+ REFERENCES users\(id\)/i),
   );
 });
 
@@ -53,4 +54,14 @@ test("Table creation SQL with primary key constraint is correct", () => {
 
   const sql = db.userCourses.$creationSQL();
   expect(sql).toContain("PRIMARY KEY (user, course)");
+});
+
+test("Table creation SQL with custom column names is correct", () => {
+  class Users extends Table {
+    id = new SerialColumn();
+    age = new IntColumn().sqlName("how_old_is_this_person");
+  }
+
+  const db = Database(null as any, { users: new Users() });
+  expect(db.users.$creationSQL()).toContain("how_old_is_this_person");
 });

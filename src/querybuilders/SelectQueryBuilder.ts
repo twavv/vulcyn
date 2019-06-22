@@ -96,7 +96,7 @@ export class SelectQueryBuilder<
         column.$tableName,
         column.$columnName,
       );
-      if ($columnName != name) {
+      if ($columnName.sql != name) {
         // NOTE: we do quotes here to ensure that casing is correct in result
         // object.
         return new LTRTokens([
@@ -125,7 +125,7 @@ export class SelectQueryBuilder<
       this.$from = table;
       return this;
     } else if (isTableWrapper(table)) {
-      this.$from = new FromItem(new SQLFragment(table.$tableName));
+      this.$from = new FromItem(table.$tableName);
       return this;
     }
     throw new Error(
@@ -156,13 +156,13 @@ export class SelectQueryBuilder<
   }
 
   private $guessFromClause() {
-    let guess: string | null = null;
+    let guess: SQLFragment | null = null;
     for (const selector of Object.values(this.$selectorSpec)) {
       if (guess === null) {
         guess = selector.$tableName;
         continue;
       }
-      if (selector.$tableName !== guess) {
+      if (selector.$tableName.sql !== guess.sql) {
         throw new Error(
           `Unable to guess table name in query with columns from multiple ` +
             `tables; please set .from(table) on the query.`,
@@ -174,6 +174,6 @@ export class SelectQueryBuilder<
         `Cannot guess table name from query with no columns selected.`,
       );
     }
-    return new FromItem(new SQLFragment(guess));
+    return new FromItem(guess);
   }
 }

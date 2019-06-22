@@ -13,8 +13,12 @@ test("Integration test with users and posts", async () => {
     posts: new PostsTable(),
   });
 
+  expect(db.posts.$creationSQL()).toContain("creation_timestamp");
+  await db.createTables();
+
   const result = await db.select(db.users, "id", "name");
   assert<IsExact<(typeof result)[0], { id: number; name: string }>>(true);
+  expect(result).toEqual([]);
 
   await db.insertInto(db.users).values({
     name: "Travis",

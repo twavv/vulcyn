@@ -9,5 +9,7 @@ export class PostsTable extends Table {
   id = new SerialColumn();
   authorId = new IntColumn().references(UsersTable, "id");
   body = new TextColumn();
-  createdAt = new TimestampColumn().defaultCurrentTimestamp();
+  createdAt = new TimestampColumn()
+    .defaultCurrentTimestamp()
+    .sqlName("creation_timestamp");
 }
