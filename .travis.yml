@@ -10,10 +10,10 @@ services:
   - postgresql
 env:
   global:
-    - DBTS_TEST_PG_HOST="localhost"
-    - DBTS_TEST_PG_USER="postgres"
-    - DBTS_TEST_PG_PASSWORD=""
-    - DBTS_TEST_PG_DATABASE="travis_ci_test"
+    - VULCYN_TEST_PG_HOST="localhost"
+    - VULCYN_TEST_PG_USER="postgres"
+    - VULCYN_TEST_PG_PASSWORD=""
+    - VULCYN_TEST_PG_DATABASE="travis_ci_test"
 
 before_script:
-  - psql -c "CREATE DATABASE ${DBTS_TEST_PG_DATABASE};" -U postgres
+  - psql -c "CREATE DATABASE ${VULCYN_TEST_PG_DATABASE};" -U postgres

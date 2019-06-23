@@ -27,25 +27,25 @@ function newId() {
     Math.random()
       // Convert to alphanumeric (base 36)
       .toString(36)
-      // Remove trailing "0." since Math.random returns number in (0, 1)
+      // Remove leading "0." since Math.random returns number in (0, 1)
       .substring(2)
   );
 }
 
 async function createClient(dbName?: string) {
   const {
-    DBTS_TEST_PG_HOST = "localhost",
-    DBTS_TEST_PG_PORT = "5432",
-    DBTS_TEST_PG_DATABASE = "test",
-    DBTS_TEST_PG_USER = "test",
-    DBTS_TEST_PG_PASSWORD = "",
+    VULCYN_TEST_PG_HOST = "localhost",
+    VULCYN_TEST_PG_PORT = "5432",
+    VULCYN_TEST_PG_DATABASE = "test",
+    VULCYN_TEST_PG_USER = "test",
+    VULCYN_TEST_PG_PASSWORD = "",
   } = process.env;
   const client = new Client({
-    host: DBTS_TEST_PG_HOST,
-    port: Number(DBTS_TEST_PG_PORT),
-    database: dbName || DBTS_TEST_PG_DATABASE,
-    user: DBTS_TEST_PG_USER,
-    password: DBTS_TEST_PG_PASSWORD,
+    host: VULCYN_TEST_PG_HOST,
+    port: Number(VULCYN_TEST_PG_PORT),
+    database: dbName || VULCYN_TEST_PG_DATABASE,
+    user: VULCYN_TEST_PG_USER,
+    password: VULCYN_TEST_PG_PASSWORD,
   });
   await client.connect();
   return client;

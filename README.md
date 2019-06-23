@@ -1,8 +1,8 @@
-# DBTS
+# Vulcyn
 
 An ergonomic Postgres query builder for TypeScript.
 
-[![Build Status](https://travis-ci.org/travigd/dbts.svg?branch=master)](https://travis-ci.org/travigd/dbts)
+[![Build Status](https://travis-ci.org/travigd/Vulcyn.svg?branch=master)](https://travis-ci.org/travigd/Vulcyn)
 
 # A Work in Progress
 
@@ -17,12 +17,12 @@ It is missing **many** features and should not be incorporated into any other pr
 ### Embrace SQL
 
 I love SQL and this project does too.
-Importantly, DBTS is **not** an ORM and its usage should make sense to someone who has never seen the library but who knows SQL.
+Importantly, Vulcyn is **not** an ORM and its usage should make sense to someone who has never seen the library but who knows SQL.
 
 ### Painless Client Typing
 
 You shouldn't need to declare interfaces that are not well-typed in order to marshall your data into and out of SQL.
-The appropriate `db.select` call in DBTS should return the correct interface with all of the known types.
+The appropriate `db.select` call in Vulcyn should return the correct interface with all of the known types.
 
 # Examples
 
@@ -33,7 +33,7 @@ Pass an object with all of your tables into the `Database` call.
 
 ```ts
 import { Client } from "pg";
-import { Database, IntColumn, SerialColumn, Table, TextColumn } from "dbts";
+import { Database, IntColumn, SerialColumn, Table, TextColumn } from "Vulcyn";
 
 class UserTable extends Table {
   id = new SerialColumn();
