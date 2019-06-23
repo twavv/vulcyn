@@ -1,24 +1,36 @@
 {
   "name": "vulcyn",
   "version": "0.0.1",
-  "description": "",
+  "description": "An ergonomic Postgres query builder for TypeScript.",
+  "author": "Travis DePrato",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/travigd/vulcyn.git"
+  },
+  "bugs": {
+    "url": "https://github.com/travigd/vulcyn/issues"
+  },
+  "keywords": [
+    "database",
+    "postgres",
+    "typescript",
+    "sql"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "ttsc",
     "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
+    "prepack": "find ./dist -name __tests__ -exec rm -rf {} +",
     "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js ./*.md",
-    "test": "jest"
+    "test": "jest && npm run lint"
   },
-  "keywords": [],
-  "author": "Travis DePrato",
-  "license": "MIT",
   "dependencies": {
     "@types/debug": "^4.1.4",
     "@types/pg": "^7.4.14",
     "debug": "^4.1.1",
-    "pg": "^7.11.0",
-    "typescript": "^3.5.1"
+    "pg": "^7.11.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
@@ -34,6 +46,7 @@
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
     "ts-transformer-imports": "^0.4.3",
+    "typescript": "^3.5.1",
     "ttypescript": "^1.5.7",
     "typescript-transform-paths": "1.1.0"
   },
