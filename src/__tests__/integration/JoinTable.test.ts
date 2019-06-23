@@ -22,7 +22,7 @@ test("Join table", async () => {
     userId: 1,
     courseId: 1,
   });
-  expect(
+  await expect(
     db.insertInto(db.userCourses).values({ userId: 1, courseId: 1 }),
   ).rejects.toThrow();
 });

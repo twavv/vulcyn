@@ -37,7 +37,7 @@ test("Author and Books tables with join", async () => {
   await db.createTables();
 
   // Make sure that we get errors if we violate referential integrity
-  expect(
+  await expect(
     db.insertInto(db.books).values({
       title: "Intro to Introductions",
       authorId: 123,

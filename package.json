@@ -24,7 +24,8 @@
     "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
     "prepack": "find ./dist -name __tests__ -exec rm -rf {} +",
     "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js ./*.md",
-    "test": "jest && npm run lint"
+    "test": "jest",
+    "posttest": "npm run lint"
   },
   "dependencies": {
     "@types/debug": "^4.1.4",
