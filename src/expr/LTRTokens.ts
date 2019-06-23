@@ -13,12 +13,15 @@ import { ReductionContext } from "./ReductionContext";
  * could model a WHERE clause as LTRTokens, we shouldn't.
  */
 export class LTRTokens extends Expr<"ltrtokens"> {
-  constructor(protected tokens: Array<Expr<string>> = []) {
+  constructor(
+    protected tokens: Array<Expr<string>> = [],
+    protected separator = " ",
+  ) {
     super("ltrtokens");
   }
 
   toSQL(rc: ReductionContext): string {
-    return this.tokens.map((token) => token.toSQL(rc)).join(" ");
+    return this.tokens.map((token) => token.toSQL(rc)).join(this.separator);
   }
 
   appendToken(...expr: Array<Expr<string>>) {

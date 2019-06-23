@@ -7,12 +7,22 @@
 
 import { itisa } from "@/utils";
 import { Column, isColumn, Table, TableWrapper } from "@";
-import { ColumnReference, CreateTableColumn, Infix, Parameter } from "@/expr";
+import {
+  ColumnReference,
+  CreateTableColumn,
+  Infix,
+  Parameter,
+  SQLFragment,
+} from "@/expr";
+import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
 
 type Comparable<T> = T | ColumnWrapper<string, T, any>;
 class ColumnWrapperImpl<N extends string, T, IT> {
   $_type!: T;
   $_insertionType!: IT;
+
+  readonly $columnName: SQLFragment;
+
   get $_iama() {
     return "ColumnWrapper";
   }
@@ -20,14 +30,13 @@ class ColumnWrapperImpl<N extends string, T, IT> {
   get $db() {
     return this.$tableWrapper.$db;
   }
-
   get $tableName() {
     return this.$tableWrapper.$tableName;
   }
 
   constructor(
     public $tableWrapper: TableWrapper<string, Table>,
-    public $columnName: string,
+    public $columnPropName: string,
     public $column: Column<T, IT>,
   ) {
     if (!isColumn($column)) {
@@ -36,6 +45,10 @@ class ColumnWrapperImpl<N extends string, T, IT> {
         `In ColumnWrapper, $column must be a Column (got ${reprstr}).`,
       );
     }
+
+    this.$columnName =
+      $column.$columnName() ||
+      new SQLFragment(camel2snake(assertSQLSafeIdentifier($columnPropName)));
   }
 
   $prepare() {

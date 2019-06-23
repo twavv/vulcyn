@@ -15,6 +15,10 @@ export class SQLFragment extends Expr<"sqlfragment"> {
   toSQL(_context: ReductionContext): string {
     return this.sql;
   }
+
+  toString() {
+    return `sql\`${this.sql}\``;
+  }
 }
 
 export function isSQLFragment(s: unknown): s is SQLFragment {

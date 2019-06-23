@@ -1,7 +1,12 @@
-import { ColumnWrapper } from "@/ColumnWrapper";
-import { Table } from "@/Table";
-import { itisa } from "@/utils";
-import { CreateTableColumn, Expr, LTRTokens, SQLFragment } from "@/expr";
+import { ColumnWrapper, Table } from "@";
+import {
+  CreateTableColumn,
+  Expr,
+  isSQLFragment,
+  LTRTokens,
+  SQLFragment,
+} from "@/expr";
+import { assertSQLSafeIdentifier, itisa } from "@/utils";
 
 /**
  * A column in a table.
@@ -32,6 +37,7 @@ export abstract class Column<T, InsertionType = T> {
     tableClass: typeof Table;
     columnName: string;
   };
+  protected $name?: SQLFragment;
 
   $prepare(columnWrapper: ColumnWrapper<string, T, InsertionType>) {
     if (this.$references) {
@@ -78,15 +84,35 @@ export abstract class Column<T, InsertionType = T> {
     return this;
   }
 
+  /**
+   * Set the SQL name of the column.
+   *
+   * This defaults to the snake-case-ified version of the property name that you
+   * assign this column to (e.g. for a column declared as
+   * `userAge = new IntColumn()`, the default name is `user_age`).
+   */
+  sqlName(name: string | SQLFragment): this {
+    if (isSQLFragment(name)) {
+      this.$name = name;
+    } else {
+      this.$name = new SQLFragment(assertSQLSafeIdentifier(name));
+    }
+    return this;
+  }
+
   $creationExpr(
     columnWrapper: ColumnWrapper<string, T, InsertionType>,
-    name: string,
+    name: Expr,
   ) {
     return new CreateTableColumn({
-      name: new SQLFragment(name),
+      name,
       dataType: new SQLFragment(this.$pgType),
       constraint: this.$constraintExpr(columnWrapper),
     });
+  }
+
+  $columnName() {
+    return this.$name;
   }
 
   private $constraintExpr(
@@ -112,11 +138,18 @@ export abstract class Column<T, InsertionType = T> {
       const db = columnWrapper.$db;
       const { tableClass, columnName } = this.$references;
       const tableWrapper = db.$getTableWrapperForTable(tableClass);
-      const refColumn = tableWrapper.$getColumnByName(columnName);
+      const refColumn = tableWrapper.$getColumnWrapper(columnName);
 
       tokens.appendToken(
-        new SQLFragment(
-          `REFERENCES ${tableWrapper.$tableName}(${refColumn.$columnName})`,
+        new SQLFragment(`REFERENCES`),
+        new LTRTokens(
+          [
+            tableWrapper.$tableName,
+            new SQLFragment("("),
+            refColumn.$columnName,
+            new SQLFragment(")"),
+          ],
+          "",
         ),
       );
     }

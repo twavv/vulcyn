@@ -74,7 +74,7 @@ export class UpdateQueryBuilder<
       );
     }
     return new Update({
-      tableName: new SQLFragment(this.$table.$tableName),
+      tableName: this.$table.$tableName,
       updates: this.$updates,
       where: this.$where,
     });
