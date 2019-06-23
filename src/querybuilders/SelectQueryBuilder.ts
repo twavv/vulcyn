@@ -1,22 +1,20 @@
 import {
-  ColumnWrapperTSType,
   Database,
+  isColumnWrapper,
   isTableWrapper,
   Table,
   TableWrapper,
 } from "@";
-import { ColumnWrapper } from "@/ColumnWrapper";
 import {
-  ColumnReference,
   Expr,
   FromItem,
   isExpr,
   Limit,
-  LTRTokens,
   Select,
   SQLFragment,
   Where,
 } from "@/expr";
+import { Selectable, SelectableTSType } from "@/interfaces";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
 import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
@@ -32,7 +30,7 @@ import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
  *    db.select(selectorSpec).from(db.users);
  */
 export interface SelectorSpec {
-  [k: string]: ColumnWrapper<string, unknown>;
+  [k: string]: Selectable<unknown>;
 }
 
 /**
@@ -47,7 +45,7 @@ export interface SelectorSpec {
  *    // Has type {id: number, name: string}
  */
 export type SelectRowResult<T extends SelectorSpec> = {
-  [k in keyof T]: ColumnWrapperTSType<T[k]>;
+  [k in keyof T]: SelectableTSType<T[k]>;
 };
 
 export type SelectQueryReturn<
@@ -91,20 +89,7 @@ export class SelectQueryBuilder<
   constructor(db: D, public $selectorSpec: S, public $fetchOne: FO) {
     super(db);
     this.$columns = Object.entries($selectorSpec).map(([name, column]) => {
-      const { $columnName } = column;
-      const columnReference = new ColumnReference(
-        column.$tableName,
-        column.$columnName,
-      );
-      if ($columnName.sql != name) {
-        // NOTE: we do quotes here to ensure that casing is correct in result
-        // object.
-        return new LTRTokens([
-          columnReference,
-          new SQLFragment(`AS "${name}"`),
-        ]);
-      }
-      return columnReference;
+      return column.$selectableExpr(name);
     });
     if ($fetchOne) {
       this.$limit = new Limit(1);
@@ -158,6 +143,9 @@ export class SelectQueryBuilder<
   private $guessFromClause() {
     let guess: SQLFragment | null = null;
     for (const selector of Object.values(this.$selectorSpec)) {
+      if (!isColumnWrapper(selector)) {
+        continue;
+      }
       if (guess === null) {
         guess = selector.$tableName;
         continue;

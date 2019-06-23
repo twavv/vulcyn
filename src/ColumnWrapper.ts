@@ -11,14 +11,17 @@ import {
   ColumnReference,
   CreateTableColumn,
   Infix,
+  LTRTokens,
   Parameter,
   SQLFragment,
 } from "@/expr";
 import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
+import { Selectable } from "@/interfaces";
 
-type Comparable<T> = T | ColumnWrapper<string, T, any>;
-class ColumnWrapperImpl<N extends string, T, IT> {
+type Comparable<T> = T | Selectable<T>;
+class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
   $_type!: T;
+  $_selectableType!: T;
   $_insertionType!: IT;
 
   readonly $columnName: SQLFragment;
@@ -80,7 +83,7 @@ class ColumnWrapperImpl<N extends string, T, IT> {
     return this.$comparison("<=", t);
   }
 
-  private $comparison(infix: string, t: T | ColumnWrapper<string, T>) {
+  private $comparison(infix: string, t: Comparable<T>) {
     return new Infix(
       infix,
       new ColumnReference(this.$tableName, this.$columnName),
@@ -88,6 +91,32 @@ class ColumnWrapperImpl<N extends string, T, IT> {
         ? new ColumnReference(t.$tableName, t.$columnName)
         : new Parameter(t),
     );
+  }
+
+  $selectableExpr(asName: string) {
+    const reference = new ColumnReference(
+      this.$tableWrapper.$tableName,
+      this.$columnName,
+    );
+
+    // Use "AS ..." if the column name isn't the name requested or if the asName
+    // uses non-lowercase letters (PG always returns lowercase otherwise).
+    if (this.$columnName.sql !== asName || asName.toLowerCase() !== asName) {
+      if (asName.includes('"') || asName.includes("\\")) {
+        throw new Error(
+          `Invalid output name identifier (invalid rvalue for "AS ..."): ${asName}`,
+        );
+      }
+      return new LTRTokens([
+        reference,
+        new SQLFragment("as"),
+        new SQLFragment(`"${asName}"`),
+      ]);
+    }
+
+    // We don't need to use "AS ...", so we shouldn't to generate more idiomatic
+    // and nicer looking SQL.
+    return reference;
   }
 }
 

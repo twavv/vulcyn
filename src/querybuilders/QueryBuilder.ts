@@ -2,10 +2,10 @@ import { Database } from "@";
 import { Expr, ReductionContext } from "@/expr";
 import { debug } from "@/utils";
 
-abstract class QueryBuilder<DB extends Database<any>> {
+export abstract class QueryBuilder<DB extends Database> {
   protected $debug = debug.extend("QueryBuilder");
 
-  protected constructor(protected $db: Database<any>) {}
+  protected constructor(protected $db: DB) {}
 
   abstract $toExpr(): Expr<string>;
 
