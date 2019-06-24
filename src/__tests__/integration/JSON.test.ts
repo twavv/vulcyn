@@ -41,4 +41,14 @@ test("Multi-column constraints integration test", async () => {
       completed: false,
     },
   });
+
+  expect(
+    await db
+      .selectOne({
+        myColor: db.items.metadata.jsonb().get("color"),
+      })
+      .from(db.items),
+  ).toEqual({
+    myColor: "#ff0000",
+  });
 });

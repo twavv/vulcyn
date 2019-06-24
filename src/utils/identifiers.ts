@@ -1,4 +1,4 @@
-const ALPHANUMERIC_REGEX = /^[A-Za-z_]+$/;
+const ALPHANUMERIC_REGEX = /^[A-Za-z_][A-Za-z0-9_]*$/;
 
 /**
  * Returns true if the identifier is safe for SQL.

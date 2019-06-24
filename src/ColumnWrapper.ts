@@ -1,11 +1,3 @@
-/**
- * A wrapper around a column in a table.
- *
- * This is used in the implementation of the codebase. It is necessary because
- * the `Column` doesn't have access to things like the table name.
- */
-
-import { itisa } from "@/utils";
 import { Column, isColumn, Table, TableWrapper } from "@";
 import {
   ColumnReference,
@@ -15,11 +7,18 @@ import {
   Parameter,
   SQLFragment,
 } from "@/expr";
-import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
+import { itisa, assertSQLSafeIdentifier, camel2snake } from "@/utils";
 import { Selectable } from "@/interfaces";
 import { JSONBAccessorBuilder } from "@/columnfeatures";
 
 type Comparable<T> = T | Selectable<T>;
+
+/**
+ * A wrapper around a column in a table.
+ *
+ * This is used in the implementation of the codebase. It is necessary because
+ * the `Column` doesn't have access to things like the table name.
+ */
 class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
   $_type!: T;
   $_selectableType!: T;
@@ -84,8 +83,8 @@ class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
     return this.$comparison("<=", t);
   }
 
-  // Column featuresgi
-  jsonb(): T extends object | null ? JSONBAccessorBuilder<T> : never {
+  // Column features
+  jsonb(): T extends object ? JSONBAccessorBuilder<T, T, false> : never {
     if (!["json", "jsonb"].includes(this.$column.$pgType)) {
       throw new Error(`Cannot use JSONB column features on non-JSON type.`);
     }

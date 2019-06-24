@@ -16,7 +16,6 @@ test("JSONBAccessorBuilder", () => {
 
   class MyTable extends Table {
     payload = new JSONBColumn<Payload>();
-    nullablePayload = new JSONBColumn<Payload>().nullable();
   }
 
   const db = Database(null as any, { myTable: new MyTable() });
