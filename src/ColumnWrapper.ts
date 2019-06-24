@@ -17,6 +17,7 @@ import {
 } from "@/expr";
 import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
 import { Selectable } from "@/interfaces";
+import { JSONBAccessorBuilder } from "@/columnfeatures";
 
 type Comparable<T> = T | Selectable<T>;
 class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
@@ -83,6 +84,14 @@ class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
     return this.$comparison("<=", t);
   }
 
+  // Column featuresgi
+  jsonb(): T extends object | null ? JSONBAccessorBuilder<T> : never {
+    if (!["json", "jsonb"].includes(this.$column.$pgType)) {
+      throw new Error(`Cannot use JSONB column features on non-JSON type.`);
+    }
+    return new JSONBAccessorBuilder(this as any) as any;
+  }
+
   private $comparison(infix: string, t: Comparable<T>) {
     return new Infix(
       infix,
@@ -93,11 +102,12 @@ class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
     );
   }
 
+  $referenceExpr() {
+    return new ColumnReference(this.$tableWrapper.$tableName, this.$columnName);
+  }
+
   $selectableExpr(asName: string) {
-    const reference = new ColumnReference(
-      this.$tableWrapper.$tableName,
-      this.$columnName,
-    );
+    const reference = this.$referenceExpr();
 
     // Use "AS ..." if the column name isn't the name requested or if the asName
     // uses non-lowercase letters (PG always returns lowercase otherwise).
@@ -143,3 +153,5 @@ export type ColumnWrapperTSInsertionType<
 export function isColumnWrapper(x: any): x is ColumnWrapper<string, unknown> {
   return x.$_iama == "ColumnWrapper";
 }
+
+type Foo<T extends object> = keyof T;
