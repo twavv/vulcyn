@@ -25,7 +25,7 @@ import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
 export type UpdateSpec<T extends TableWrapper<string, Table>> = {
   [k in keyof T["$columns"]]?: T["$columns"][k] extends ColumnWrapper<
     string,
-    unknown
+    any
   >
     ? ColumnWrapperTSInsertionType<T["$columns"][k]>
     : never;
