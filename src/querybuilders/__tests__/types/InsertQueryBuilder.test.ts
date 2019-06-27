@@ -1,4 +1,4 @@
-import { IsExact, assert } from "conditional-type-checks";
+import { IsExact, assert, Has } from "conditional-type-checks";
 import {
   IntColumn,
   TextColumn,
@@ -31,6 +31,7 @@ test("InsertQueryBuilder with returning", () => {
     .returning("id", "name");
   type QueryPromise = ReturnType<typeof query["$execute"]>;
   assert<IsExact<QueryPromise, Promise<{ id: number; name: string }>>>(true);
+  assert<Has<typeof query, Promise<{ id: number; name: string }>>>(true);
 
   const sql = query.$toSQL();
   expect(sql).toMatch(/RETURNING (users\.)?id, (users\.)?name/);

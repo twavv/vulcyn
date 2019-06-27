@@ -35,7 +35,7 @@ export class InsertQueryBuilder<
   DB extends Database<any>,
   TW extends TableWrapper<string, Table>,
   RShape = null
-> extends ExecutableQueryBuilder<DB, unknown> {
+> extends ExecutableQueryBuilder<DB, RShape> {
   $tableName: Expr;
   $columns?: SQLFragment[];
   $values?: Expr[];
