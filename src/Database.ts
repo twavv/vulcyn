@@ -8,6 +8,8 @@ import {
   TableWrapper,
 } from "@";
 import {
+  DefaultSelectorSpec,
+  getDefaultSelectorSpec,
   InsertQueryBuilder,
   PickSelectorSpecFromColumnNames,
   SelectorSpec,
@@ -120,10 +122,15 @@ class DatabaseImpl<T extends TableMap = {}> {
     }
   }
 
+  // select(db.users)
+  select<TW extends TableWrapper<string, Table>>(
+    table: TW,
+  ): SelectQueryBuilder<Database<T>, DefaultSelectorSpec<TW>, false>;
+
   // select(db.users, "id", "name", ...)
   select<TW extends TableWrapper<string, any>, K extends keyof TW["$columns"]>(
     table: TW,
-    ...keys: K[]
+    ...keys: [K, ...K[]]
   ): SelectQueryBuilder<
     Database<T>,
     PickSelectorSpecFromColumnNames<TW, K>,
@@ -139,7 +146,11 @@ class DatabaseImpl<T extends TableMap = {}> {
   select(tableOrSpec: any, ...keys: any[]) {
     if (isTableWrapper(tableOrSpec)) {
       if (keys.length === 0) {
-        throw new Error(`Cannot select zero columns.`);
+        return new SelectQueryBuilder(
+          this.$,
+          getDefaultSelectorSpec(tableOrSpec),
+          false,
+        );
       }
       const spec = pick<any, any>(tableOrSpec.$columns, ...keys);
       return new SelectQueryBuilder(this.$, spec, false);
@@ -147,25 +158,38 @@ class DatabaseImpl<T extends TableMap = {}> {
     return new SelectQueryBuilder(this.$, tableOrSpec, false);
   }
 
+  // selectOne(db.users)
+  selectOne<TW extends TableWrapper<string, Table>>(
+    table: TW,
+  ): SelectQueryBuilder<Database<T>, DefaultSelectorSpec<TW>, true>;
+
   // selectOne(db.users, "id", "name", ...)
   selectOne<
     TW extends TableWrapper<string, any>,
     K extends keyof TW["$columns"]
   >(
     table: TW,
-    ...keys: K[]
+    ...keys: [K, ...K[]]
   ): SelectQueryBuilder<
     Database<T>,
     PickSelectorSpecFromColumnNames<TW, K>,
     true
   >;
+
+  // selectOne({userId: db.users.id, name: db.users.name, ...})
   selectOne<S extends SelectorSpec>(
     spec: S,
   ): SelectQueryBuilder<Database<T>, S, true>;
+
+  // selectOne(...) implementation
   selectOne(tableOrSpec: any, ...keys: any[]) {
     if (isTableWrapper(tableOrSpec)) {
       if (keys.length === 0) {
-        throw new Error(`Cannot select zero columns.`);
+        return new SelectQueryBuilder(
+          this.$,
+          getDefaultSelectorSpec(tableOrSpec),
+          true,
+        );
       }
       const spec = pick<any, any>(tableOrSpec.$columns, ...keys);
       return new SelectQueryBuilder(this.$, spec, true);
