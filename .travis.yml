@@ -1,3 +1,4 @@
+dist: "xenial"
 language: node_js
 node_js:
   - "12"
@@ -8,6 +9,9 @@ branches:
 
 services:
   - postgresql
+addons:
+  postgresql: "10"
+
 env:
   global:
     - VULCYN_TEST_PG_HOST="localhost"

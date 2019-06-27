@@ -6,6 +6,7 @@ import {
   ColumnWrapperTSType,
   TextColumn,
 } from "@";
+import { SelectableTSType } from "@/interfaces";
 
 type WrapColumn<N extends string, C extends Column<any>> = ColumnWrapper<
   "colname",
@@ -26,6 +27,13 @@ test("ColumnWrapper has correct TSType", () => {
     false,
   );
   assert<IsExact<ColumnWrapperTSType<ColumnWrapper<"foo", string>>, unknown>>(
+    false,
+  );
+  assert<IsExact<SelectableTSType<ColumnWrapper<"foo", string>>, string>>(true);
+  assert<IsExact<SelectableTSType<ColumnWrapper<"foo", string>>, number>>(
+    false,
+  );
+  assert<IsExact<SelectableTSType<ColumnWrapper<"foo", string>>, unknown>>(
     false,
   );
 });

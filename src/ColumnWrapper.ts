@@ -1,24 +1,27 @@
+import { Column, isColumn, Table, TableWrapper } from "@";
+import {
+  ColumnReference,
+  CreateTableColumn,
+  Infix,
+  LTRTokens,
+  Parameter,
+  SQLFragment,
+} from "@/expr";
+import { itisa, assertSQLSafeIdentifier, camel2snake } from "@/utils";
+import { Selectable } from "@/interfaces";
+import { JSONBAccessorBuilder } from "@/columnfeatures";
+
+type Comparable<T> = T | Selectable<T>;
+
 /**
  * A wrapper around a column in a table.
  *
  * This is used in the implementation of the codebase. It is necessary because
  * the `Column` doesn't have access to things like the table name.
  */
-
-import { itisa } from "@/utils";
-import { Column, isColumn, Table, TableWrapper } from "@";
-import {
-  ColumnReference,
-  CreateTableColumn,
-  Infix,
-  Parameter,
-  SQLFragment,
-} from "@/expr";
-import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
-
-type Comparable<T> = T | ColumnWrapper<string, T, any>;
-class ColumnWrapperImpl<N extends string, T, IT> {
+class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
   $_type!: T;
+  $_selectableType!: T;
   $_insertionType!: IT;
 
   readonly $columnName: SQLFragment;
@@ -80,7 +83,15 @@ class ColumnWrapperImpl<N extends string, T, IT> {
     return this.$comparison("<=", t);
   }
 
-  private $comparison(infix: string, t: T | ColumnWrapper<string, T>) {
+  // Column features
+  jsonb(): T extends object ? JSONBAccessorBuilder<T, T, false> : never {
+    if (!["json", "jsonb"].includes(this.$column.$pgType)) {
+      throw new Error(`Cannot use JSONB column features on non-JSON type.`);
+    }
+    return new JSONBAccessorBuilder(this as any) as any;
+  }
+
+  private $comparison(infix: string, t: Comparable<T>) {
     return new Infix(
       infix,
       new ColumnReference(this.$tableName, this.$columnName),
@@ -88,6 +99,33 @@ class ColumnWrapperImpl<N extends string, T, IT> {
         ? new ColumnReference(t.$tableName, t.$columnName)
         : new Parameter(t),
     );
+  }
+
+  $referenceExpr() {
+    return new ColumnReference(this.$tableWrapper.$tableName, this.$columnName);
+  }
+
+  $selectableExpr(asName: string) {
+    const reference = this.$referenceExpr();
+
+    // Use "AS ..." if the column name isn't the name requested or if the asName
+    // uses non-lowercase letters (PG always returns lowercase otherwise).
+    if (this.$columnName.sql !== asName || asName.toLowerCase() !== asName) {
+      if (asName.includes('"') || asName.includes("\\")) {
+        throw new Error(
+          `Invalid output name identifier (invalid rvalue for "AS ..."): ${asName}`,
+        );
+      }
+      return new LTRTokens([
+        reference,
+        new SQLFragment("as"),
+        new SQLFragment(`"${asName}"`),
+      ]);
+    }
+
+    // We don't need to use "AS ...", so we shouldn't to generate more idiomatic
+    // and nicer looking SQL.
+    return reference;
   }
 }
 
@@ -114,3 +152,5 @@ export type ColumnWrapperTSInsertionType<
 export function isColumnWrapper(x: any): x is ColumnWrapper<string, unknown> {
   return x.$_iama == "ColumnWrapper";
 }
+
+type Foo<T extends object> = keyof T;
