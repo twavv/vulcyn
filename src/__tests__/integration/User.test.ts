@@ -46,6 +46,12 @@ test("User integration test with real Postgres server", async () => {
     greeting: "Hello!",
   });
 
+  expect(await db.selectOne(db.users)).toEqual({
+    id: 123,
+    name: "trav",
+    greeting: "Hello!",
+  });
+
   await db.insertInto(db.users).values({
     id: 124,
     name: "joe",

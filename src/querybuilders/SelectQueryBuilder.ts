@@ -33,6 +33,17 @@ export interface SelectorSpec {
   [k: string]: Selectable<unknown>;
 }
 
+export type DefaultSelectorSpec<T extends TableWrapper> = {
+  [K in keyof T["$columns"]]: T["$columns"][K] extends Selectable<any>
+    ? T["$columns"][K]
+    : never;
+};
+export function getDefaultSelectorSpec<TW extends TableWrapper>(
+  table: TW,
+): DefaultSelectorSpec<TW> {
+  return table.$columns as any;
+}
+
 /**
  * The type of a single row in the output of a select query.
  *

@@ -8,6 +8,7 @@ import {
   TableWrapper,
 } from "@";
 import {
+  DefaultSelectorSpec,
   PickSelectorSpecFromColumnNames,
   SelectQueryBuilder,
   SelectQueryReturn,
@@ -107,5 +108,38 @@ test("SelectQueryBuilder for column names has correct SelectRowResult type", asy
 
   assert<
     IsExact<QueryType["$promise"], Promise<Array<{ id: number; name: string }>>>
+  >(true);
+});
+
+test("SelectQueryBuilder for default selector spec", async () => {
+  class User extends Table {
+    id = new IntColumn();
+    name = new TextColumn();
+  }
+
+  const db = Database(null as any, { users: new User() });
+
+  assert<
+    IsExact<
+      DefaultSelectorSpec<typeof db.users>,
+      {
+        id: ColumnWrapper<"id", number>;
+        name: ColumnWrapper<"name", string>;
+      }
+    >
+  >(true);
+  const myQuery = db.select(db.users);
+  type QueryType = typeof myQuery;
+  assert<
+    IsExact<QueryType["$promise"], Promise<Array<{ id: number; name: string }>>>
+  >(true);
+
+  const myOneRowQuery = db.selectOne(db.users);
+  type OneRowQueryType = typeof myOneRowQuery;
+  assert<
+    IsExact<
+      OneRowQueryType["$promise"],
+      Promise<null | { id: number; name: string }>
+    >
   >(true);
 });
