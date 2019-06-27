@@ -46,9 +46,12 @@ test("Author and Books tables with join", async () => {
 
   await db.insertInto(db.publishers).values({ name: "Big Book LLC" });
   await db.insertInto(db.authors).values({ publisherId: 1, name: "Travis" });
-  await db
-    .insertInto(db.books)
-    .values({ title: "Intro to Introductions", authorId: 1 });
+  expect(
+    await db
+      .insertInto(db.books)
+      .values({ title: "Intro to Introductions", authorId: 1 })
+      .returning("id"),
+  ).toEqual({ id: 2 });
   await db
     .insertInto(db.books)
     .values({ title: "Advanced Greetings", authorId: 1 });
