@@ -9,6 +9,7 @@ import { Expr, Insert, Parameter, SQLFragment } from "@/expr";
 import { UndefinedOptional } from "@/utils";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
+import { Selectable, SelectableTSType } from "@/interfaces";
 
 export type InsertInterface<
   T extends TableWrapper<string, Table>,
@@ -21,13 +22,24 @@ export type InsertInterface<
   }
 >;
 
+export type ReturningInterface<
+  T extends TableWrapper,
+  C extends keyof T["$columns"]
+> = {
+  [k in C]: SelectableTSType<
+    T["$columns"][k] extends Selectable<any> ? T["$columns"][k] : never
+  >;
+};
+
 export class InsertQueryBuilder<
   DB extends Database<any>,
-  TW extends TableWrapper<string, Table>
+  TW extends TableWrapper<string, Table>,
+  RShape = null
 > extends ExecutableQueryBuilder<DB, unknown> {
   $tableName: Expr;
   $columns?: SQLFragment[];
-  $values?: Expr<string>[];
+  $values?: Expr[];
+  $returning?: Expr[];
 
   constructor(db: DB, public $table: TW) {
     super(db);
@@ -46,11 +58,21 @@ export class InsertQueryBuilder<
     return this;
   }
 
+  returning<K extends keyof TW["$columns"] & string>(
+    ...columns: [K, ...K[]]
+  ): InsertQueryBuilder<DB, TW, ReturningInterface<TW, K>> {
+    this.$returning = columns.map((columnName) =>
+      this.$table.$getColumnWrapper(columnName).$selectableExpr(columnName),
+    );
+    return this as any;
+  }
+
   $toExpr(): Expr<any> {
     return new Insert({
       tableName: this.$tableName,
       columns: this.$getColumns(),
       values: this.$getValues(),
+      returning: this.$returning,
     });
   }
 
@@ -68,7 +90,18 @@ export class InsertQueryBuilder<
     return this.$values;
   }
 
-  async $execute(): Promise<unknown> {
-    return await this.$tryExecute();
+  async $execute(): Promise<RShape> {
+    const result = await this.$tryExecute();
+    const { rows } = result;
+    if (this.$returning) {
+      if (rows.length !== 1) {
+        throw new Error(
+          `Expected result of INSERT ... RETURNING .. query to have 1 row ` +
+            `(got ${rows.length}).`,
+        );
+      }
+      return (rows[0] as unknown) as RShape;
+    }
+    return (null as unknown) as RShape;
   }
 }

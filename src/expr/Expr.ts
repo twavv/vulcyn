@@ -41,3 +41,11 @@ export type PickExpr<T> = PickConstraintIgnoringNull<
   T,
   Expr<any> | Array<Expr<any>>
 >;
+
+export function joinExprsSQL(
+  exprs: Expr[],
+  rc: ReductionContext,
+  separator: string = ", ",
+) {
+  return exprs.map((expr) => expr.toSQL(rc)).join(separator);
+}

@@ -21,7 +21,7 @@
    [ WHERE condition ]
  */
 
-import { Expr, PickExpr } from "./Expr";
+import { Expr, joinExprsSQL, PickExpr } from "./Expr";
 import { ReductionContext } from "./ReductionContext";
 
 /**
@@ -31,9 +31,10 @@ import { ReductionContext } from "./ReductionContext";
  *    * Support for RETURNING
  */
 export class Insert extends Expr<"select"> {
-  tableName!: Expr<string>;
-  columns!: Array<Expr<string>>;
-  values!: Array<Expr<string>>;
+  tableName!: Expr;
+  columns!: Array<Expr>;
+  values!: Array<Expr>;
+  returning?: Array<Expr>;
 
   constructor(args: PickExpr<Insert>) {
     super("select");
@@ -46,6 +47,7 @@ export class Insert extends Expr<"select"> {
       this.tableNameSQL(rc) +
       this.columnsSQL(rc) +
       this.valuesSQL(rc) +
+      this.returningSQL(rc) +
       ";"
     );
   }
@@ -64,5 +66,12 @@ export class Insert extends Expr<"select"> {
     return (
       " VALUES (" + this.values.map((value) => value.toSQL(rc)).join(", ") + ")"
     );
+  }
+
+  private returningSQL(rc: ReductionContext) {
+    if (!this.returning) {
+      return "";
+    }
+    return " RETURNING " + joinExprsSQL(this.returning, rc, ", ");
   }
 }

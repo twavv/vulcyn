@@ -1,5 +1,12 @@
 import { IsExact, assert } from "conditional-type-checks";
-import { IntColumn, TextColumn, Table, TableWrapper } from "@";
+import {
+  IntColumn,
+  TextColumn,
+  Table,
+  TableWrapper,
+  Database,
+  SerialColumn,
+} from "@";
 import { InsertInterface } from "@/querybuilders";
 
 test("InsertInterface has correct shape", () => {
@@ -10,4 +17,21 @@ test("InsertInterface has correct shape", () => {
   type UserTW = TableWrapper<"users", UserTable>;
   type UserInsertInterface = InsertInterface<UserTW>;
   assert<IsExact<UserInsertInterface, { id: number; name: string }>>(true);
+});
+
+test("InsertQueryBuilder with returning", () => {
+  class UserTable extends Table {
+    id = new SerialColumn();
+    name = new TextColumn();
+  }
+  const db = Database(null as any, { users: new UserTable() });
+  const query = db
+    .insertInto(db.users)
+    .values({ name: "Travis" })
+    .returning("id", "name");
+  type QueryPromise = ReturnType<typeof query["$execute"]>;
+  assert<IsExact<QueryPromise, Promise<{ id: number; name: string }>>>(true);
+
+  const sql = query.$toSQL();
+  expect(sql).toMatch(/RETURNING (users\.)?id, (users\.)?name/);
 });
