@@ -1,4 +1,4 @@
-import { Client } from "pg";
+import { ClientBase } from "pg";
 
 import {
   createTableWrapper,
@@ -49,7 +49,7 @@ class DatabaseImpl<T extends TableMap = {}> {
   // of this class.
   private $ = (this as any) as Database<T>;
 
-  constructor(public $pg: Client, tableMap: T) {
+  constructor(public $pg: ClientBase, tableMap: T) {
     this.$tables = Object.fromEntries(
       Object.entries(tableMap).map(([tableName, table]) => {
         if (!isTable(table)) {
@@ -232,7 +232,7 @@ export type TableWrapperMap<T extends TableMap> = {
 export type Database<T extends TableMap = {}> = DatabaseImpl<T> &
   TableWrapperMap<T>;
 export const Database = <T extends TableMap = {}>(
-  pg: Client,
+  pg: ClientBase,
   tables: T,
 ): Database<T> => {
   return new DatabaseImpl(pg, tables) as any;
