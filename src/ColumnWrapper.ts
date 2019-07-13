@@ -83,6 +83,21 @@ class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
     return this.$comparison("<=", t);
   }
 
+  /**
+   * Generate a `column = ANY(ARRAY['foo', 'bar'])` comparison.
+   */
+  eqAny(...values: Array<T>) {
+    return new Infix(
+      "=",
+      new ColumnReference(this.$tableName, this.$columnName),
+      new LTRTokens([
+        new SQLFragment("ANY("),
+        new Parameter(values),
+        new SQLFragment(")"),
+      ]),
+    );
+  }
+
   // Column features
   jsonb(): T extends object ? JSONBAccessorBuilder<T, T, false> : never {
     if (!["json", "jsonb"].includes(this.$column.$pgType)) {

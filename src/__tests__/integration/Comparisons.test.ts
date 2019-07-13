@@ -73,4 +73,12 @@ test("Comparisons integration tests", async () => {
         ),
     ),
   ).toEqual(NameSet("Travis", "Walter"));
+
+  expect(
+    new Set(
+      await db
+        .select(db.animals, "name")
+        .where(db.animals.species.eqAny("human", "fish")),
+    ),
+  ).toEqual(NameSet("Travis", "Bubbles"));
 });
