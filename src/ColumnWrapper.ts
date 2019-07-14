@@ -120,8 +120,13 @@ class ColumnWrapperImpl<N extends string, T, IT> implements Selectable<T> {
     return new ColumnReference(this.$tableWrapper.$tableName, this.$columnName);
   }
 
-  $selectableExpr(asName: string) {
+  $selectableExpr(asName: string | null) {
     const reference = this.$referenceExpr();
+
+    // If asName is null, we explicitly don't want the "AS ..."
+    if (!asName) {
+      return reference;
+    }
 
     // Use "AS ..." if the column name isn't the name requested or if the asName
     // uses non-lowercase letters (PG always returns lowercase otherwise).

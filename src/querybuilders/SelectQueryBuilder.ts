@@ -14,7 +14,11 @@ import {
   SQLFragment,
   Where,
 } from "@/expr";
-import { Selectable, SelectableTSType } from "@/interfaces";
+import {
+  Selectable,
+  SelectableObject,
+  SelectableObjectTSTypes,
+} from "@/interfaces";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
 import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
@@ -29,9 +33,7 @@ import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
  *    };
  *    db.select(selectorSpec).from(db.users);
  */
-export interface SelectorSpec {
-  [k: string]: Selectable<unknown>;
-}
+export type SelectorSpec = SelectableObject;
 
 export type DefaultSelectorSpec<T extends TableWrapper> = {
   [K in keyof T["$columns"]]: T["$columns"][K] extends Selectable<any>
@@ -55,9 +57,9 @@ export function getDefaultSelectorSpec<TW extends TableWrapper>(
  *    db.select(selectorSpec).from(db.users);
  *    // Has type {id: number, name: string}
  */
-export type SelectRowResult<T extends SelectorSpec> = {
-  [k in keyof T]: SelectableTSType<T[k]>;
-};
+export type SelectRowResult<T extends SelectorSpec> = SelectableObjectTSTypes<
+  T
+>;
 
 export type SelectQueryReturn<
   S extends SelectorSpec,

@@ -1,6 +1,6 @@
 {
   "name": "vulcyn",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "An ergonomic Postgres query builder for TypeScript.",
   "author": "Travis DePrato",
   "license": "MIT",
@@ -22,7 +22,7 @@
   "scripts": {
     "build": "ttsc",
     "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
-    "prepack": "find ./dist -name __tests__ -exec rm -rf {} +",
+    "prepack": "npm run build && find ./dist -name __tests__ -exec rm -rf {} +",
     "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js ./*.md",
     "test": "jest",
     "posttest": "npm run lint"

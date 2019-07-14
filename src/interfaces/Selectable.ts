@@ -25,7 +25,7 @@ export interface Selectable<T> {
    * The returned Expr is included in the list of _things_ that are selected and
    * so should be valid in a `SELECT ...` query.
    */
-  $selectableExpr(asName: string): Expr;
+  $selectableExpr(asName: string | null): Expr;
 }
 
 /**
@@ -36,3 +36,10 @@ export type SelectableTSType<S extends Selectable<any>> = S extends Selectable<
 >
   ? TSType
   : unknown;
+
+export interface SelectableObject {
+  [k: string]: Selectable<any>;
+}
+export type SelectableObjectTSTypes<O extends SelectableObject> = {
+  [K in keyof O]: SelectableTSType<O[K]>;
+};

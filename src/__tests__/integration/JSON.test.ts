@@ -1,5 +1,7 @@
 import { SerialColumn, TextColumn, JSONBColumn, Table, Database } from "@";
 import { getPG, setupPG, teardownPG } from "./utils";
+import { jsonbBuildObject } from "@/functions/jsonb";
+import { assert, IsExact } from "conditional-type-checks";
 
 beforeEach(setupPG);
 afterEach(teardownPG);
@@ -51,4 +53,19 @@ test("Multi-column constraints integration test", async () => {
   ).toEqual({
     myColor: "#ff0000",
   });
+
+  const jsonbBuildObjectPayload = await db
+    .select({
+      data: jsonbBuildObject({ id: db.items.id, name: db.items.name }),
+    })
+    .from(db.items)
+    .where(db.items.name.eq("Foo"));
+  expect(jsonbBuildObjectPayload).toEqual([{ data: { id: 1, name: "Foo" } }]);
+
+  assert<
+    IsExact<
+      typeof jsonbBuildObjectPayload,
+      Array<{ data: { id: number; name: string } }>
+    >
+  >(true);
 });

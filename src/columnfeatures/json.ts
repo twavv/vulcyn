@@ -59,16 +59,15 @@ export class JSONBAccessorBuilder<
     return this as any;
   }
 
-  $selectableExpr(asName: string): Expr<string> {
-    assertSQLSafeIdentifier(asName);
-    return new LTRTokens(
-      [
-        this.$columnWrapper.$referenceExpr(),
-        this.$path,
-        new SQLFragment(` AS "${asName}"`),
-      ],
-      "",
-    );
+  $selectableExpr(asName: string | null): Expr<string> {
+    const tokens: Expr[] = [this.$columnWrapper.$referenceExpr(), this.$path];
+
+    if (!!asName) {
+      assertSQLSafeIdentifier(asName);
+      tokens.push(new SQLFragment(` AS "${asName}"`));
+    }
+
+    return new LTRTokens(tokens, "");
   }
 }
 

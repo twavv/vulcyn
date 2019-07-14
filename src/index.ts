@@ -7,3 +7,7 @@ export * from "./ColumnWrapper";
 export * from "./querybuilders/sugar";
 export * from "./columns";
 export * from "./constraints";
+
+import * as E from "./expr";
+import * as F from "./functions";
+export { E, F };
