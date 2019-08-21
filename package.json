@@ -1,6 +1,6 @@
 {
   "name": "vulcyn",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "An ergonomic Postgres query builder for TypeScript.",
   "author": "Travis DePrato",
   "license": "MIT",
