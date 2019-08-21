@@ -17,7 +17,7 @@ import {
   UpdateQueryBuilder,
 } from "@/querybuilders";
 import { debug, pick } from "@/utils";
-import { ReductionContext } from "@/expr";
+import { CreateTableOptions, ReductionContext } from "@/expr";
 
 interface TableMap {
   [k: string]: Table;
@@ -83,9 +83,9 @@ class DatabaseImpl<T extends TableMap = {}> {
     });
   }
 
-  async createTables() {
+  async createTables(options: CreateTableOptions = {}) {
     for (const table of Object.values(this.$tables)) {
-      await this.$createTablesRecursive(table);
+      await this.$createTablesRecursive(table, options);
     }
   }
 
@@ -99,7 +99,10 @@ class DatabaseImpl<T extends TableMap = {}> {
    * be made more efficient, but since the number of tables in a given
    * application is usually on the order of tens, it's probably not worth it.
    */
-  private async $createTablesRecursive(t: TableWrapper) {
+  private async $createTablesRecursive(
+    t: TableWrapper,
+    options: CreateTableOptions = {},
+  ) {
     if (t.$wasCreated) {
       // Avoid double-creating tables
       return;
@@ -109,10 +112,10 @@ class DatabaseImpl<T extends TableMap = {}> {
     //    which would allow us to detect cycles in the "dag".
     t.$wasCreated = true;
     for (const dependent of t.$references) {
-      await this.$createTablesRecursive(dependent);
+      await this.$createTablesRecursive(dependent, options);
     }
     const rc = new ReductionContext();
-    const sql = t.$creationSQL(rc);
+    const sql = t.$creationSQL(rc, options);
     this.$debug(`Creating table ${t.$tableName}`, sql);
     try {
       await this.$pg.query(sql, rc.parameters());

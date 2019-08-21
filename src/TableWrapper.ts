@@ -15,6 +15,7 @@ import {
 import { assignGetters, itisa } from "@/utils";
 import {
   CreateTable,
+  CreateTableOptions,
   Expr,
   FromItem,
   Join,
@@ -133,16 +134,22 @@ export class TableWrapperClass<
     return this;
   }
 
-  $creationExpr() {
-    return new CreateTable({
-      tableName: this.$tableName,
-      columns: this.$columnsExprs(),
-      constraints: this.$constraintExprs(),
-    });
+  $creationExpr(options: CreateTableOptions = {}) {
+    return new CreateTable(
+      {
+        tableName: this.$tableName,
+        columns: this.$columnsExprs(),
+        constraints: this.$constraintExprs(),
+      },
+      options,
+    );
   }
 
-  $creationSQL(rc?: ReductionContext): string {
-    return this.$creationExpr().toSQL(rc || new ReductionContext());
+  $creationSQL(
+    rc?: ReductionContext,
+    options: CreateTableOptions = {},
+  ): string {
+    return this.$creationExpr(options).toSQL(rc || new ReductionContext());
   }
 
   private $columnsExprs() {
