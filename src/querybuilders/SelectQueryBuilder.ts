@@ -1,10 +1,4 @@
-import {
-  Database,
-  isColumnWrapper,
-  isTableWrapper,
-  Table,
-  TableWrapper,
-} from "@";
+import { Database, isColumnWrapper, isTableWrapper, TableWrapper } from "@";
 import {
   Expr,
   FromItem,
@@ -40,6 +34,7 @@ export type DefaultSelectorSpec<T extends TableWrapper> = {
     ? T["$columns"][K]
     : never;
 };
+
 export function getDefaultSelectorSpec<TW extends TableWrapper>(
   table: TW,
 ): DefaultSelectorSpec<TW> {
@@ -65,7 +60,7 @@ export type SelectQueryReturn<
   S extends SelectorSpec,
   FetchOne extends boolean
 > = FetchOne extends true
-  ? (SelectRowResult<S> | null)
+  ? SelectRowResult<S> | null
   : Array<SelectRowResult<S>>;
 
 /**
@@ -77,7 +72,7 @@ export type SelectQueryReturn<
  *    type MyPickedSpec = PickSelectorSpecFromColumnNames<table, "id", "name">;
  */
 export type PickSelectorSpecFromColumnNames<
-  T extends TableWrapper<string, Table>,
+  T extends TableWrapper,
   K extends keyof T["$columns"]
 > = {
   [k in K]: T["$columns"][k];
@@ -118,7 +113,7 @@ export class SelectQueryBuilder<
    *     .select({...})
    *     .from(db.users);
    */
-  from(table: TableWrapper<string, Table> | FromItem) {
+  from(table: TableWrapper | FromItem) {
     if (isExpr(table)) {
       this.$from = table;
       return this;

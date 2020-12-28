@@ -2,27 +2,18 @@ import {
   ColumnWrapper,
   ColumnWrapperTSInsertionType,
   Database,
-  Table,
   TableWrapper,
 } from "@";
-import {
-  Expr,
-  Infix,
-  Parameter,
-  SQLFragment,
-  Update,
-  UpdatesArray,
-  Where,
-} from "@/expr";
-import { hasEntry } from "@/utils";
+import { Expr, Where } from "@/expr";
 
 import { ExecutableQueryBuilder } from "./QueryBuilder";
 import { WhereSubquery, WhereSubqueryInputSpecifier } from "./WhereSubquery";
+import { Delete } from "@/expr/Delete";
 
 /**
  * The interface of an update
  */
-export type UpdateSpec<T extends TableWrapper<string, Table>> = {
+export type DeleteSpec<T extends TableWrapper> = {
   [k in keyof T["$columns"]]?: T["$columns"][k] extends ColumnWrapper<
     string,
     any
@@ -31,26 +22,14 @@ export type UpdateSpec<T extends TableWrapper<string, Table>> = {
     : never;
 };
 
-export class UpdateQueryBuilder<
+export class DeleteQueryBuilder<
   DB extends Database<any>,
-  TW extends TableWrapper<string, Table>
+  TW extends TableWrapper
 > extends ExecutableQueryBuilder<DB, unknown> {
-  protected $updates?: UpdatesArray;
   protected $where?: Where;
 
   constructor(db: DB, public $table: TW) {
     super(db);
-  }
-
-  set(spec: UpdateSpec<TW>) {
-    const updates = Object.entries(spec).map(([columnName, value]) => {
-      return new Infix("=", new SQLFragment(columnName), new Parameter(value));
-    });
-    if (!hasEntry(updates)) {
-      throw new Error();
-    }
-    this.$updates = updates;
-    return this;
   }
 
   where(whereSpecifier: WhereSubqueryInputSpecifier) {
@@ -62,20 +41,14 @@ export class UpdateQueryBuilder<
     return this.$tryExecute();
   }
 
-  $toExpr(): Expr<string> {
-    if (!this.$updates) {
-      throw new Error(
-        `No updates specified in UpdateQueryBuilder; did you forget to .set(...)?`,
-      );
-    }
+  $toExpr(): Expr {
     if (!this.$where) {
       throw new Error(
-        `No conditions specified in UpdateQueryBuilder; did you forget to .where(...)?`,
+        `No conditions specified in DeleteQueryBuilder; did you forget to .where(...)?`,
       );
     }
-    return new Update({
+    return new Delete({
       tableName: this.$table.$tableName,
-      deletes: this.$updates,
       where: this.$where,
     });
   }

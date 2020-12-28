@@ -24,14 +24,13 @@
     "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
     "prepack": "npm run build && find ./dist -name __tests__ -exec rm -rf {} +",
     "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js ./*.md",
-    "test": "jest",
+    "test": "jest --verbose=true",
     "posttest": "npm run lint"
   },
   "dependencies": {
-    "@types/debug": "^4.1.4",
-    "@types/pg": "^7.4.14",
-    "debug": "^4.1.1",
-    "pg": "^7.11.0"
+    "@toes/logger": "^0.0.1",
+    "@types/pg": "^7.14.7",
+    "pg": "^8.5.1"
   },
   "devDependencies": {
     "@types/jest": "^24.0.13",
@@ -47,8 +46,8 @@
     "prettier": "^1.18.2",
     "ts-jest": "^24.0.2",
     "ts-transformer-imports": "^0.4.3",
-    "typescript": "^3.5.1",
     "ttypescript": "^1.5.7",
+    "typescript": "^3.5.1",
     "typescript-transform-paths": "1.1.0"
   },
   "files": [

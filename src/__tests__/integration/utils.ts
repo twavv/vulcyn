@@ -6,7 +6,7 @@
  */
 
 import { Client } from "pg";
-import { debug } from "@/utils";
+import { logger } from "@/utils";
 
 let adminClient: Client | undefined = undefined;
 
@@ -60,7 +60,7 @@ async function createClient(dbName?: string) {
  *   instance to test against.
  */
 export async function setupPG() {
-  debug("Setting up Postgres for integration test...");
+  logger.debug("Setting up Postgres for integration test...");
   if (adminClient || testClient || testDBName) {
     throw new Error(
       `Postgres client already initialized - did you forget to call teardownPG in beforeEach?`,
@@ -71,12 +71,12 @@ export async function setupPG() {
   await adminClient.query(`CREATE DATABASE ${testDBName}`);
 
   testClient = await createClient(testDBName);
-  debug(`Created test database ${testDBName}.`);
-  debug("Finished setting up Postgres.");
+  logger.debug(`Created test database ${testDBName}.`);
+  logger.debug("Finished setting up Postgres.");
 }
 
 export async function teardownPG() {
-  debug("Tearing down Postgres after integration test...");
+  logger.debug("Tearing down Postgres after integration test...");
   if (!adminClient || !testClient) {
     throw new Error(
       `Cannot teardown Postgres - did you forget to initialize it?`,
@@ -87,5 +87,5 @@ export async function teardownPG() {
   await adminClient.end();
   testClient = undefined;
   adminClient = undefined;
-  debug("Tore down Postgres!");
+  logger.debug("Tore down Postgres!");
 }

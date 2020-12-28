@@ -16,7 +16,7 @@ import {
   SelectQueryBuilder,
   UpdateQueryBuilder,
 } from "@/querybuilders";
-import { debug, pick } from "@/utils";
+import { logger, pick } from "@/utils";
 import { CreateTableOptions, ReductionContext } from "@/expr";
 
 interface TableMap {
@@ -34,16 +34,13 @@ interface TableMap {
  * those properties do, in fact, exist).
  */
 class DatabaseImpl<T extends TableMap = {}> {
-  $debug = debug.extend("Database");
+  $debug = logger.extend({ prefix: "Database" });
   $tables: TableWrapperMap<T>;
 
   // A map to be able to lookup a TableWrapper given it's Table class.
   // This is necessary for things like column.reference(...) because when
   // that code is executed, only the Table (not TableWrapper) is available.
-  $tableToWrapperMap: Map<
-    typeof Table,
-    TableWrapper<string, Table>
-  > = new Map();
+  $tableToWrapperMap: Map<typeof Table, TableWrapper> = new Map();
 
   // Convenience hack that allows us to avoid extra casting to any in the body
   // of this class.
@@ -116,34 +113,28 @@ class DatabaseImpl<T extends TableMap = {}> {
     }
     const rc = new ReductionContext();
     const sql = t.$creationSQL(rc, options);
-    this.$debug(`Creating table ${t.$tableName}`, sql);
+    this.$debug.debug(`Creating table ${t.$tableName}`, sql);
     try {
       await this.$pg.query(sql, rc.parameters());
     } catch (error) {
-      this.$debug("Error executing query:", sql, error);
+      this.$debug.debug("Error executing query:", sql, error);
       throw error;
     }
   }
 
   // select(db.users)
-  select<TW extends TableWrapper<string, Table>>(
+  select<TW extends TableWrapper>(
     table: TW,
-  ): SelectQueryBuilder<Database<T>, DefaultSelectorSpec<TW>, false>;
+  ): SelectQueryBuilder<Database<T>, DefaultSelectorSpec<TW>>;
 
   // select(db.users, "id", "name", ...)
   select<TW extends TableWrapper<string, any>, K extends keyof TW["$columns"]>(
     table: TW,
     ...keys: [K, ...K[]]
-  ): SelectQueryBuilder<
-    Database<T>,
-    PickSelectorSpecFromColumnNames<TW, K>,
-    false
-  >;
+  ): SelectQueryBuilder<Database<T>, PickSelectorSpecFromColumnNames<TW, K>>;
 
   // select({userId: db.users.id, name: db.users.name, ...})
-  select<S extends SelectorSpec>(
-    spec: S,
-  ): SelectQueryBuilder<Database<T>, S, false>;
+  select<S extends SelectorSpec>(spec: S): SelectQueryBuilder<Database<T>, S>;
 
   // select(...) implementation
   select(tableOrSpec: any, ...keys: any[]) {
@@ -162,7 +153,7 @@ class DatabaseImpl<T extends TableMap = {}> {
   }
 
   // selectOne(db.users)
-  selectOne<TW extends TableWrapper<string, Table>>(
+  selectOne<TW extends TableWrapper>(
     table: TW,
   ): SelectQueryBuilder<Database<T>, DefaultSelectorSpec<TW>, true>;
 
@@ -200,11 +191,13 @@ class DatabaseImpl<T extends TableMap = {}> {
     return new SelectQueryBuilder(this.$, tableOrSpec, true);
   }
 
-  insertInto<TW extends TableWrapper<string, Table>>(table: TW) {
+  insertInto<TW extends TableWrapper>(
+    table: TW,
+  ): InsertQueryBuilder<Database, TW> {
     return new InsertQueryBuilder(this.$, table);
   }
 
-  update<TW extends TableWrapper<string, Table>>(table: TW) {
+  update<TW extends TableWrapper>(table: TW): UpdateQueryBuilder<Database, TW> {
     return new UpdateQueryBuilder(this.$, table);
   }
 

@@ -28,7 +28,7 @@ export abstract class Expr<H extends string = string> {
   abstract toSQL(rc: ReductionContext): string;
 }
 
-export function isExpr(x: unknown): x is Expr<string> {
+export function isExpr(x: unknown): x is Expr {
   return itisa(x) === "Expr";
 }
 

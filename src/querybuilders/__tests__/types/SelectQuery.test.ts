@@ -36,6 +36,7 @@ test("SelectRowResult has correct type", () => {
     id = new IntColumn();
     name = new TextColumn();
   }
+
   type MyDb = Database<{ users: User }>;
   assert<IsExact<SelectRowResult<{ id: MyDb["users"]["id"] }>, { id: number }>>(
     true,
@@ -47,6 +48,7 @@ test("SelectQueryReturn has correct type for fetch one", () => {
     id = new IntColumn();
     name = new TextColumn();
   }
+
   type MyDb = Database<{ users: User }>;
   type MyQueryReturn = SelectQueryReturn<
     {
@@ -62,6 +64,7 @@ test("SelectQueryReturn has correct type for fetch many", () => {
     id = new IntColumn();
     name = new TextColumn();
   }
+
   type MyDb = Database<{ users: User }>;
   type MyQueryReturn = SelectQueryReturn<
     {
@@ -77,6 +80,7 @@ test("SelectQueryBuilder has correct SelectRowResult type", () => {
     id = new IntColumn();
     name = new TextColumn();
   }
+
   type MyDb = Database<{ users: User }>;
   type MyQueryOne = SelectQueryBuilder<MyDb, { id: MyDb["users"]["id"] }, true>;
   assert<IsExact<MyQueryOne["$promise"], Promise<{ id: number } | null>>>(true);
@@ -99,11 +103,11 @@ test("SelectQueryBuilder for column names has correct SelectRowResult type", asy
     id = new IntColumn();
     name = new TextColumn();
   }
+
   const db = Database(null as any, { users: new User() });
   const myQuery = db.select(db.users, "id", "name");
-  assert<IsExact<typeof myQuery, SelectQueryBuilder<typeof db, any, any>>>(
-    true,
-  );
+  expect(myQuery).toBeInstanceOf(SelectQueryBuilder);
+
   type QueryType = typeof myQuery;
 
   assert<

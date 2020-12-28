@@ -56,7 +56,7 @@ export class TableWrapperClass<
   }
 
   private get $() {
-    return this as (this & TableWrapper<TableName, T>);
+    return this;
   }
 
   constructor(
@@ -90,14 +90,14 @@ export class TableWrapperClass<
     assignGetters(this, this.$columns);
   }
 
-  join(fromItem: TableWrapper<string, Table> | FromItem, on: Expr<string>) {
+  join(fromItem: TableWrapper | FromItem, on: Expr) {
     return this.$joinImpl(JoinType.INNER, fromItem, on);
   }
 
   private $joinImpl(
     type: JoinType,
-    fromItem: TableWrapper<string, Table> | FromItem,
-    on: Expr<string>,
+    fromItem: TableWrapper | FromItem,
+    on: Expr,
   ): FromItem {
     const fromExpr = isTableWrapper(fromItem) ? fromItem.$tableName : fromItem;
     return new FromItem(this.$tableName, new Join(type, fromExpr, on));
@@ -184,6 +184,7 @@ export type TableWrapper<
   TableName extends string = string,
   T extends Table = Table
 > = TableWrapperClass<TableName, T> & TableWrapperColumns<T>;
+
 export function createTableWrapper<N extends string, T extends Table>(
   db: Database,
   tableName: N,
@@ -192,6 +193,6 @@ export function createTableWrapper<N extends string, T extends Table>(
   return new TableWrapperClass<N, T>(db, tableName, table) as any;
 }
 
-export function isTableWrapper(x: unknown): x is TableWrapper<string, Table> {
+export function isTableWrapper(x: unknown): x is TableWrapper {
   return itisa(x) === "TableWrapper";
 }

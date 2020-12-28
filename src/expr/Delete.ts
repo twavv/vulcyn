@@ -12,28 +12,19 @@ import { Where } from "./Where";
  */
 export type UpdatesArray = [Infix<"=">, ...Array<Infix<"=">>];
 
-export class Update extends Expr<"update"> {
+export class Delete extends Expr<"delete"> {
   // NOTE: These need to be public have non-null assertions to allow PickExpr to work.
   readonly tableName!: SQLFragment;
-  readonly deletes!: UpdatesArray;
   readonly where!: Where;
 
-  constructor(args: PickExpr<Update>) {
-    super("update");
+  constructor(args: PickExpr<Delete>) {
+    super("delete");
     Object.assign(this, args);
-
-    if (this.deletes.length === 0) {
-      throw new Error(`Cannot construct an Update Expr with zero updates.`);
-    }
   }
 
   toSQL(context: ReductionContext): string {
     return (
-      "UPDATE" +
-      this.tableNameSQL(context) +
-      this.updatesSQL(context) +
-      this.whereSQL(context) +
-      ";"
+      "DELETE FROM" + this.tableNameSQL(context) + this.whereSQL(context) + ";"
     );
   }
 
@@ -41,14 +32,9 @@ export class Update extends Expr<"update"> {
     return " " + this.tableName.toSQL(rc);
   }
 
-  private updatesSQL(rc: ReductionContext) {
-    return " SET " + this.deletes.map((infix) => infix.toSQL(rc)).join(", ");
-  }
-
   private whereSQL(rc: ReductionContext): string {
-    if (this.where) {
-      return " " + this.where.toSQL(rc);
-    }
+    if (this.where) return " " + this.where.toSQL(rc);
+
     return "";
   }
 }

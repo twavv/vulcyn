@@ -1,3 +1,7 @@
-import createLogger from "debug";
+import { PrefixLogger } from "@toes/logger";
 
-export const debug = createLogger("Vulcyn");
+export const logger = new PrefixLogger({
+  color: true,
+  prefix: "Vulcyn",
+  separator: " > ",
+});

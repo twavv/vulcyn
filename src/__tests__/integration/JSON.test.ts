@@ -9,9 +9,11 @@ afterEach(teardownPG);
 interface ItemMetadata {
   color: string;
 }
+
 interface ItemAttributes {
   completed: boolean;
 }
+
 class Item extends Table {
   id = new SerialColumn();
   name = new TextColumn();
