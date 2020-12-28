@@ -16,7 +16,7 @@ jobs:
         ports:
           - 5432/tcp
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: test
           POSTGRES_PASSWORD: "1234"
           POSTGRES_DB: test
         options: >-
