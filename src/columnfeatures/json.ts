@@ -80,10 +80,9 @@ interface Payload {
     n: number;
   };
 }
-const b = new JSONBAccessorBuilder((null as any) as ColumnWrapper<
-  "foo",
-  Payload
->)
+const b = new JSONBAccessorBuilder(
+  (null as any) as ColumnWrapper<"foo", Payload>,
+)
   .get("o")
   .get("o2")
   .get("n");

@@ -24,6 +24,7 @@ import {
   SQLFragment,
 } from "@/expr";
 import { assertSQLSafeIdentifier, camel2snake } from "@/utils/identifiers";
+import { DropTable, DropTableOptions } from "@/expr/DropTable";
 
 export class TableWrapperClass<
   TableName extends string = string,
@@ -145,11 +146,25 @@ export class TableWrapperClass<
     );
   }
 
+  $dropExpr(options: DropTableOptions = {}) {
+    return new DropTable(
+      {
+        tableName: this.$tableName,
+        constraints: this.$constraintExprs(),
+      },
+      options,
+    );
+  }
+
   $creationSQL(
     rc?: ReductionContext,
     options: CreateTableOptions = {},
   ): string {
     return this.$creationExpr(options).toSQL(rc || new ReductionContext());
+  }
+
+  $dropSQL(rc?: ReductionContext, options: DropTableOptions = {}): string {
+    return this.$dropExpr(options).toSQL(rc || new ReductionContext());
   }
 
   private $columnsExprs() {

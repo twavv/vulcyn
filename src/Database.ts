@@ -19,6 +19,7 @@ import {
 } from "@/querybuilders";
 import { logger, pick } from "@/utils";
 import { CreateTableOptions, ReductionContext } from "@/expr";
+import { DropTableOptions } from "@/expr/DropTable";
 
 interface TableMap {
   [k: string]: Table;
@@ -87,6 +88,12 @@ class DatabaseImpl<T extends TableMap = {}> {
     }
   }
 
+  async dropTables(options: DropTableOptions = {}) {
+    for (const table of Object.values(this.$tables)) {
+      await this.$dropTablesRecursive(table, options);
+    }
+  }
+
   /**
    * Create a table if it hasn't been created, recursively creating dependent
    * tables if necessary.
@@ -115,6 +122,34 @@ class DatabaseImpl<T extends TableMap = {}> {
     const rc = new ReductionContext();
     const sql = t.$creationSQL(rc, options);
     this.$debug.debug(`Creating table ${t.$tableName}`, sql);
+    try {
+      await this.$pg.query(sql, rc.parameters());
+    } catch (error) {
+      this.$debug.debug("Error executing query:", sql, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a table if it hasn't been created, recursively creating dependent
+   * tables if necessary.
+   *
+   * This method creates dependent tables **before** the table given as the
+   * argument (this is necessary for FOREIGN KEY constraints). This is
+   * effectively a poor man's topological sort (this runs in O(n^2)). It could
+   * be made more efficient, but since the number of tables in a given
+   * application is usually on the order of tens, it's probably not worth it.
+   */
+  private async $dropTablesRecursive(
+    t: TableWrapper,
+    options: DropTableOptions = {},
+  ) {
+    for (const dependent of t.$references) {
+      await this.$dropTablesRecursive(dependent, options);
+    }
+    const rc = new ReductionContext();
+    const sql = t.$dropSQL(rc, options);
+    this.$debug.debug(`Droppping table ${t.$tableName}`, sql);
     try {
       await this.$pg.query(sql, rc.parameters());
     } catch (error) {

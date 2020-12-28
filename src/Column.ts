@@ -31,7 +31,7 @@ export abstract class Column<T, InsertionType = T> {
   $_insertionType!: InsertionType;
 
   protected $nullable?: boolean;
-  protected $default?: Expr<string>;
+  protected $default?: Expr;
   protected $unique?: boolean;
   protected $references?: {
     tableClass: typeof Table;
@@ -66,7 +66,7 @@ export abstract class Column<T, InsertionType = T> {
    *    nothing that CREATE TABLE queries can't handle parameters so this is not
    *    entirely trivial).
    */
-  defaultExpr(expr: Expr<string>): Column<T, InsertionType | undefined> {
+  defaultExpr(expr: Expr): Column<T, InsertionType | undefined> {
     this.$default = expr;
     return this;
   }
