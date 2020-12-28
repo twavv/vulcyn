@@ -1,7 +1,7 @@
 dist: "xenial"
 language: node_js
 node_js:
-  - "12"
+  - "14"
 
 branches:
   only:
@@ -10,7 +10,7 @@ branches:
 services:
   - postgresql
 addons:
-  postgresql: "10"
+  postgresql: "13"
 
 env:
   global:

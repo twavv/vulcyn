@@ -9,6 +9,7 @@ import {
 } from "@";
 import {
   DefaultSelectorSpec,
+  DeleteQueryBuilder,
   getDefaultSelectorSpec,
   InsertQueryBuilder,
   PickSelectorSpecFromColumnNames,
@@ -199,6 +200,10 @@ class DatabaseImpl<T extends TableMap = {}> {
 
   update<TW extends TableWrapper>(table: TW): UpdateQueryBuilder<Database, TW> {
     return new UpdateQueryBuilder(this.$, table);
+  }
+
+  delete<TW extends TableWrapper>(table: TW): DeleteQueryBuilder<Database, TW> {
+    return new DeleteQueryBuilder(this.$, table);
   }
 
   /**
