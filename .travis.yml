@@ -10,7 +10,7 @@ branches:
 services:
   - postgresql
 addons:
-  postgresql: "13"
+  postgresql: "12"
 
 env:
   global:
