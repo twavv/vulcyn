@@ -24,8 +24,7 @@
     "lint": "eslint --max-warnings=0 --fix \"./src/**/*.ts\"",
     "prepack": "npm run build && find ./dist -name __tests__ -exec rm -rf {} +",
     "prettier": "prettier --write \"./src/**/*.ts\" ./*.js ./.*.js ./*.md",
-    "test": "jest --verbose=true",
-    "posttest": "npm run lint"
+    "test": "jest --verbose=true"
   },
   "dependencies": {
     "@toes/logger": "^0.0.1",
